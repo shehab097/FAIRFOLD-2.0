@@ -14,30 +14,30 @@ export async function listEmployerJobs(params: {
   page?: number;
   size?: number;
 }): Promise<PageResponse<EmployerJobListItem>> {
-  const { data } = await api.get<PageResponse<EmployerJobListItem>>('/employer/jobs', { params });
+  const { data } = await api.get<PageResponse<EmployerJobListItem>>('/api/employer/jobs', { params });
   return data;
 }
 
 export async function getEmployerJob(id: string): Promise<EmployerJobDetail> {
-  const { data } = await api.get<EmployerJobDetail>(`/employer/jobs/${id}`);
+  const { data } = await api.get<EmployerJobDetail>(`/api/employer/jobs/${id}`);
   return data;
 }
 
 export async function createJob(input: JobInput): Promise<EmployerJobDetail> {
-  const { data } = await api.post<EmployerJobDetail>('/employer/jobs', input);
+  const { data } = await api.post<EmployerJobDetail>('/api/employer/jobs', input);
   return data;
 }
 
 export async function updateJob(id: string, input: JobInput): Promise<EmployerJobDetail> {
-  const { data } = await api.put<EmployerJobDetail>(`/employer/jobs/${id}`, input);
+  const { data } = await api.put<EmployerJobDetail>(`/api/employer/jobs/${id}`, input);
   return data;
 }
 
 export async function deleteJob(id: string): Promise<void> {
-  await api.delete(`/employer/jobs/${id}`);
+  await api.delete(`/api/employer/jobs/${id}`);
 }
 
 export async function jobAction(id: string, action: JobAction): Promise<EmployerJobDetail> {
-  const { data } = await api.post<EmployerJobDetail>(`/employer/jobs/${id}/${action}`);
+  const { data } = await api.post<EmployerJobDetail>(`/api/employer/jobs/${id}/${action}`);
   return data;
 }
