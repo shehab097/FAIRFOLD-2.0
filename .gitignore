@@ -1,0 +1,24 @@
+# Secrets
+.env
+
+# Java / Maven
+backend/target/
+*.class
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Data (resume files and local storage)
+data/
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Logs
+*.log

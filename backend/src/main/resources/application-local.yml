@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    persist-authorization: true
+
+logging:
+  level:
+    com.fairfold: DEBUG
+    org.flywaydb: INFO

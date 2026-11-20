@@ -1,0 +1,11 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/fairfold_test?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=utf8
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    clean-disabled: false

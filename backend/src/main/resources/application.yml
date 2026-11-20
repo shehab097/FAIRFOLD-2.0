@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: fairfold
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:fairfold}?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=utf8
+    username: ${DB_USER:fairfold}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    fail-on-missing-locations: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  error:
+    include-message: never
+
+app:
+  storage-dir: ${STORAGE_DIR:../data/resumes}
+  cookie-secure: false
+  auth:
+    require-email-verification: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+# The backend runs from backend/, so ".." resolves to the repository root
+# where .env lives (loaded by spring-dotenv for local development).
+springdotenv:
+  directory: ..
+  ignore-if-missing: true
