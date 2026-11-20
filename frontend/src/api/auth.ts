@@ -18,7 +18,6 @@ export interface ForgotPasswordInput {
 export async function bootstrapSession(): Promise<AuthResponse | null> {
   try {
     const { data } = await axios.post<AuthResponse>('/api/auth/refresh', null, {
-      baseURL: '/api',
       withCredentials: true,
     });
     setAccessToken(data.accessToken);

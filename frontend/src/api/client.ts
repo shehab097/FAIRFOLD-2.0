@@ -1,7 +1,8 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
+// No baseURL: every endpoint is an explicit relative path starting with /api,
+// so the Vite proxy forwards it to the backend (single origin, no CORS).
 export const api = axios.create({
-  baseURL: '/api',
   withCredentials: true,
 });
 
@@ -29,7 +30,6 @@ let refreshPromise: Promise<string | null> | null = null;
 async function refreshAccessToken(): Promise<string | null> {
   try {
     const { data } = await axios.post<{ accessToken: string }>('/api/auth/refresh', null, {
-      baseURL: '/api',
       withCredentials: true,
     });
     return data.accessToken;
