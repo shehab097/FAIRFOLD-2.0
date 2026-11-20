@@ -19,6 +19,7 @@
   --accent: #FF8066;
   --accent-subtle: #4D3535;
   --highlight: #563837;
+  --scrim: rgba(0, 0, 0, 0.6);
 }
 html {
   background: var(--bg);

@@ -21,9 +21,11 @@ export default {
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
+      white: 'var(--text)',
       bg: 'var(--bg)',
       surface: 'var(--surface)',
       raised: 'var(--raised)',
+      scrim: 'var(--scrim)',
       border: 'var(--border)',
       'border-strong': 'var(--border-strong)',
       text: 'var(--text)',

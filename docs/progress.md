@@ -11,7 +11,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | Part | Prompt file | Scope | Status | Commit | Date |
 |---|---|---|---|---|---|
 | 1.1 | 01_core_platform.md | Foundation and authentication | [x] | | 21 Nov 2026 |
-| 1.2 | 01_core_platform.md | Company, jobs, public job board | [ ] | | |
+| 1.2 | 01_core_platform.md | Company, jobs, public job board | [x] | | 21 Nov 2026 |
 | 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [ ] | | |
 | 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [ ] | | |
 | 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 1.1 done. Next: build Part 1.2 (company profile, jobs, public job board) from `docs/prompts/01_core_platform.md`.
+**Current focus:** Part 1.2 done. Next: build Part 1.3 (candidate profile, resume upload, applying, status, notifications) from `docs/prompts/01_core_platform.md`.
 
-**Next session start message:** `Build Part 1.2 from docs/prompts/01_core_platform.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 1.3 from docs/prompts/01_core_platform.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -87,11 +87,13 @@ Update after every part.
 | Part | Backend tests | Frontend tests | `check-design.sh` | OpenAPI exported | Notes |
 |---|---|---|---|---|---|
 | 1.1 | 13 passed | 9 passed | passed | yes | Auth flow verified end-to-end via curl (register, login, lockout 423, reset, refresh rotation, logout). |
+| 1.2 | 18 passed (31 total) | 9 passed | passed | yes | Company profile, job CRUD + lifecycle (BR-01), FULLTEXT/skill/LIKE search, filters, company scope. |
 
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 21 Nov 2026 | **Part 1.2 done**: skills/jobs/job_skills migrations + 100-skill seed, Job/Skill/JobSkill entities, company profile (GET/PUT + completeness), job CRUD + lifecycle (BR-01 + activation requires company + duplicate), public board with FULLTEXT/exact-skill/LIKE search + filters + hidden company name, company scoping. 18 new backend tests (31 total). Frontend: types/API/queries, Table/Tabs/Dialog/Toast/Textarea components, pages P01/P02/P21/P22/P23/P24, employer nav enabled. `docs/openapi.json` exported (20 paths). |
 | 21 Nov 2026 | **Part 1.1 done**: auth tables migration, User/Company/token/audit entities, JWT stateless security, register/login/lockout/refresh(rotation)/logout/forgot/reset endpoints, rate limiting, admin seed, 13 backend tests + 9 frontend tests green, `check-design.sh` passes, `docs/openapi.json` exported. Frontend: base UI components, PublicShell/AuthShell/PortalShell, auth context + guards + refresh interceptor, pages P03/P04/P06/P07/P11 + welcome. Decisions D-18. |
 | 21 Nov 2026 | Environment setup: scaffolded backend (Spring Boot 3.5.16, MariaDB driver, Flyway `flyway-mysql`, springdoc 2.8.17, spring-dotenv) and frontend (Vite + React 18 + TS + Tailwind + design tokens). Both run; health + OpenAPI + Vite proxy verified; `check-design.sh` passes. Decisions D-15–D-17. |
 | 21 Nov 2026 | Replaced PostgreSQL with MySQL 8.4 in prompts 00 to 04 (types, indexes, search, tests, setup SQL, env vars, Flyway module). Wrote prompts 05 and 06 and this file. Confirmed prompt 04 was complete. |

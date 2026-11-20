@@ -1,0 +1,43 @@
+import { api } from './client';
+import type { PageResponse } from './types';
+import type {
+  EmployerJobDetail,
+  EmployerJobListItem,
+  JobInput,
+  JobStatus,
+} from '../features/jobs/types';
+
+export type JobAction = 'activate' | 'pause' | 'resume' | 'close' | 'duplicate';
+
+export async function listEmployerJobs(params: {
+  status?: JobStatus;
+  page?: number;
+  size?: number;
+}): Promise<PageResponse<EmployerJobListItem>> {
+  const { data } = await api.get<PageResponse<EmployerJobListItem>>('/employer/jobs', { params });
+  return data;
+}
+
+export async function getEmployerJob(id: string): Promise<EmployerJobDetail> {
+  const { data } = await api.get<EmployerJobDetail>(`/employer/jobs/${id}`);
+  return data;
+}
+
+export async function createJob(input: JobInput): Promise<EmployerJobDetail> {
+  const { data } = await api.post<EmployerJobDetail>('/employer/jobs', input);
+  return data;
+}
+
+export async function updateJob(id: string, input: JobInput): Promise<EmployerJobDetail> {
+  const { data } = await api.put<EmployerJobDetail>(`/employer/jobs/${id}`, input);
+  return data;
+}
+
+export async function deleteJob(id: string): Promise<void> {
+  await api.delete(`/employer/jobs/${id}`);
+}
+
+export async function jobAction(id: string, action: JobAction): Promise<EmployerJobDetail> {
+  const { data } = await api.post<EmployerJobDetail>(`/employer/jobs/${id}/${action}`);
+  return data;
+}
