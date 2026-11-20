@@ -1,6 +1,6 @@
 # FairFold — Shared Context (read this first, every session)
 
-Version 1.1 · 21 November 2026 (database changed from PostgreSQL to MySQL 8.4)
+Version 1.2 · 21 November 2026 (database is MariaDB; the earlier PostgreSQL/MySQL drafts are obsolete)
 
 > Everything an AI coding assistant needs to know about FairFold is in this file plus ONE chunk prompt (`01` to `06`). **Do not read the PRD, architecture, design or plan files.** If something is unclear or missing, ask the user and write the answer in `docs/progress.md` under Decisions.
 
@@ -27,15 +27,15 @@ Non-goals: Bangla resumes, local ML or vector search, video or audio interviews,
 
 | Layer | Choice |
 |---|---|
-| Backend | Java 21, Spring Boot 3.x (Maven), Spring Web, Security, Data JPA, Validation, Flyway (`flyway-core` and `flyway-mysql`), MySQL driver (`mysql-connector-j`), Mail |
+| Backend | Java 21, Spring Boot 3.x (Maven), Spring Web, Security, Data JPA, Validation, Flyway (`flyway-core` and `flyway-mysql`), MariaDB driver (`org.mariadb.jdbc:mariadb-java-client`), Mail |
 | API docs | springdoc-openapi `springdoc-openapi-starter-webmvc-ui` 2.8.x (the 3.x line is for Spring Boot 4) |
 | Added later | PDFBox, jjwt (JWT), Bucket4j (rate limit), a TOTP library (chunk 5) |
-| Database | MySQL 8.4 LTS (InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`), Flyway migrations. Installed locally for now; Docker comes after chunk 6. |
+| Database | MariaDB (verified on 13.0.2; InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`), Flyway migrations. Installed locally for now; Docker comes after chunk 6. |
 | Frontend | React 18, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form (built-in rules only), Tailwind (dark only), react-chartjs-2 with chart.js, lucide-react, `@fontsource-variable/inter` |
 | AI | DeepSeek (OpenAI-compatible chat API) behind `AiProvider`, plus `RuleBasedFallbackProvider` |
 | Payments | bKash sandbox behind `PaymentProvider`, plus `FakePaymentProvider` |
 | Files | Local disk behind `StorageService` |
-| Tests | JUnit 5, Mockito, Spring Boot Test + MockMvc on a local MySQL database `fairfold_test` (Testcontainers with `mysql:8.4` only in chunk 6), Vitest for key frontend logic |
+| Tests | JUnit 5, Mockito, Spring Boot Test + MockMvc on a local MariaDB database `fairfold_test` (Testcontainers with `mariadb:13.0` only in chunk 6), Vitest for key frontend logic |
 
 | What | Command | URL |
 |---|---|---|
@@ -46,7 +46,7 @@ Non-goals: Bangla resumes, local ML or vector search, video or audio interviews,
 | Design check | `./scripts/check-design.sh` | |
 | Export API contract | `curl http://localhost:8080/v3/api-docs -o docs/openapi.json` | |
 
-**Local database setup (once, before chunk 1; no Docker yet).** Install MySQL 8.4 on the host, then run as root:
+**Local database setup (once, before chunk 1; no Docker yet).** Install MariaDB on the host, then run as root (`sudo mariadb`, or `mariadb -u root -p`):
 
 ```sql
 CREATE DATABASE fairfold      CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_ci;
@@ -56,7 +56,7 @@ GRANT ALL PRIVILEGES ON fairfold.*      TO 'fairfold'@'%';
 GRANT ALL PRIVILEGES ON fairfold_test.* TO 'fairfold'@'%';
 ```
 
-JDBC URL pattern: `jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:fairfold}?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&useUnicode=true&characterEncoding=utf8`. Add `allowPublicKeyRetrieval=true&useSSL=false` for local development only. Full-text search note: InnoDB ignores words shorter than `innodb_ft_min_token_size` (default 3), so the job search also uses an exact skill-name match and a `LIKE` fallback (chunk 1).
+JDBC URL pattern: `jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:fairfold}?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true&characterEncoding=utf8` with driver class `org.mariadb.jdbc.Driver`. Full-text search note: InnoDB ignores words shorter than `innodb_ft_min_token_size` (default 3), so the job search also uses an exact skill-name match and a `LIKE` fallback (chunk 1).
 
 Everything configurable comes from environment variables with a safe local default (`application-local.yml`). Never hard-code paths, URLs or keys. The frontend calls relative URLs only (`/api/...`).
 
@@ -97,14 +97,15 @@ Feature packages hold controller, service, repository, entity, dto (Java records
 
 ### 5.2 Database
 
-- MySQL 8.4, InnoDB, snake_case, character set `utf8mb4`, collation `utf8mb4_0900_as_ci` (case-insensitive, accent-sensitive). Because of the collation, `UNIQUE (email)` is already case-insensitive; still store emails lower-case.
+- MariaDB, InnoDB, snake_case, character set `utf8mb4`, collation `utf8mb4_0900_as_ci` (case-insensitive, accent-sensitive). Because of the collation, `UNIQUE (email)` is already case-insensitive; still store emails lower-case.
 - **Types:** primary keys are `char(36) NOT NULL DEFAULT (UUID())` holding UUID strings. In Java generate ids with `@UuidGenerator` and put `@JdbcTypeCode(SqlTypes.CHAR)` on every `UUID` id and foreign-key field (Hibernate would otherwise use `binary(16)`). Times are `datetime(3)` in **UTC**: `created_at datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)`, `updated_at` the same plus `ON UPDATE CURRENT_TIMESTAMP(3)`. Use `java.time.Instant`, `spring.jpa.properties.hibernate.jdbc.time_zone=UTC` and `connectionTimeZone=UTC` in the JDBC URL. Flexible lists and objects are `json` (string arrays too; map with `@JdbcTypeCode(SqlTypes.JSON)`). Money and cost are `decimal`. Booleans are `boolean` (`tinyint(1)`).
 - **The word `text` in the table lists** is shorthand: use `varchar(255)` for short values and `TEXT` for long free text (description, requirements, bio, stripped_text, quote, body, answer, comments, explanation, note, excerpt, error, reasons). Fixed rules: `email varchar(254)`, `token_hash char(64)`, `storage_key varchar(255)`, `skills.name` and `skill_aliases.alias varchar(100)`, `strip_terms.term varchar(150)`, `url` and `meeting_link varchar(2048)`. Any column inside a UNIQUE or ordinary index must be `varchar` or `char`, never `TEXT`.
-- **Lists of allowed values** use `varchar` plus a `CHECK (col IN (...))`, never `ENUM`. CHECK is enforced in MySQL 8.0.16+. A CHECK may not use a column that has a foreign-key referential action (CASCADE or SET NULL).
+- **Lists of allowed values** use `varchar` plus a `CHECK (col IN (...))`, never `ENUM`. CHECK is enforced in MariaDB 10.2+. A CHECK may not use a column that has a foreign-key referential action (CASCADE or SET NULL).
 - **Defaults on `TEXT` and `json` must be expressions** in parentheses: `DEFAULT ('')`, `DEFAULT (JSON_ARRAY())`, `DEFAULT (JSON_OBJECT())`.
-- **No partial indexes, no arrays, no GIN.** Use a VIRTUAL generated column plus a UNIQUE index (NULLs never collide), `json` columns, and `FULLTEXT` indexes. Never use a STORED generated column over a column with a CASCADE or SET NULL foreign key.
-- **DDL is not transactional in MySQL.** Keep each Flyway file small (one table group). If a migration fails half way, drop the leftovers by hand and run `flyway repair`.
-- Reserved words: if a column name is a MySQL reserved word, wrap it in backticks in SQL and in `@Column(name = "`...`")`. None are known so far.
+- **MariaDB has no partial indexes, no arrays and no GIN.** Use a VIRTUAL generated column plus a UNIQUE index (NULLs never collide), `json` columns, and `FULLTEXT` indexes. Never use a STORED generated column over a column with a CASCADE or SET NULL foreign key.
+- **DDL is not transactional in MariaDB.** Keep each Flyway file small (one table group). If a migration fails half way, drop the leftovers by hand and run `flyway repair`.
+- **Flyway owns the schema.** Set `spring.jpa.hibernate.ddl-auto=none`, not `validate`: the MariaDB JDBC driver reports `json` columns as `longtext`, so Hibernate's JSON type check fails under `validate`. MariaDB stores `json` as `longtext` with a `json_valid` CHECK; keep declaring the columns as `json`.
+- Reserved words: if a column name is a MariaDB reserved word, wrap it in backticks in SQL and in `@Column(name = "`...`")`. None are known so far.
 - Flyway files: `V<chunk>_<part>_<n>__name.sql`, for example `V1_1_1__auth_tables.sql`. Never edit an applied migration; add a new one.
 - Foreign keys to `users`: data owned by the user (profile, skills, resumes, applications as candidate, notifications, tokens, attempts, practice sessions) uses `ON DELETE CASCADE`. Columns that only record who did something (`created_by`, `decided_by`, `changed_by`, `sender_id`, `interviewer_id`) are nullable with `ON DELETE SET NULL`. `audit_log.actor_id` has no foreign key.
 - Candidate identity (name, email, phone) lives only in `users` and `candidate_profiles`. No other table copies it.
@@ -323,4 +324,4 @@ Full column definitions are in the chunk prompt that creates each table. This ma
 
 ## 12. Environment variables (grow as chunks add them)
 
-`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` (at least 32 bytes), `STORAGE_DIR`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (chunk 1) · `AI_PROVIDER` (`fallback` or `deepseek`), `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `AI_PRICE_INPUT_PER_M`, `AI_PRICE_OUTPUT_PER_M` (chunk 2) · `ASSESSMENT_COOLDOWN_HOURS` (chunk 3) · `MFA_ENCRYPTION_KEY`, `BKASH_BASE_URL`, `BKASH_APP_KEY`, `BKASH_APP_SECRET`, `BKASH_USERNAME`, `BKASH_PASSWORD`, `PAYMENT_PROVIDER` (`fake` or `bkash`), `APP_BASE_URL` (chunk 5) · `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `DB_POOL_MAX`, `DEMO_PASSWORD` (chunk 6). Keep `.env.example` current.
+`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` (at least 32 bytes), `STORAGE_DIR`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (chunk 1) · `AI_PROVIDER` (`fallback` or `deepseek`), `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `AI_PRICE_INPUT_PER_M`, `AI_PRICE_OUTPUT_PER_M` (chunk 2) · `ASSESSMENT_COOLDOWN_HOURS` (chunk 3) · `MFA_ENCRYPTION_KEY`, `BKASH_BASE_URL`, `BKASH_APP_KEY`, `BKASH_APP_SECRET`, `BKASH_USERNAME`, `BKASH_PASSWORD`, `PAYMENT_PROVIDER` (`fake` or `bkash`), `APP_BASE_URL` (chunk 5) · `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `DB_POOL_MAX`, `DEMO_PASSWORD` (chunk 6) · `DB_ROOT_PASSWORD` (Docker only, chunk 6). Keep `.env.example` current.

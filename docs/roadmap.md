@@ -43,7 +43,7 @@ There is no spare time inside these 10 days. Days 11 and 12 are your buffer, and
 - [ ] Real SMTP provider and domain for reset and invite emails, then turn on email verification
 - [ ] bKash merchant approval and real credentials (the sandbox is not real money)
 - [ ] HTTPS and a domain, `cookie-secure: true`, strong secrets in `.env`
-- [ ] PostgreSQL backups and a tested restore, and a backup of the resume files volume
+- [ ] MariaDB backups and a tested restore, and a backup of the resume files volume
 - [ ] Non-functional targets written down (response times, availability, accessibility), because the original file did not include them
 - [ ] A privacy review: what is stored, how long, who can see it, and the deletion path
 - [ ] A bias review of the AI prompts and the bias-status rule with your test set
@@ -65,7 +65,7 @@ These are the PRD's non-goals. Revisit them only when the pilot shows a need.
 
 - Bangla and other non-English resume parsing
 - S3 or MinIO file storage instead of local disk
-- A separate search engine if PostgreSQL full-text search becomes slow
+- A separate search engine if MariaDB full-text search becomes slow
 - Recurring billing and stored payment methods
 - Calendar files (`.ics`) for interviews
 - A light theme or theme switcher

@@ -2,8 +2,6 @@
 
 FairFold is a recruitment web platform with two portals. Employers post jobs, receive **anonymised** applications, and get a ranked list where every score is explained with quotes from the candidate's own resume. Candidates build a profile from a PDF resume, apply, see how they were scored, prove skills with assessments and practise interviews. **AI is advisory — a human always makes the final hiring decision.**
 
-> **Note on the database:** the older planning docs (`docs/FairFold_PRD_v2_1.md`, `docs/plan.md`, `docs/prompts/00_context.md`) still mention **PostgreSQL** and then **MySQL**. The project currently runs on **MariaDB** (see decision **D-15** in [`docs/progress.md`](docs/progress.md)). This README reflects the actual setup: **MariaDB**.
-
 ---
 
 ## Table of contents
@@ -196,7 +194,7 @@ mariadb -u fairfold -p -e "SHOW DATABASES;"
 
 **You do not need to create tables.** Flyway runs the migrations in `backend/src/main/resources/db/migration/` automatically on backend startup.
 
-> **Docs vs reality:** `docs/plan.md` and `docs/prompts/00_context.md` describe PostgreSQL/MySQL commands (`createdb`, `mysql -u root`). The commands above are the MariaDB equivalents. The JDBC URL is `jdbc:mariadb://…`, not `jdbc:mysql://…`.
+> The backend connects with the MariaDB driver (`org.mariadb.jdbc.Driver`) and a `jdbc:mariadb://…` URL. See `backend/src/main/resources/application.yml`.
 
 ---
 
@@ -358,7 +356,7 @@ curl http://localhost:8080/v3/api-docs -o docs/openapi.json
 | `Access denied for user 'fairfold'@…` | The `DB_PASSWORD` in `.env` does not match the MariaDB user, or the user's host (`'%'` vs `'localhost'`) does not match how you connect. Re-check the `CREATE USER` statement and re-run `FLUSH PRIVILEGES`. |
 | `Unknown collation: 'utf8mb4_0900_as_ci'` | Your MariaDB build is too old. Upgrade to a recent MariaDB release (the project was verified on 13.0.2). |
 | `Communications link failure` / connection refused | MariaDB is not running: `sudo systemctl start mariadb` (Linux) or `brew services start mariadb` (macOS). |
-| Flyway migration fails halfway | DDL is not transactional in MariaDB/MySQL. Drop the partially created objects, then run `./mvnw flyway:repair` and start again. |
+| Flyway migration fails halfway | DDL is not transactional in MariaDB. Drop the partially created objects, then run `./mvnw flyway:repair` and start again. |
 | Backend can't read `.env` | Start it from `backend/` so `springdotenv.directory=..` finds the repo-root `.env`. |
 | Port already in use | Backend uses `8080`, frontend `5173`. Stop the other process or change `server.port` / the Vite port. |
 | Frontend requests fail with 404 | Make sure the backend is running on `:8080`; Vite proxies `/api` there. Open the API on `:8080` directly, not through `:5173`. |

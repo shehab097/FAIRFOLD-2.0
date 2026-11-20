@@ -1,6 +1,6 @@
 # FairFold — Product Requirements Document
 
-Version 2.1 · 12 November 2026 · Spring Boot + React + PostgreSQL + bKash + DeepSeek
+Version 2.1 · 12 November 2026 · Stack revised 21 November 2026 · Spring Boot + React + MariaDB + bKash + DeepSeek
 
 ## 0. What changed from v2.0
 
@@ -71,7 +71,7 @@ Bangla or other non-English CV parsing; local ML models, embeddings or vector se
 | Layer | Choice | Notes |
 |---|---|---|
 | Backend | Java 21, Spring Boot 3.x (current stable), Spring Web, Security, Data JPA, Validation | One application, packaged by feature (modular monolith). |
-| Database | PostgreSQL 17 | Flyway migrations. Built-in full-text search for the job board. |
+| Database | MariaDB (verified 13.0.2; InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`) | Flyway migrations. InnoDB full-text search for the job board. |
 | Frontend | React 18, **TypeScript**, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind (dark theme only), react-chartjs-2 with chart.js, lucide-react icons, one self-hosted sans-serif font, Inter (`@fontsource-variable/inter`) | TypeScript is now the decision, not an option. Visual rules are in `design.md`. |
 | AI | DeepSeek HTTP API, model `deepseek-v4.1-flash` | Model id, key and prices come from environment variables. Behind an `AiProvider` interface with a `RuleBasedFallbackProvider`. |
 | Payments | bKash sandbox | Behind a `PaymentProvider` interface. |
@@ -83,8 +83,8 @@ Bangla or other non-English CV parsing; local ML models, embeddings or vector se
 | Live updates | **Polling** with TanStack Query (messages every 10 s while a thread is open) | No WebSocket or SSE. |
 | Rate limiting | Bucket4j, in memory | Fine for one server. |
 | API docs | springdoc-openapi (`springdoc-openapi-starter-webmvc-ui`) | Generates the OpenAPI document and Swagger UI from the controllers. Use the 2.8.x line with Spring Boot 3.x; the 3.x line of springdoc is for Spring Boot 4. On in development, off in production. |
-| Testing | JUnit 5, Mockito, Testcontainers (PostgreSQL), Vitest for key frontend logic | |
-| Deployment | Docker Compose: nginx (serves React build, proxies /api), backend, postgres | CI: GitHub Actions build and test. |
+| Testing | JUnit 5, Mockito, Testcontainers (MariaDB), Vitest for key frontend logic | |
+| Deployment | Docker Compose: nginx (serves React build, proxies /api), backend, MariaDB (`mariadb:13.0`) | CI: GitHub Actions build and test. |
 
 Deliberately not used: Redis, MinIO as a requirement, ClamAV, Prometheus, Kubernetes, Spring AI, embeddings, microservices, WebSockets.
 

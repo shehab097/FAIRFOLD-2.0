@@ -2,11 +2,11 @@
 
 Read first: `docs/prompts/00_context.md`, this file, `docs/progress.md`. Do not read the PRD or any other document. Chunks 1 to 5 must be finished.
 
-**Goal:** prove the product is safe, correct and ready to run anywhere. This chunk adds **no new features**. It verifies the global rules end to end, runs the whole suite on a clean MySQL container, fixes performance and accessibility problems, adds demo data, and prepares everything the owner needs to add Docker afterwards.
+**Goal:** prove the product is safe, correct and ready to run anywhere. This chunk adds **no new features**. It verifies the global rules end to end, runs the whole suite on a clean MariaDB container, fixes performance and accessibility problems, adds demo data, and prepares everything the owner needs to add Docker afterwards.
 
 **Parts:**
 - **Part 6.1** Security and privacy verification: authorisation matrix, identity-leak and AI-isolation sweeps, log and secret checks
-- **Part 6.2** Quality: clean-database run with Testcontainers (`mysql:8.4`), query performance, accessibility and responsive review, frontend logic tests, demo data
+- **Part 6.2** Quality: clean-database run with Testcontainers (`mariadb:13.0`), query performance, accessibility and responsive review, frontend logic tests, demo data
 - **Part 6.3** Release readiness: production profile, health checks, documentation, Docker hand-off notes, final contract export
 
 Start message: `Build Part 6.1 from docs/prompts/06_hardening_release.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
@@ -79,7 +79,7 @@ Start message: `Build Part 6.1 from docs/prompts/06_hardening_release.md. Follow
 ## Part 6.2 — Quality
 
 ### Clean-database run with Testcontainers
-- Add `org.testcontainers:mysql` and `junit-jupiter` (test scope). `MySqlTestSupport` starts `mysql:8.4` once per run with `--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_as_ci` and points the datasource at it. Flyway runs **all** migrations from empty on it.
+- Add `org.testcontainers:mariadb` and `junit-jupiter` (test scope). `MariaDbTestSupport` starts `mariadb:13.0` once per run with `--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_as_ci` and points the datasource at it (driver `org.mariadb.jdbc.Driver`, URL `jdbc:mariadb://…`). Flyway runs **all** migrations from empty on it.
 - Run the full backend suite twice: once on the local `fairfold_test` database (default) and once with `-Dtest.db=container`. Both must be green. Record the command in `docs/progress.md`. If Docker is not available on the machine yet, write the code, mark the container run as **pending until Docker is installed**, and note it; do not skip the local run.
 - Migration check: a test that starts from empty, migrates, then asserts the schema against a list of expected tables, a few key constraints (unique emails, current-resume uniqueness, the override CHECK, the full-text index on jobs) and that `flyway validate` passes.
 
@@ -111,7 +111,7 @@ Start message: `Build Part 6.1 from docs/prompts/06_hardening_release.md. Follow
 ## Part 6.3 — Release readiness
 
 ### Production configuration
-- `application-prod.yml`: no Swagger, no console mail (`app.mail.mode: smtp` using `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`), `app.cookie-secure: true`, JSON-safe logging at INFO, error responses without stack traces, `server.shutdown: graceful`, `spring.jpa.open-in-view: false`, Hikari pool settings from env (`DB_POOL_MAX`, default 10), `spring.flyway.validate-on-migrate: true`, `spring.jpa.hibernate.ddl-auto: validate`.
+- `application-prod.yml`: no Swagger, no console mail (`app.mail.mode: smtp` using `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`), `app.cookie-secure: true`, JSON-safe logging at INFO, error responses without stack traces, `server.shutdown: graceful`, `spring.jpa.open-in-view: false`, Hikari pool settings from env (`DB_POOL_MAX`, default 10), `spring.flyway.validate-on-migrate: true`, `spring.jpa.hibernate.ddl-auto: none` (Flyway owns the schema; `validate` fails on MariaDB `json` columns, which the driver reports as `longtext`).
 - Health: add Spring Boot Actuator with only `health` (and `info`) exposed. `/actuator/health/liveness` and `/readiness` public; readiness includes the database. No other actuator endpoints.
 - Scheduled jobs (weekly link check from chunk 3, assessment auto-submit, expired-token cleanup if present) must be safe if two instances run: use a database lock row (`SELECT ... FOR UPDATE SKIP LOCKED` on a `scheduler_locks` row) or a `@Scheduled` guard configured by `app.scheduling.enabled`. Pick the simpler: **`app.scheduling.enabled` default true; document that production runs exactly one instance for now.**
 - Time: confirm every timestamp is stored in UTC and the JVM default time zone does not matter (test by running one test with `-Duser.timezone=Asia/Dhaka`).
@@ -121,15 +121,15 @@ Start message: `Build Part 6.1 from docs/prompts/06_hardening_release.md. Follow
 ### Docker hand-off notes (documents only)
 Write `docs/deployment.md` containing everything the owner needs to add Docker later, **without** creating any Docker file:
 
-1. Services: `backend` (Java 21, port 8080, health `/actuator/health/readiness`), `frontend` (static build served by a web server, SPA fallback, proxy `/api`), `db` (`mysql:8.4`).
-2. MySQL settings: `--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_as_ci`, `--innodb-ft-min-token-size=2` is optional (document the trade-off), `--default-time-zone=+00:00`, persistent volume at `/var/lib/mysql`, healthcheck `mysqladmin ping`, init SQL to create `fairfold` and the user (same statements as 00_context section 3).
-3. Volumes: database data and `STORAGE_DIR` (resume files). Backup advice: nightly `mysqldump --single-transaction` plus a copy of the storage volume.
+1. Services: `backend` (Java 21, port 8080, health `/actuator/health/readiness`), `frontend` (static build served by a web server, SPA fallback, proxy `/api`), `db` (`mariadb:13.0`).
+2. MariaDB settings: `--character-set-server=utf8mb4 --collation-server=utf8mb4_0900_as_ci`, `--innodb-ft-min-token-size=2` is optional (document the trade-off), `--default-time-zone=+00:00`, persistent volume at `/var/lib/mysql`, healthcheck `healthcheck.sh --connect --innodb_initialized`, init SQL to create `fairfold` and the user (same statements as 00_context section 3). The image reads `MARIADB_DATABASE`, `MARIADB_USER`, `MARIADB_PASSWORD` and `MARIADB_ROOT_PASSWORD`.
+3. Volumes: database data and `STORAGE_DIR` (resume files). Backup advice: nightly `mariadb-dump --single-transaction` plus a copy of the storage volume.
 4. A table of every environment variable from 00_context section 12 and chunks 5 and 6 with: name, required or optional, default, example, secret yes or no.
 5. Start order and migration behaviour (Flyway runs on backend start; backend waits for the database to be healthy), ports, and the exact build commands (`./mvnw -DskipTests package`, `npm ci && npm run build`).
 6. Pre-release checklist: all tests green on local and container runs, `check-design.sh`, `check-secrets.sh`, `npm audit`, OpenAPI exported, secrets rotated for production, admin password changed, MFA enabled for admin, SMTP configured, bKash switched from sandbox only after the owner has production credentials.
 
 ### Documentation
-- `README.md` at the repository root: what FairFold is (three sentences), prerequisites (Java 21, Node, MySQL 8.4), one-time setup (database SQL from 00_context), how to run backend, frontend and tests, demo accounts and the demo path, project layout, link to `docs/deployment.md` and `docs/progress.md`.
+- `README.md` at the repository root: what FairFold is (three sentences), prerequisites (Java 21, Node, MariaDB), one-time setup (database SQL from 00_context), how to run backend, frontend and tests, demo accounts and the demo path, project layout, link to `docs/deployment.md` and `docs/progress.md`.
 - `docs/demo-script.md`: the full 15-minute demo, step by step, with the account to use at each step, covering resume to ranked list, shortlist and reveal, assessment gate, interview and hire, practice, journey, billing quota, admin audit.
 - `docs/known-limitations.md`: honest list (no email verification, no recovery codes for MFA, single backend instance, local file storage, English resumes only, AI is advisory, quota rules decided in chunk 5).
 - Final contract: run the backend, `curl http://localhost:8080/v3/api-docs -o docs/openapi.json`, commit.

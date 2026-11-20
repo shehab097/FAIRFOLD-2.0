@@ -44,7 +44,7 @@
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!-- Flyway: core + MySQL/MariaDB module (versions managed by Spring Boot BOM) -->
+        <!-- Flyway: core + MariaDB support (the module is named flyway-mysql) -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
@@ -54,7 +54,7 @@
             <artifactId>flyway-mysql</artifactId>
         </dependency>
 
-        <!-- MariaDB driver (replaces mysql-connector-j; see decision D-15) -->
+        <!-- MariaDB driver (see decision D-15) -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>

@@ -28,24 +28,33 @@ Email verification, GitHub Actions and polish are **outside the 10 days** (secti
 ### 1.1 Install on Arch
 
 ```bash
-sudo pacman -S --needed jdk21-openjdk maven nodejs npm postgresql git
+sudo pacman -S --needed jdk21-openjdk maven nodejs npm mariadb git
 sudo archlinux-java set java-21-openjdk
 java -version        # must say 21
 node -v              # 20 or newer
 ```
 
-### 1.2 PostgreSQL
+### 1.2 MariaDB
 
 ```bash
-sudo -iu postgres initdb -D /var/lib/postgres/data
-sudo systemctl enable --now postgresql
-sudo -iu postgres createuser -P fairfold        # choose a dev password
-sudo -iu postgres createdb -O fairfold fairfold
-sudo -iu postgres createdb -O fairfold fairfold_test
-psql -h localhost -U fairfold -d fairfold -c "select version();"
+sudo mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+sudo systemctl enable --now mariadb
+sudo mariadb-secure-installation
+sudo mariadb
 ```
 
-The PRD names PostgreSQL 17. Any recent version is fine for development; check `postgres --version` and use the same major version in production later.
+Then, in the MariaDB prompt:
+
+```sql
+CREATE DATABASE fairfold      CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_ci;
+CREATE DATABASE fairfold_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_ci;
+CREATE USER 'fairfold'@'%' IDENTIFIED BY '<DB_PASSWORD>';
+GRANT ALL PRIVILEGES ON fairfold.*      TO 'fairfold'@'%';
+GRANT ALL PRIVILEGES ON fairfold_test.* TO 'fairfold'@'%';
+FLUSH PRIVILEGES;
+```
+
+The project was verified on **MariaDB 13.0.2**. Use a recent MariaDB release that supports the `utf8mb4_0900_as_ci` collation (the current stable is fine); check `mariadb --version` and use the same major version in production later.
 
 ### 1.3 Project layout
 
@@ -58,7 +67,7 @@ fairfold/
   .env.example    every setting the app reads
 ```
 
-Generate the backend at start.spring.io (Maven, Java 21; dependencies Web, Security, Data JPA, Validation, Flyway, PostgreSQL Driver, Mail). Add springdoc-openapi on day 1 (section 1.7). Add PDFBox, a JWT library, a TOTP library and Bucket4j by hand when their chunk needs them.
+Generate the backend at start.spring.io (Maven, Java 21; dependencies Web, Security, Data JPA, Validation, Flyway, MariaDB Driver, Mail). Add `org.flywaydb:flyway-mysql` (it provides MariaDB support). Add springdoc-openapi on day 1 (section 1.7). Add PDFBox, a JWT library, a TOTP library and Bucket4j by hand when their chunk needs them.
 
 ### 1.4 Run it
 
@@ -81,7 +90,8 @@ export default defineConfig({
 # backend/src/main/resources/application-local.yml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/fairfold
+    url: jdbc:mariadb://localhost:3306/fairfold
+    driver-class-name: org.mariadb.jdbc.Driver
     username: fairfold
     password: ${DB_PASSWORD}
 app:
@@ -279,29 +289,34 @@ springdoc:
 
 - [ ] Backend `Dockerfile` (multi-stage: build with Maven, run on a JRE 21 image)
 - [ ] Frontend build, served by Nginx with a fallback to `index.html` and `/api` proxied to the backend
-- [ ] `docker-compose.yml` with `nginx`, `backend` and `postgres` (volumes for the database and the resume files)
+- [ ] `docker-compose.yml` with `nginx`, `backend` and `db` (MariaDB; volumes for the database and the resume files)
 - [ ] A `prod` profile: `cookie-secure: true`, real SMTP, real keys from `.env`, springdoc switched off
 - [ ] Switch backend tests to Testcontainers
 - [ ] Smoke test: register, apply, screen, pay in the sandbox
-- [ ] Backup note: how to dump PostgreSQL and where the resume volume lives
+- [ ] Backup note: how to dump MariaDB (`mariadb-dump --single-transaction`) and where the resume volume lives
 
 ```yaml
 # docker-compose.yml (outline)
 services:
-  postgres:
-    image: postgres:17
-    environment: { POSTGRES_DB: fairfold, POSTGRES_USER: fairfold, POSTGRES_PASSWORD: ${DB_PASSWORD} }
-    volumes: [pgdata:/var/lib/postgresql/data]
+  db:
+    image: mariadb:13.0
+    environment:
+      MARIADB_DATABASE: fairfold
+      MARIADB_USER: fairfold
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_as_ci
+    volumes: [dbdata:/var/lib/mysql]
   backend:
     build: ./backend
     env_file: .env
-    depends_on: [postgres]
+    depends_on: [db]
     volumes: [resumes:/data/resumes]
   nginx:
     build: ./frontend        # builds the React app and copies it into an nginx image
     ports: ["80:80"]
     depends_on: [backend]
-volumes: { pgdata: {}, resumes: {} }
+volumes: { dbdata: {}, resumes: {} }
 ```
 
 ## 9. After day 10 (outside the 10-day target)
