@@ -9,7 +9,9 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      # Flyway owns the schema. "validate" is off because MariaDB reports
+      # `json` columns as `longtext`, which fails Hibernate's JSON type check.
+      ddl-auto: none
     properties:
       hibernate:
         jdbc:
@@ -29,9 +31,18 @@ server:
 
 app:
   storage-dir: ${STORAGE_DIR:../data/resumes}
+  base-url: ${APP_BASE_URL:http://localhost:5173}
   cookie-secure: false
   auth:
     require-email-verification: false
+  jwt:
+    secret: ${JWT_SECRET:}
+    access-token-minutes: 15
+  mail:
+    mode: ${MAIL_MODE:console}
+  admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
 
 springdoc:
   swagger-ui:

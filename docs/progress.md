@@ -10,7 +10,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 
 | Part | Prompt file | Scope | Status | Commit | Date |
 |---|---|---|---|---|---|
-| 1.1 | 01_core_platform.md | Foundation and authentication | [ ] | | |
+| 1.1 | 01_core_platform.md | Foundation and authentication | [x] | | 21 Nov 2026 |
 | 1.2 | 01_core_platform.md | Company, jobs, public job board | [ ] | | |
 | 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [ ] | | |
 | 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 1.1 (setup complete, no features built yet). Backend (Spring Boot 3.5.16 + MariaDB + Flyway + springdoc) and frontend (Vite + React 18 + Tailwind) skeletons both run and pass `check-design.sh`. Next: build Part 1.1 from `docs/prompts/01_core_platform.md`.
+**Current focus:** Part 1.1 done. Next: build Part 1.2 (company profile, jobs, public job board) from `docs/prompts/01_core_platform.md`.
 
-**Next session start message:** `Build Part 1.1 from docs/prompts/01_core_platform.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 1.2 from docs/prompts/01_core_platform.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -65,6 +65,7 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-15 | 21 Nov 2026 | all | Database is **MariaDB** (13.0.2), not MySQL 8.4. JDBC driver `org.mariadb.jdbc:mariadb-java-client` (URL `jdbc:mariadb://…`); Flyway stays on `flyway-mysql` (supports MariaDB). Supersedes D-01. | Owner's environment: MariaDB 13 installed locally, user `shehab`/`1234`, db `fairfold`. Verified MariaDB 13 supports `utf8mb4_0900_as_ci`, `DEFAULT (UUID())`, JSON defaults, CHECK, VIRTUAL generated columns and InnoDB FULLTEXT, so all MySQL DDL conventions hold unchanged. |
 | D-16 | 21 Nov 2026 | all | Added `me.paulschwarz:springboot3-dotenv` 5.1.0 (optional) so the backend loads `.env` from the repo root; real env vars still win. Configured `springdotenv.directory=..`. | Stack lists no `.env` loader and the owner asked for an `.env` file with frictionless `./mvnw` runs. |
 | D-17 | 21 Nov 2026 | all | Maven 3.9.16 installed to `~/.local/maven` (no system Maven, no sudo); project uses the Maven wrapper `./mvnw` (script-only). | Reproducible builds without root. |
+| D-18 | 21 Nov 2026 | all | `spring.jpa.hibernate.ddl-auto` is `none` (not `validate`). MariaDB's JDBC driver reports `json` columns as `longtext`, which fails Hibernate's JSON type check under `validate`. Flyway owns the schema. JSON columns stay `json` (MariaDB adds a `json_valid` CHECK). Flyway also warns "MariaDB 13.0 is newer than tested (11.2)" but migrations apply cleanly. | MariaDB `json` ≈ `longtext`; `validate` cannot match `@JdbcTypeCode(SqlTypes.JSON)`. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -85,12 +86,13 @@ Update after every part.
 
 | Part | Backend tests | Frontend tests | `check-design.sh` | OpenAPI exported | Notes |
 |---|---|---|---|---|---|
-| (none yet) | | | | | |
+| 1.1 | 13 passed | 9 passed | passed | yes | Auth flow verified end-to-end via curl (register, login, lockout 423, reset, refresh rotation, logout). |
 
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 21 Nov 2026 | **Part 1.1 done**: auth tables migration, User/Company/token/audit entities, JWT stateless security, register/login/lockout/refresh(rotation)/logout/forgot/reset endpoints, rate limiting, admin seed, 13 backend tests + 9 frontend tests green, `check-design.sh` passes, `docs/openapi.json` exported. Frontend: base UI components, PublicShell/AuthShell/PortalShell, auth context + guards + refresh interceptor, pages P03/P04/P06/P07/P11 + welcome. Decisions D-18. |
 | 21 Nov 2026 | Environment setup: scaffolded backend (Spring Boot 3.5.16, MariaDB driver, Flyway `flyway-mysql`, springdoc 2.8.17, spring-dotenv) and frontend (Vite + React 18 + TS + Tailwind + design tokens). Both run; health + OpenAPI + Vite proxy verified; `check-design.sh` passes. Decisions D-15–D-17. |
 | 21 Nov 2026 | Replaced PostgreSQL with MySQL 8.4 in prompts 00 to 04 (types, indexes, search, tests, setup SQL, env vars, Flyway module). Wrote prompts 05 and 06 and this file. Confirmed prompt 04 was complete. |
 | 20 Nov 2026 | Generated prompts 00 (shared context) and 01 to 04, each split into at most three parts. |
