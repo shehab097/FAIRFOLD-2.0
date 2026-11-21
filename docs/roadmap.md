@@ -89,7 +89,7 @@ These are the PRD's non-goals. Revisit them only when the pilot shows a need.
 |---|---|
 | Build order | Local first, Docker last |
 | Frontend | React 18, TypeScript, Vite, Tailwind, one sans-serif font (Inter) |
-| Look | Dark mode only, square corners, no gradients, five-colour palette |
+| Look | Dark & Light mode support (with switcher & system detection), rounded corners, no gradients, five-colour palette |
 | Backend | Java 21, Spring Boot 3.x, Maven, springdoc-openapi 2.8.x |
 | Email verification | Deferred until after day 10 |
 | Kept as core features | MFA, messaging, proctoring, journey and skill evolution, job story, screening-question suggestions, resources, rating, retake loop |

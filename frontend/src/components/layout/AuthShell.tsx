@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Logo } from '../ui/Logo';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 const PILLARS = [
   { code: '01', title: 'Anonymised screening', desc: 'Identities stay hidden during initial evaluation so work and skills speak first.' },
@@ -9,7 +10,10 @@ const PILLARS = [
 
 export function AuthShell() {
   return (
-    <div className="flex min-h-screen bg-bg">
+    <div className="relative flex min-h-screen bg-bg">
+      <div className="absolute right-4 top-4 z-20">
+        <ThemeToggle />
+      </div>
       <aside className="hidden w-1/2 flex-col justify-between border-r border-border bg-primary-subtle p-10 md:flex">
         <div>
           <Logo />
@@ -19,7 +23,7 @@ export function AuthShell() {
         </div>
         <div className="space-y-3">
           {PILLARS.map((p) => (
-            <div key={p.code} className="border border-border border-l-4 border-l-primary bg-surface p-4">
+            <div key={p.code} className="rounded-xl border border-border border-l-4 border-l-primary bg-surface p-4 shadow-sm">
               <div className="flex items-baseline gap-2">
                 <span className="text-xs font-bold uppercase tracking-[0.06em] text-primary-text">{p.code}</span>
                 <h2 className="text-base font-semibold text-text">{p.title}</h2>
@@ -35,7 +39,7 @@ export function AuthShell() {
           <div className="mb-6 md:hidden">
             <Logo />
           </div>
-          <div className="border border-border border-t-2 border-t-primary bg-surface p-6 sm:p-8">
+          <div className="rounded-2xl border border-border border-t-2 border-t-primary bg-surface p-6 shadow-sm sm:p-8">
             <Outlet />
           </div>
         </div>

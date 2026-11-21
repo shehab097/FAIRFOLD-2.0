@@ -8,15 +8,14 @@ if [ ! -d src ]; then
 fi
 cd src || exit 1
 
-bad=$(grep -rnE "rounded-(full|2xl|3xl)|gradient|shadow|box-shadow" . \
-        --include=*.ts --include=*.tsx --include=*.css \
-      | grep -vE "shadow-none|box-shadow: *none" || true)
+bad=$(grep -rnE "bg-gradient-" . \
+        --include=*.ts --include=*.tsx --include=*.css || true)
 
 hex=$(grep -rnE "#[0-9A-Fa-f]{6}\b" . --include=*.ts --include=*.tsx --include=*.css \
       | grep -vE "styles/tokens.css|charts/defaults.ts" || true)
 
 if [ -n "$bad" ] || [ -n "$hex" ]; then
-  [ -n "$bad" ] && { echo "Forbidden radius, gradient or shadow:"; echo "$bad"; }
+  [ -n "$bad" ] && { echo "Forbidden gradient:"; echo "$bad"; }
   [ -n "$hex" ] && { echo "Colours must come from tokens:"; echo "$hex"; }
   exit 1
 fi

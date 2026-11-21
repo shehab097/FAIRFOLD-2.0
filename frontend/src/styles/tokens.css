@@ -20,19 +20,54 @@
   --accent-subtle: #4D3535;
   --highlight: #563837;
   --scrim: rgba(0, 0, 0, 0.6);
-  --radius-sm: 4px;
-  --radius: 6px;
+  --white: #FFFFFF;
+  --black: #000000;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
 }
+
+:root.light,
+html.light,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F7F6F9;
+  --surface: #FFFFFF;
+  --raised: #F0EDF5;
+  --border: #E3DFE8;
+  --border-strong: #BCB4C6;
+  --text: #191620;
+  --text-secondary: #5B5365;
+  --text-subtle: #898094;
+  --primary: #845EC2;
+  --primary-hover: #714BB0;
+  --primary-pressed: #5C3996;
+  --primary-text: #6E3CAE;
+  --primary-subtle: #F1ECF9;
+  --danger: #C34A36;
+  --danger-subtle: #FCEEED;
+  --accent: #D65135;
+  --accent-subtle: #FDF0ED;
+  --highlight: #FEEAE4;
+  --scrim: rgba(25, 22, 32, 0.45);
+}
+
 html {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
+
 :focus-visible {
   outline: 2px solid var(--primary-text);
   outline-offset: 2px;
 }
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

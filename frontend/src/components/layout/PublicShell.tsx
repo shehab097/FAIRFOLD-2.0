@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../app/auth/AuthContext';
 import { cn } from '../../lib/cn';
 import { Logo } from '../ui/Logo';
+import { ThemeToggle } from '../ui/ThemeToggle';
 import { PortalShell } from './PortalShell';
 
 export function PublicShell() {
@@ -23,7 +24,7 @@ export function PublicShell() {
               end
               className={({ isActive }) =>
                 cn(
-                  'text-sm font-medium text-text-secondary hover:text-text',
+                  'rounded-lg px-2.5 py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text',
                   isActive && 'text-primary-text',
                 )
               }
@@ -31,16 +32,17 @@ export function PublicShell() {
               Browse jobs
             </NavLink>
           </div>
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2.5">
+            <ThemeToggle />
             <Link
               to="/login"
-              className="border border-border-strong bg-bg px-3.5 py-1.5 text-sm font-medium text-text hover:bg-raised"
+              className="rounded-lg border border-border-strong bg-surface px-3.5 py-1.5 text-sm font-medium text-text transition-colors hover:bg-raised"
             >
               Log in
             </Link>
             <Link
               to="/register"
-              className="bg-primary px-3.5 py-1.5 text-sm font-semibold text-white hover:bg-primary-hover"
+              className="rounded-lg bg-primary px-3.5 py-1.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-hover"
             >
               Register
             </Link>

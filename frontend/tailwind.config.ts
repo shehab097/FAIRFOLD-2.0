@@ -1,27 +1,34 @@
 import type { Config } from 'tailwindcss';
 
-const zero = '0px';
-
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: ['class'],
   theme: {
     borderRadius: {
-      none: zero,
-      sm: '4px',
-      DEFAULT: '6px',
-      md: '6px',
-      lg: '8px',
-      xl: '8px',
-      '2xl': zero,
-      '3xl': zero,
-      full: zero,
+      none: '0px',
+      xs: '4px',
+      sm: '6px',
+      DEFAULT: '8px',
+      md: '10px',
+      lg: '12px',
+      xl: '16px',
+      '2xl': '20px',
+      '3xl': '24px',
+      full: '9999px',
     },
-    boxShadow: { none: 'none' },
+    boxShadow: {
+      none: 'none',
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+    },
     backgroundImage: {},
     colors: {
       transparent: 'transparent',
       current: 'currentColor',
-      white: 'var(--text)',
+      white: '#FFFFFF',
+      black: '#000000',
       bg: 'var(--bg)',
       surface: 'var(--surface)',
       raised: 'var(--raised)',

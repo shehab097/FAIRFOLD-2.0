@@ -7,6 +7,7 @@ import { cn } from '../../lib/cn';
 import { SIDEBAR_ITEMS } from '../../lib/nav';
 import { Icon } from '../ui/Icon';
 import { Logo } from '../ui/Logo';
+import { ThemeToggle } from '../ui/ThemeToggle';
 
 export function PortalShell() {
   const { user } = useAuth();
@@ -29,14 +30,14 @@ export function PortalShell() {
             type="button"
             onClick={onNavigate}
             aria-label="Close navigation"
-            className="p-1 text-text-secondary hover:text-text lg:hidden"
+            className="rounded-lg p-1 text-text-secondary hover:bg-raised hover:text-text lg:hidden"
           >
             <Icon icon={X} size={20} />
           </button>
         )}
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {items.map((item) => (
           <NavLink
             key={item.to}
@@ -45,8 +46,8 @@ export function PortalShell() {
             onClick={onNavigate}
             className={({ isActive }) =>
               cn(
-                'flex h-10 items-center gap-3 rounded-sm px-3 text-sm font-medium text-text-secondary hover:bg-raised hover:text-text',
-                isActive && 'bg-primary-subtle text-primary-text',
+                'flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium text-text-secondary transition-colors hover:bg-raised hover:text-text',
+                isActive && 'bg-primary-subtle font-semibold text-primary-text',
               )
             }
           >
@@ -60,9 +61,9 @@ export function PortalShell() {
         <Link
           to="/account"
           onClick={onNavigate}
-          className="flex items-center gap-3 rounded-sm px-3 py-2 hover:bg-raised"
+          className="flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-raised"
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-xs font-bold text-primary-text">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-subtle text-xs font-bold text-primary-text">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
@@ -85,7 +86,7 @@ export function PortalShell() {
       {drawerOpen && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <div className="fixed inset-0 bg-scrim" onClick={() => setDrawerOpen(false)} />
-          <aside className="relative z-50 flex h-full w-[240px] flex-col border-r border-border bg-surface">
+          <aside className="relative z-50 flex h-full w-[240px] flex-col border-r border-border bg-surface shadow-xl">
             {sidebarContent(() => setDrawerOpen(false))}
           </aside>
         </div>
@@ -98,21 +99,22 @@ export function PortalShell() {
               type="button"
               onClick={() => setDrawerOpen(true)}
               aria-label="Open navigation"
-              className="rounded-sm p-1.5 text-text-secondary hover:bg-raised hover:text-text"
+              className="rounded-lg p-1.5 text-text-secondary hover:bg-raised hover:text-text"
             >
               <Icon icon={Menu} size={20} />
             </button>
             <Logo />
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
             <Link
               to="/notifications"
               aria-label="Notifications"
-              className="relative flex h-9 w-9 items-center justify-center rounded-sm text-text-secondary hover:bg-raised hover:text-text"
+              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-raised hover:text-text"
             >
               <Icon icon={Bell} size={18} />
               {Boolean(unread?.count) && (
-                <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-sm bg-primary px-1 text-[10px] font-bold text-white">
+                <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
                   {unread?.count}
                 </span>
               )}
@@ -120,9 +122,9 @@ export function PortalShell() {
             <Link
               to="/account"
               aria-label="Account profile"
-              className="flex h-9 items-center gap-2 rounded-sm px-2.5 text-sm font-medium text-text hover:bg-raised"
+              className="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-text transition-colors hover:bg-raised"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-primary-subtle text-xs font-bold text-primary-text">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-subtle text-xs font-bold text-primary-text">
                 {initials}
               </span>
               <span className="hidden sm:inline">{user?.firstName}</span>

@@ -86,15 +86,15 @@ export function JobBoardPage() {
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span>Filtered by:</span>
-                {qParam && <span className="rounded-sm bg-surface px-2 py-1 text-text">“{qParam}”</span>}
-                {locationParam && <span className="rounded-sm bg-surface px-2 py-1 text-text">{locationParam}</span>}
+                {qParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">“{qParam}”</span>}
+                {locationParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">{locationParam}</span>}
                 {remoteParam && (
-                  <span className="rounded-sm bg-surface px-2 py-1 text-text">
+                  <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">
                     {remoteParam === 'true' ? 'Remote' : 'On-site'}
                   </span>
                 )}
                 {levelParam && (
-                  <span className="rounded-sm bg-surface px-2 py-1 capitalize text-text">{levelParam}</span>
+                  <span className="rounded-md bg-surface px-2 py-1 capitalize text-text shadow-sm">{levelParam}</span>
                 )}
               </div>
               <button
@@ -125,7 +125,7 @@ export function JobBoardPage() {
           )}
 
           {!isLoading && !isError && data && data.items.length === 0 && (
-            <div className="rounded bg-surface p-10 text-center">
+            <div className="rounded-xl border border-border bg-surface p-10 text-center shadow-sm">
               <Icon icon={Briefcase} size={24} className="mx-auto mb-2 text-text-subtle" />
               <p className="text-sm font-medium text-text">No jobs match your search.</p>
               <p className="mt-1 text-xs text-text-secondary">Try broadening your keywords or clearing active filters.</p>
@@ -140,12 +140,12 @@ export function JobBoardPage() {
           )}
 
           {!isLoading && !isError && data && data.items.length > 0 && (
-            <div className="divide-y divide-border overflow-hidden rounded border border-border bg-surface">
+            <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
               {data.items.map((job) => (
                 <Link
                   key={job.id}
                   to={`/jobs/${job.id}`}
-                  className="block p-5 hover:bg-raised"
+                  className="block p-5 transition-colors hover:bg-raised"
                 >
                   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
                     <div className="min-w-0">
@@ -165,14 +165,14 @@ export function JobBoardPage() {
                     <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="rounded-sm bg-primary-subtle px-2 py-0.5 text-xs font-medium capitalize text-primary-text">
+                    <span className="rounded-md bg-primary-subtle px-2.5 py-0.5 text-xs font-medium capitalize text-primary-text">
                       {job.experienceLevel}
                     </span>
-                    <span className="rounded-sm bg-bg px-2 py-0.5 text-xs text-text-secondary">
+                    <span className="rounded-md bg-bg px-2.5 py-0.5 text-xs text-text-secondary">
                       {job.remote ? 'Remote' : 'On-site'}
                     </span>
                     {job.topSkills.map((s) => (
-                      <span key={s} className="rounded-sm bg-bg px-2 py-0.5 text-xs text-text-secondary">
+                      <span key={s} className="rounded-md bg-bg px-2.5 py-0.5 text-xs text-text-secondary">
                         {s}
                       </span>
                     ))}
@@ -199,7 +199,7 @@ export function JobBoardPage() {
 
         {/* Right column: Sticky Search & Filter Sidebar */}
         <aside className="order-1 lg:order-2 lg:sticky lg:top-20 lg:self-start">
-          <form onSubmit={onSubmit} className="space-y-4 rounded border border-border bg-surface p-5">
+          <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-border bg-surface p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-text">Filter roles</h2>
               {hasFilters && (

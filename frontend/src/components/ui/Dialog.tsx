@@ -17,7 +17,7 @@ export function Dialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-scrim p-4" onClick={onClose}>
       <div
-        className="w-full max-w-[520px] border border-border-strong bg-raised p-6"
+        className="w-full max-w-[520px] rounded-2xl border border-border-strong bg-raised p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">

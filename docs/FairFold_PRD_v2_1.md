@@ -20,7 +20,7 @@ v2.0 already removed the heavy infrastructure. This version simplifies the parts
 | Scoring | Undefined | **One simple formula** (BR-20). | Explainable and easy to test. |
 | Billing | Plans and bKash | **bKash sandbox, one-time purchase of 30 days, no auto-renew.** | No recurring billing. |
 | Email verification (FR-001, 002) | Verification email at sign-up, verified users only | **Deferred.** Accounts are active at sign-up. The `email_verified` column and the switch `app.auth.require-email-verification` (default off) exist from day one; the verification flow is built last. | Lets you build and test everything locally without a mail server. |
-| Visual design | Not defined | **Dark mode only, square corners, no gradients, a five-colour palette.** Full rules in `design.md`. | One simple, fixed style system. |
+| Visual design | Not defined | **Dual-theme (Dark & Light mode with system preference and switcher), smooth rounded corners, no gradients, a five-colour palette.** Full rules in `design.md`. | Clean, modern, accessible style system. |
 | Phase of Team (FR-047) | P4 | **P3** | Interview scheduling (FR-032) needs interviewers from the team, and the accept-invite page depends on it. |
 | API documentation | Not defined | **springdoc-openapi** generates the OpenAPI document and Swagger UI from the code. | Gives you, the frontend and your AI coding tool an exact, always-current API contract. |
 | Size | 59 FRs | **58 FRs** (only FR-036 is merged) | |
@@ -53,7 +53,7 @@ FairFold is a recruitment web platform with two portals. Employers post jobs, re
 
 ### 1.4 Non-goals
 
-Bangla or other non-English CV parsing; local ML models, embeddings or vector search; video or audio interviews and any voice, accent or face analysis; scraping LinkedIn or other sites; building courses (only external links); automatic hiring decisions; candidate paid plans; native mobile apps; recurring billing or card storage; calendar file generation; a light theme or theme switcher; rounded corners and gradients in the interface; real money payments until bKash approves a merchant account.
+Bangla or other non-English CV parsing; local ML models, embeddings or vector search; video or audio interviews and any voice, accent or face analysis; scraping LinkedIn or other sites; building courses (only external links); automatic hiring decisions; candidate paid plans; native mobile apps; recurring billing or card storage; calendar file generation; gradients in the interface; real money payments until bKash approves a merchant account.
 
 ### 1.5 Users
 
@@ -72,7 +72,7 @@ Bangla or other non-English CV parsing; local ML models, embeddings or vector se
 |---|---|---|
 | Backend | Java 21, Spring Boot 3.x (current stable), Spring Web, Security, Data JPA, Validation | One application, packaged by feature (modular monolith). |
 | Database | MariaDB (verified 13.0.2; InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`) | Flyway migrations. InnoDB full-text search for the job board. |
-| Frontend | React 18, **TypeScript**, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind (dark theme only), react-chartjs-2 with chart.js, lucide-react icons, one self-hosted sans-serif font, Inter (`@fontsource-variable/inter`) | TypeScript is now the decision, not an option. Visual rules are in `design.md`. |
+| Frontend | React 18, **TypeScript**, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind (Dark & Light themes via CSS variables, rounded corners), in-house Markdown editor/renderer, react-chartjs-2 with chart.js, lucide-react icons, one self-hosted sans-serif font, Inter (`@fontsource-variable/inter`) | TypeScript is now the decision, not an option. Visual rules are in `design.md`. |
 | AI | DeepSeek HTTP API, model `deepseek-v4.1-flash` | Model id, key and prices come from environment variables. Behind an `AiProvider` interface with a `RuleBasedFallbackProvider`. |
 | Payments | bKash sandbox | Behind a `PaymentProvider` interface. |
 | Files | Local disk volume behind a `StorageService` interface | Can be swapped for S3 or MinIO later. |
@@ -125,8 +125,8 @@ Priority: Must, Should, Could. Phase: P1 to P4 (section 7). Each acceptance crit
 
 | ID | Requirement | Priority | Phase | Acceptance criteria |
 |---|---|---|---|---|
-| REQ-FR-009 | Profile | Must | P1 | Candidate saves title, bio, location and remote preference. |
-| REQ-FR-010 | Resume upload | Must | P1 | PDF only, up to 10 MB, checked by file signature (not by extension). Stored under a random UUID name through `StorageService`. A new upload replaces the old resume. |
+| REQ-FR-009 | Profile | Must | P1 | Candidate saves title, bio, location and remote preference. Profile view displays all candidate attributes (title, location, phone, remote preference, total experience, education level, bio in Markdown, skills and current resume link) with an Overview and Edit view. |
+| REQ-FR-010 | Resume upload & preview | Must | P1 | PDF only, up to 10 MB, checked by file signature (not by extension). Stored under a random UUID name through `StorageService`. A new upload replaces the old resume. Candidate can preview the uploaded PDF inline (`iframe`) or open it in a new tab (`GET /api/candidate/resume/file`). |
 | REQ-FR-011 | PII stripping | Must | P2 | After extraction the text is stripped per BR-05. The stripped text is the only resume text kept for employers and for AI use; the private mapping (BR-05) is stored separately and only for the candidate. An audit entry is written. |
 | REQ-FR-012 | Text extraction | Must | P2 | PDFBox extracts the text. If there are fewer than 200 characters or under 85% Latin letters, the resume is marked failed with a clear reason (scanned PDF or non-English). The upload page states that only English PDFs are supported. |
 | REQ-FR-013 | Structured profile from resume | Must | P2 | The stripped text is sent to the AI to extract skills, years per skill, total experience, education level, job titles and work history (title, skills used). Employer names and start and end months do not come from the AI: employer names are restored from the private placeholder mapping (BR-05), months are parsed by rules from the original text on the server, and the candidate confirms both on the profile. The result pre-fills the profile and the candidate can edit everything. If AI is down, the candidate fills the form by hand. |

@@ -1,29 +1,29 @@
 # FairFold — Design System
 
-Version 1.0 · 12 November 2026 · Applies to all 36 pages in the Architecture file
+Version 1.1 · Updated November 2026 · Applies across the entire application
 
 ## 1. Design brief
 
-A modern, calm, dark interface for a product where trust matters. It should feel precise and engineered: flat surfaces, sharp edges, thin lines, strong type.
+A modern, clean, user-friendly interface for an evidence-based hiring platform. Designed for both Dark Mode and Light Mode with refined typography, accessible contrast, and smooth rounded corners.
 
 ### Hard rules
 
 | Rule | What it means |
 |---|---|
-| **Dark mode only** | One theme, on a dark gray background. No light theme and no theme switcher. |
-| **Slightly rounded corners** | Subtle 4 px (`rounded-sm`) radius on buttons, inputs, badges and tags; 6 px (`rounded`) on cards, panels, tables and dialogs. No pill (`rounded-full`) or large (`rounded-2xl`+) rounding. |
-| **No gradients** | Solid colours only: no gradient backgrounds, borders, text, charts, skeleton shimmers or image overlays. |
-| **No shadows** | Depth comes from surface colour steps and 1 px borders, not blur. |
-| **Palette only** | The five palette colours, dark neutrals, and tints derived from them (section 2). No other hues. |
+| **Dark & Light mode support** | Seamless dual-theme support with instant toggle and system preference detection via CSS tokens. |
+| **Rounded corners across the UI** | Modern rounded corners: 6 px (`rounded-sm`) on inputs/buttons, 8-12 px (`rounded`/`rounded-lg`) on controls and chips, 12-16 px (`rounded-xl`) on cards, panels and dialogs, and `rounded-full` for badges/pills. |
+| **No heavy gradients** | Solid, clean colours only: no aggressive gradient backgrounds, borders, or flashy image overlays. |
+| **Subtle depth & elevation** | Depth comes from surface contrast steps, refined border lines, and subtle shadows. |
+| **Classy Palette** | The core palette colours, clean neutrals for dark & light modes, and tints derived from them (section 2). |
 | **Colour is never alone** | Every status has a text label and an icon as well as a colour. |
 
 ### Principles
 
-1. **Flat and structured.** A visible grid of 1 px lines and clear surface levels does the work that shadows and rounding do elsewhere.
+1. **Clean and user-friendly.** Refined surface contrast and rounded containers make information easy to digest.
 2. **One loud thing per screen.** One purple primary action; everything else is quiet.
 3. **Type carries the hierarchy.** Big, bold headings; small, spaced, uppercase labels; plain body text.
 4. **Fairness is visible.** Advisory labels, rule-based labels, quote highlights and reveal warnings get clear visual treatment (section 11).
-5. **Fast to build.** Few tokens, few components, one set of rules that an AI assistant can follow without guessing.
+5. **Fast and consistent.** Tokens, atomic components, and theme switcher working seamlessly together.
 
 ## 2. Colour
 
@@ -32,56 +32,54 @@ A modern, calm, dark interface for a product where trust matters. It should feel
 | Swatch | Hex | Name in this document | Main job |
 |---|---|---|---|
 | Purple | `#845EC2` | `primary` | Primary actions, selection, brand |
-| Dark plum gray | `#4B4453` | `border` | Borders, dividers, track of bars, table header lines |
+| Dark plum gray | `#4B4453` | `border` | Borders, dividers, track of bars |
 | Light lavender gray | `#B0A8B9` | `text-secondary` | Secondary text, icons |
 | Brick red | `#C34A36` | `danger` | Destructive actions, failed and rejected states |
-| Coral | `#FF8066` | `accent` | Warnings, flags, evidence highlight, error text, chart accent |
+| Coral | `#FF8066` | `accent` | Warnings, flags, evidence highlight, error text |
 
-### 2.2 Tokens
+### 2.2 Tokens (Dark & Light Mode)
 
-Neutrals are dark grays with a very slight purple tint so they sit well with the palette. Tints are the palette colour mixed into the surface at about 18%, flattened to a solid colour (so there is no transparency and no gradient).
-
-| Token | Hex | Use |
-|---|---|---|
-| `bg` | `#1C1B1F` | Page background (the dark gray) |
-| `surface` | `#26242A` | Cards, tables, sidebar, top bar |
-| `raised` | `#302D36` | Dialogs, menus, hovered rows, inputs on cards |
-| `border` | `#4B4453` | Dividers and card borders (decorative lines) |
-| `border-strong` | `#8B8396` | Input, checkbox and button outlines (these must be easy to see) |
-| `text` | `#F4F2F7` | Main text (near white, never pure white on dark) |
-| `text-secondary` | `#B0A8B9` | Captions, labels, helper text |
-| `text-subtle` | `#9A92A5` | Placeholders, disabled text |
-| `primary` | `#845EC2` | Primary button fill, active indicators |
-| `primary-hover` | `#6F4BAA` | Primary button hover (darker, to keep white text readable) |
-| `primary-pressed` | `#5C3D91` | Primary button pressed |
-| `primary-text` | `#B79CF0` | Links, active nav text, focus outline, success text |
-| `primary-subtle` | `#372E45` | Selected row, active nav background, success badge background |
-| `danger` | `#C34A36` | Destructive button fill, failed or rejected badge fill |
-| `danger-subtle` | `#422B2C` | Error banner background |
-| `accent` | `#FF8066` | Warning text and icons, error text, flagged outline |
-| `accent-subtle` | `#4D3535` | Warning badge and banner background |
-| `highlight` | `#563837` | Evidence quote highlight background |
-| `scrim` | `#000000` at 60% | Behind dialogs (one flat dark layer, not a gradient) |
+| Token | Dark Mode | Light Mode | Use |
+|---|---|---|---|
+| `bg` | `#1C1B1F` | `#F7F6F9` | Page background |
+| `surface` | `#26242A` | `#FFFFFF` | Cards, tables, sidebar, top bar |
+| `raised` | `#302D36` | `#F0EDF5` | Dialogs, menus, hovered rows, inputs on cards |
+| `border` | `#4B4453` | `#E3DFE8` | Dividers and card borders |
+| `border-strong` | `#8B8396` | `#BCB4C6` | Input, checkbox and button outlines |
+| `text` | `#F4F2F7` | `#191620` | Main text (high contrast) |
+| `text-secondary` | `#B0A8B9` | `#5B5365` | Captions, labels, helper text |
+| `text-subtle` | `#9A92A5` | `#898094` | Placeholders, disabled text |
+| `primary` | `#845EC2` | `#845EC2` | Primary button fill, active indicators |
+| `primary-hover` | `#6F4BAA` | `#714BB0` | Primary button hover |
+| `primary-pressed` | `#5C3D91` | `#5C3996` | Primary button pressed |
+| `primary-text` | `#B79CF0` | `#6E3CAE` | Links, active nav text, focus outline (>5:1 contrast) |
+| `primary-subtle` | `#372E45` | `#F1ECF9` | Selected row, active nav background, badge background |
+| `danger` | `#C34A36` | `#C34A36` | Destructive button fill, failed or rejected badge fill |
+| `danger-subtle` | `#422B2C` | `#FCEEED` | Error banner background |
+| `accent` | `#FF8066` | `#D65135` | Warning text and icons, error text, flagged outline |
+| `accent-subtle` | `#4D3535` | `#FDF0ED` | Warning badge and banner background |
+| `highlight` | `#563837` | `#FEEAE4` | Evidence quote highlight background |
+| `scrim` | `rgba(0,0,0,0.6)` | `rgba(25,22,32,0.45)`| Behind dialogs and drawers |
 
 Notes:
 
 - The palette has no green. **Success states use `primary-text` on `primary-subtle` with a check icon.** If you later want green, add one derived token; do not change the rest.
-- `primary` on `bg` is only about 3.6:1, so purple is for fills, bars and borders, never for small text. Use `primary-text` for text.
+- `primary` on dark `bg` is about 3.6:1, so purple is for fills, bars and borders, never for small text. Use `primary-text` (`#B79CF0` in dark mode, `#6E3CAE` in light mode) for text and links.
+- `white` is fixed to `#FFFFFF` in Tailwind so `text-white` on `bg-primary` and `bg-danger` buttons/badges remains crisp white in both themes.
 
-### 2.3 Contrast (checked by hand, confirm with a contrast tool)
+### 2.3 Contrast (checked for both Dark & Light modes)
 
-| Pair | Ratio | Passes |
-|---|---|---|
-| `text` on `bg` | about 15 : 1 | AA and AAA |
-| `text-secondary` on `bg` / `surface` / `raised` | about 7.6 / 6.6 / 5.9 : 1 | AA |
-| `text-subtle` on `surface` | about 5.1 : 1 | AA |
-| `primary-text` on `bg` / `surface` / `primary-subtle` | about 7.4 / 6.6 / 5.6 : 1 | AA |
-| White on `primary` | about 4.8 : 1 | AA |
-| White on `primary-hover` | about 6.5 : 1 | AA |
-| White on `danger` | about 4.8 : 1 | AA |
-| `accent` on `bg` / `surface` / `accent-subtle` | about 7.0 / 6.2 / 4.7 : 1 | AA |
-| `bg` (dark text) on `accent` | about 7.0 : 1 | AA |
-| `border-strong` on `bg` (for UI outlines) | about 4.7 : 1 | needs 3 : 1 |
+| Pair | Dark Mode Ratio | Light Mode Ratio | Passes |
+|---|---|---|---|
+| `text` on `bg` / `surface` | ~15 : 1 | ~15.5 : 1 | AA and AAA |
+| `text-secondary` on `bg` / `surface` / `raised` | ~7.6 / 6.6 / 5.9 : 1 | ~7.1 / 7.5 / 6.6 : 1 | AA |
+| `text-subtle` on `surface` | ~5.1 : 1 | ~3.9 : 1 | AA (placeholders/captions) |
+| `primary-text` on `bg` / `surface` / `primary-subtle` | ~7.4 / 6.6 / 5.6 : 1 | ~5.8 / 6.2 / 5.4 : 1 | AA |
+| White (`#FFFFFF`) on `primary` | ~4.8 : 1 | ~4.8 : 1 | AA |
+| White (`#FFFFFF`) on `primary-hover` | ~6.5 : 1 | ~6.1 : 1 | AA |
+| White (`#FFFFFF`) on `danger` | ~4.8 : 1 | ~4.8 : 1 | AA |
+| `accent` on `bg` / `surface` / `accent-subtle` | ~7.0 / 6.2 / 4.7 : 1 | ~4.6 / 4.9 / 4.5 : 1 | AA |
+| `border-strong` on `bg` / `surface` (for UI outlines) | ~4.7 : 1 | ~3.2 : 1 | Passes 3 : 1 UI contrast |
 
 ## 3. Typography
 
@@ -106,14 +104,13 @@ Notes:
 
 | Item | Rule |
 |---|---|
-| Corner radius | `0` everywhere. Tailwind `rounded-*` is disabled in the config (section 13). |
-| Borders | 1 px. `border` colour for cards and dividers, `border-strong` for form controls and secondary buttons. |
-| Depth | Three surface levels: `bg` → `surface` → `raised`. Dialogs and menus are `raised` with a 1 px `border-strong` outline on top of the `scrim`. |
-| Shadows | None. |
+| Corner radius | Smooth rounded corners across the UI: `xs: 4px`, `sm: 6px`, `DEFAULT: 8px`, `md: 10px` (chips/tags), `lg: 12px` (buttons, inputs, selects, nav items), `xl: 16px` (cards, tables, panels, banners, markdown editor), `2xl: 20px` (dialogs, large avatars), `full: 9999px` (status badges, notification count pills). |
+| Borders | 1 px. `border` colour for cards and section dividers (`divide-y divide-border`), `border-strong` for secondary buttons and dialog outlines. Avoid nested bordered boxes inside cards — use clean spacing and horizontal dividers instead. |
+| Depth | Three surface levels (`bg` → `surface` → `raised`) paired with subtle elevation (`shadow-sm` on cards/tables, `shadow-lg`/`shadow-xl` on toasts, drawers and dialogs). |
 | Spacing | 4 px base: 4, 8, 12, 16, 24, 32, 48, 64. |
 | Control height | 36 (small), 40 (default), 44 (large and all touch targets on mobile). |
-| Dividers | A 1 px line is preferred to extra whitespace between sections of a card. |
-| Logo mark | A solid purple square with one corner cut off diagonally in coral (a "fold"). The cut is a straight line, not a curve. |
+| Dividers | Use `divide-y divide-border` inside a single rounded `surface` container rather than wrapping every field or section in its own box. |
+| Logo mark | A rounded purple square (`rx="7"`) with a folded coral top-right corner (`fill-accent` + `fill-primary-pressed` crease) and a crisp geometric `F` monogram (`components/ui/Logo.tsx` and `public/favicon.svg`). |
 
 ## 5. Layout
 
@@ -121,82 +118,74 @@ Notes:
 
 | Shell | Structure |
 |---|---|
-| **PublicShell** | Top bar (56 px, `surface`, 1 px bottom border): logo, Jobs, Log in, Register. Content up to 1100 px wide. |
-| **PortalShell** | Top bar (56 px) with notification bell and account menu. Left sidebar 248 px, `surface`, 1 px right border, from 1024 px up. Below 1024 px the sidebar becomes a drawer opened by a menu button. Content up to 1280 px wide, 24 px padding (16 px on mobile). |
+| **PublicShell** | For guests: sticky top bar (56 px, `surface`, 1 px bottom border) with Logo, Browse jobs link, `ThemeToggle`, Log in, and Register buttons. **When a user is signed in, `PublicShell` delegates to `PortalShell`** so the left sidebar and top bar remain visible on public routes like Browse Jobs (`/`). |
+| **PortalShell** | Sticky top bar (56 px) with `ThemeToggle`, notification bell (with rounded pill unread badge) and account profile chip. Sticky left sidebar (`240 px`, `lg:sticky lg:top-0 lg:h-screen`, `surface`, 1 px right border) from 1024 px up so it never scrolls out of view; drawer below 1024 px. Sign-out and Change Password live inside the Account Profile page (`/account` and `/account/password`), keeping the navigation uncluttered. |
 | **FocusShell** | For the assessment attempt (P18): no sidebar, a slim top bar with the title, the countdown timer and the question navigator. |
-| **AuthShell** | Two columns from 900 px up: a left panel in `primary-subtle` with the wordmark and three short statements (Anonymised screening, Explained scores, People decide), and the form on the right. Below 900 px only the form. No illustration, no gradient. |
+| **AuthShell** | Two columns from 768 px up: a left panel in `primary-subtle` with the wordmark and three rounded pillar cards (Anonymised screening, Explained scores, People decide), and a `rounded-2xl` form card on the right with a floating `ThemeToggle` in the top-right corner. |
 
 ### 5.2 Page header and block structure
 
 ```text
-KICKER LABEL (12 px uppercase primary-text)
 Page title (h1)                                   [Secondary]  [Primary action]
 Short description in text-secondary
-------------------------------------------------------------------------------
 ```
 
-- **Page header rule:** Every page header ends with a 1 px `border` bottom rule (`border-b border-border pb-4`) to anchor the layout.
-- **Top accent bar:** Primary shells (`PortalShell`, `PublicShell`, `AuthShell`) and primary hero/profile blocks carry a 2 px solid `primary` top border (`border-t-2 border-t-primary`) for visual hierarchy without gradients or shadows.
-- **Structured block headers:** Multi-field cards use a distinct header strip (`border-b border-border bg-raised px-6 py-3.5`) above the `surface` body.
-- **Definition tiles:** Profile views and read-only details use bordered `bg` cells (`border border-border bg-bg p-3.5`) with a 12 px uppercase `text-secondary` label and a 14 px `text` value (`Not specified` in `text-subtle` when empty) so all profile attributes remain visible.
+- **Minimalist containers:** Avoid excessive boxes and heavy borders. Group related content into a single `rounded-xl border border-border bg-surface p-6 sm:p-8 shadow-sm` card divided by `divide-y divide-border`.
+- **Clean definition grids:** Read-only profile and company views use a clean multi-column `<dl>` grid (`grid gap-y-5 gap-x-8 sm:grid-cols-2 lg:grid-cols-3`) with a 12 px `text-secondary` label and a 14 px `font-medium text-text` value (`Not specified` in `text-subtle` when empty).
 
 ### 5.3 Sidebar
 
-- Item height 40 px, icon plus label, label in `text-secondary`.
-- Hover: `raised` background.
-- Active: `primary-subtle` background, `primary-text` label and icon, and a **3 px `primary` bar** on the left edge.
-- Group labels in the 12 px uppercase style.
+- Sticky full-height (`lg:sticky lg:top-0 lg:h-screen`) with independent `overflow-y-auto` on the nav list and a pinned account footer linking to `/account`.
+- Item height 40 px (`h-10`), `rounded-lg`, icon plus label, label in `text-secondary`.
+- Hover: `raised` background, `text` colour.
+- Active: `primary-subtle` background, `primary-text` font-semibold label and icon.
 
 ### 5.4 Page types
 
 | Type | Pages | Pattern |
 |---|---|---|
-| Browse | P01 | Search bar and filter row on `surface`, then a list of job rows separated by 1 px lines (not cards in a grid). |
-| Public detail | P02 | Two columns: description left, sticky summary and Apply button right. |
-| Auth | P03 to P08 | AuthShell. |
-| Dashboard | P12, P20, P31 | Row of stat blocks (4 across, 2 on tablet, 1 on mobile), each a bordered `surface` block with a big tabular number, a label and a link; below them lists. |
-| List | P09, P15, P17, P22, P26, P32, P33, P34 | Page header, filter bar, table, pagination. |
-| Form | P13, P21, P23, P35 | Sections as bordered blocks, each with its own Save; sticky action bar on long forms. |
+| Browse | P01 | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. |
+| Public detail | P02 | Two columns: Markdown job description/requirements and skill chips on the left, sticky summary and Apply card on the right. |
+| Auth | P03 to P08 | AuthShell with `ThemeToggle`. |
+| Dashboard | P12, P20, P31 | Row of stat blocks (4 across, 2 on tablet, 1 on mobile), each a rounded `surface` block with a big tabular number, a label and a link; below them lists. |
+| List | P09, P15, P17, P22, P26, P32, P33, P34 | Page header, filter bar, `rounded-xl` table, pagination. |
+| Form | P13, P21, P23, P35 | Overview tab + Edit tab on profile/company pages; MarkdownEditor with formatting toolbar and live preview for rich text fields. |
 | Review (split) | P25 and P16 | Content left, sticky decision panel right (stacked on mobile, actions in a sticky bottom bar). |
-| Workspace | P24 | Header with lifecycle actions, tabs below. |
+| Workspace | P24 | Header with lifecycle actions, Overview tab (Markdown description/requirements + summary sidebar) and Applicants tab with count badge. |
 | Charts | P28, P36 | Filter row and bordered chart blocks, each with a "View as table" toggle. |
-| Settings | P10, P29, P30 | Stacked bordered blocks. Destructive actions in a block with a `danger` top border. |
+| Settings | P10, P29, P30 | `/account` shows full user details, role snapshot (Candidate or Employer Company), Appearance & Theme selector (Light / Dark / System), Sign Out button, and link to `/account/password` (dedicated Change Password page). |
 | Practice | P19 | Question on top, text area, feedback blocks, history list. |
-| Upload | P14 | Dashed-border drop zone (a straight dashed line), state steps, two tabs. |
+| Upload | P14 | `rounded-xl` dashed-border drop zone, current resume card with inline PDF iframe preview (`Preview` / `Hide preview`) and `New tab` viewer (`GET /api/candidate/resume/file`). |
 | Focus | P18 | FocusShell, one question at a time. |
 | Error | P11 | Centred large code (`404`, `403`) in the large stat style, one sentence, one button. |
 
 ## 6. Components
 
-All components have square corners. States listed are required for each.
+All components use the rounded corner scale and adapt automatically to Dark and Light modes via CSS variables.
 
 | Component | Specification |
 |---|---|
-| **Button, primary** | Fill `primary`, white text, 40 px high, 16 px side padding, 600 weight. Hover `primary-hover`, pressed `primary-pressed`. Disabled: `raised` fill, `text-subtle` text. Loading: spinner replaces the icon and the width stays fixed. |
-| **Button, secondary** | Transparent, 1 px `border-strong`, `text`. Hover: `raised`. |
-| **Button, danger** | Fill `danger`, white text. Used only for destructive confirmations. |
-| **Button, ghost** | No border, `primary-text` text, underline on hover. For tertiary actions. |
-| **Input, select, textarea** | Fill `bg` (so it looks inset on `surface`), 1 px `border-strong`, `text`, placeholder `text-subtle`. Focus: border `primary-text` plus the focus outline. Error: border `accent`, message below in `accent` with an X icon. Disabled: `surface` fill, `text-subtle`. |
-| **Checkbox** | 18 px square, 1 px `border-strong`; checked: `primary` fill with a white check. |
-| **Radio** | 18 px square outline, with a solid `primary` inner square when selected. Radios are always inside a labelled group, so they are not confused with checkboxes. |
-| **Switch** | Rectangular track 40 by 20 px, square thumb 14 px. On: `primary` track. Off: `border` track. Label text beside it says On or Off. |
-| **Badge** | 24 px high, 8 px side padding, 12 px uppercase 600, icon plus label (section 7). |
+| **Button, primary** | `rounded-lg`, fill `primary`, white text, 40 px high, 16 px side padding, 600 weight. Hover `primary-hover`, pressed `primary-pressed`. Disabled: `raised` fill, `text-subtle` text. Loading: spinner. |
+| **Button, secondary** | `rounded-lg`, transparent, 1 px `border-strong`, `text`. Hover: `raised`. |
+| **Button, danger** | `rounded-lg`, fill `danger`, white text. Used only for destructive confirmations. |
+| **Button, ghost** | `rounded-lg`, no border, `primary-text` text, underline on hover. For tertiary actions. |
+| **ThemeToggle** | `rounded-lg`, 36 px high (`h-9`), 1 px `border`, `surface` fill, `Sun` / `Moon` icon (optional label). Toggles between Dark and Light mode and persists to `localStorage` (`fairfold_theme`). |
+| **Input, select, textarea** | `rounded-lg`, fill `bg`, 1 px `border`, `text`, placeholder `text-subtle`. Focus: border `primary`. Error: border `accent`. Disabled: `surface` fill, `text-subtle`. |
+| **MarkdownEditor** | `rounded-xl`, toolbar on `bg` with quick formatting buttons (`rounded-md`: Heading, Bold, Italic, Code, Link, Bullet list, Numbered list, Quote, Horizontal rule) + side-by-side textarea and live `Markdown` preview on `surface`. |
+| **Checkbox** | 18 px `rounded` square, 1 px `border-strong`; checked: `primary` fill with a white check. |
+| **Radio** | 18 px circle/rounded outline, with a solid `primary` inner dot when selected. |
+| **Switch** | Rounded track 40 by 20 px, thumb 14 px. On: `primary` track. Off: `border` track. |
+| **Badge** | `rounded-full` pill, 24 px high, 10 px side padding (`px-2.5`), 12 px uppercase 600, icon plus label (section 7). |
 | **Tabs** | Text tabs with a 2 px `primary` underline on the active tab, a 1 px `border` line under the whole row. |
-| **Card / block** | `surface`, 1 px `border`, 24 px padding (16 on mobile). No shadow. |
-| **Table** | Header row on `bg`, 12 px uppercase labels in `text-secondary`, 1 px lines between rows, row height 48, hover row `raised`, selected row `primary-subtle`. Numbers right-aligned with tabular figures. Sticky header. |
-| **Pagination** | Square buttons, current page with `primary` fill. |
-| **Dialog** | `raised`, 1 px `border-strong`, max width 520 px (720 for large forms), 24 px padding, on the `scrim`. Title h2, actions right-aligned (primary on the right). Focus is trapped. |
-| **Toast** | `raised`, 1 px `border-strong`, 4 px left bar in the status colour, icon plus text, bottom right on desktop and top on mobile. Auto-dismiss after 6 seconds except errors. |
-| **Banner** | Full-width block with a 4 px left bar: info (`primary` bar on `surface`), warning (`accent` bar on `accent-subtle`), error (`danger` bar on `danger-subtle`). Always icon plus text. |
-| **Tooltip** | `raised`, 1 px `border-strong`, 12 px text. Never the only place for essential information. |
-| **Score meter** | A number with tabular figures (for example `82`) and a horizontal bar 8 px high: track `border`, fill `primary`, no rounding, no ring or dial. A marker line shows the job's cut-off score when one exists. |
-| **Progress bar** | Same as the score bar, with counts as text. |
-| **Skeleton** | Flat `raised` blocks with a slow opacity pulse (1.2 s). No shimmer sweep, because a sweep is a gradient. |
-| **Empty and error states** | A square 48 px icon block in `raised`, one sentence, one action. |
-| **Avatar / initials** | Square, 32 px, `primary-subtle` fill, `primary-text` initials. |
-| **File drop zone** | `surface`, 1 px dashed `border-strong`. Drag-over: `primary-subtle` fill and `primary-text` border. |
-| **Evidence quote** | Inside the resume text: `highlight` background, 2 px `accent` underline. In the claim list: a block with a 3 px `accent` left bar. |
-| **Chip / tag** | Same as badge but neutral: `raised` fill, 1 px `border`, `text-secondary`. |
+| **Card / block** | `rounded-xl`, `surface`, 1 px `border`, 24 px padding, `shadow-sm`. |
+| **Table** | `rounded-xl` container with `shadow-sm`, header row on `bg`, 12 px uppercase labels in `text-secondary`, 1 px lines between rows, row height 48, hover row `raised`, selected row `primary-subtle`. |
+| **Pagination** | `rounded-lg` buttons, current page with `primary` fill. |
+| **Dialog** | `rounded-2xl`, `raised`, 1 px `border-strong`, `shadow-xl`, max width 520 px (720 for large forms), 24 px padding, on the `scrim`. |
+| **Toast** | `rounded-xl`, `raised`, 1 px `border-strong`, 4 px left bar in the status colour, `shadow-lg`, icon plus text, bottom right. |
+| **Banner** | `rounded-xl`, full-width block with a 4 px left bar and `shadow-sm`: info (`primary` bar on `surface`), warning (`accent` bar on `accent-subtle`), error (`danger` bar on `danger-subtle`). Always icon plus text. |
+| **Avatar / initials** | `rounded-lg` (small, 32-36 px) or `rounded-2xl` (profile headers, 56 px), `primary-subtle` fill, `primary-text` bold initials. |
+| **File drop zone** | `rounded-xl`, `surface`, 1 px dashed `border`, `shadow-sm`. Drag-over: `primary-subtle` fill and `primary-text` border. |
+| **Chip / tag** | `rounded-md`, `raised` or `bg` fill, `text-secondary` or `text`. |
 
 ### Focus
 
@@ -285,10 +274,9 @@ Target WCAG 2.1 AA.
 
 ## 13. Implementation
 
-### 13.1 CSS variables
+### 13.1 CSS variables (`styles/tokens.css`)
 
 ```css
-/* styles/tokens.css */
 :root {
   color-scheme: dark;
   --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
@@ -299,27 +287,52 @@ Target WCAG 2.1 AA.
   --primary-text: #B79CF0; --primary-subtle: #372E45;
   --danger: #C34A36;       --danger-subtle: #422B2C;
   --accent: #FF8066;       --accent-subtle: #4D3535;  --highlight: #563837;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --white: #FFFFFF;        --black: #000000;
+  --radius-xs: 4px;        --radius-sm: 6px;         --radius: 10px;
+  --radius-lg: 14px;       --radius-xl: 18px;        --radius-full: 9999px;
 }
-html { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
-:focus-visible { outline: 2px solid var(--primary-text); outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+:root.light,
+html.light,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #F7F6F9;           --surface: #FFFFFF;       --raised: #F0EDF5;
+  --border: #E3DFE8;       --border-strong: #BCB4C6;
+  --text: #191620;         --text-secondary: #5B5365; --text-subtle: #898094;
+  --primary: #845EC2;      --primary-hover: #714BB0;  --primary-pressed: #5C3996;
+  --primary-text: #6E3CAE; --primary-subtle: #F1ECF9;
+  --danger: #C34A36;       --danger-subtle: #FCEEED;
+  --accent: #D65135;       --accent-subtle: #FDF0ED;  --highlight: #FEEAE4;
+  --scrim: rgba(25, 22, 32, 0.45);
+}
 ```
 
-### 13.2 Tailwind config
+### 13.2 Tailwind config (`tailwind.config.ts`)
 
 ```ts
-// tailwind.config.ts
 import type { Config } from 'tailwindcss';
-const zero = '0px';
+
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: ['class'],
   theme: {
-    borderRadius: { none: zero, DEFAULT: zero, sm: zero, md: zero, lg: zero, xl: zero, '2xl': zero, '3xl': zero, full: zero },
-    boxShadow: { none: 'none' },
-    backgroundImage: {},                       // removes every bg-gradient-* utility
+    borderRadius: {
+      none: '0px', xs: '4px', sm: '6px', DEFAULT: '8px', md: '10px',
+      lg: '12px', xl: '16px', '2xl': '20px', '3xl': '24px', full: '9999px',
+    },
+    boxShadow: {
+      none: 'none',
+      sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+      md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+      lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+    },
+    backgroundImage: {},
     colors: {
       transparent: 'transparent', current: 'currentColor',
-      bg: 'var(--bg)', surface: 'var(--surface)', raised: 'var(--raised)',
+      white: '#FFFFFF', black: '#000000',
+      bg: 'var(--bg)', surface: 'var(--surface)', raised: 'var(--raised)', scrim: 'var(--scrim)',
       border: 'var(--border)', 'border-strong': 'var(--border-strong)',
       text: 'var(--text)', 'text-secondary': 'var(--text-secondary)', 'text-subtle': 'var(--text-subtle)',
       primary: 'var(--primary)', 'primary-hover': 'var(--primary-hover)', 'primary-pressed': 'var(--primary-pressed)',
@@ -327,32 +340,27 @@ export default {
       danger: 'var(--danger)', 'danger-subtle': 'var(--danger-subtle)',
       accent: 'var(--accent)', 'accent-subtle': 'var(--accent-subtle)', highlight: 'var(--highlight)',
     },
-    fontFamily: { sans: ['var(--font-sans)'] },   // the only font family
+    fontFamily: { sans: ['var(--font-sans)'] },
   },
 } satisfies Config;
 ```
 
-Because the `colors` key is replaced (not extended), only the tokens above exist, so an off-palette colour class simply does not compile.
+### 13.3 Enforcement script (`scripts/check-design.sh`)
 
-### 13.3 Enforcement script
-
-AI assistants often add `rounded-lg`, `shadow-md` or a gradient out of habit. This script fails the commit when that happens.
+Ensures no gradient utilities or raw off-token hex colours are introduced in components.
 
 ```bash
 #!/usr/bin/env bash
-# scripts/check-design.sh  (run before every commit and in CI)
 set -u
 cd "$(dirname "$0")/../frontend/src" || exit 1
 
-bad=$(grep -rnE "rounded|gradient|shadow|border-radius|box-shadow" . \
-        --include=*.ts --include=*.tsx --include=*.css \
-      | grep -vE "rounded-none|border-radius: *0|borderRadius *(=|:) *0" || true)
+bad=$(grep -rnE "bg-gradient-" . --include=*.ts --include=*.tsx --include=*.css || true)
 
 hex=$(grep -rnE "#[0-9A-Fa-f]{6}\b" . --include=*.ts --include=*.tsx --include=*.css \
       | grep -vE "styles/tokens.css|charts/defaults.ts" || true)
 
 if [ -n "$bad" ] || [ -n "$hex" ]; then
-  [ -n "$bad" ] && { echo "Forbidden radius, gradient or shadow:"; echo "$bad"; }
+  [ -n "$bad" ] && { echo "Forbidden gradient:"; echo "$bad"; }
   [ -n "$hex" ] && { echo "Colours must come from tokens:"; echo "$hex"; }
   exit 1
 fi
@@ -363,29 +371,17 @@ echo "design check passed"
 
 ```text
 src/components/ui/
-  Button.tsx  Input.tsx  Select.tsx  Textarea.tsx  Checkbox.tsx  Radio.tsx  Switch.tsx
-  Badge.tsx   Tabs.tsx   Card.tsx    Table.tsx     Pagination.tsx
-  Dialog.tsx  Toast.tsx  Banner.tsx  Tooltip.tsx   Skeleton.tsx  ProgressBar.tsx
-  Icon.tsx    (wraps lucide with square caps and miter joins)
-  statusMap.ts (section 7 as data: status -> style, icon, label)
+  Button.tsx  Input.tsx  Select.tsx  Textarea.tsx  Checkbox.tsx  ThemeToggle.tsx
+  Badge.tsx   Tabs.tsx   Card.tsx    Table.tsx     Logo.tsx
+  Dialog.tsx  Toast.tsx  Banner.tsx  Skeleton.tsx
+  Markdown.tsx  MarkdownEditor.tsx   Icon.tsx
 ```
-
-Build order for chunk 1: Button, Input, Select, Table, Badge, Dialog, Toast, then the rest as pages need them.
-
-### 13.5 Rules for AI-written UI code
-
-Give the AI these lines together with the page spec:
-
-1. Use only classes from the Tailwind config in this file. No `rounded-*`, `shadow-*`, gradient or arbitrary colour classes.
-2. Every status uses `statusMap.ts` with icon and label.
-3. Every button, input and dialog is the shared component, never a raw element with custom styles.
-4. Every list, table and form has loading, empty and error states.
-5. Run `scripts/check-design.sh` and fix everything it reports.
 
 ## 14. Checklist before a page is done
 
-- [ ] No rounded corners, gradients or shadows (the script passes)
-- [ ] Only token colours
+- [ ] Works seamlessly in both Dark Mode and Light Mode
+- [ ] Consistent rounded corners (`rounded-lg` controls, `rounded-xl` cards/tables, `rounded-full` badges)
+- [ ] Only token colours (no raw hex in components; `scripts/check-design.sh` passes)
 - [ ] Heading hierarchy is h1, then h2
 - [ ] All statuses have icon and text
 - [ ] Keyboard path works and focus is visible

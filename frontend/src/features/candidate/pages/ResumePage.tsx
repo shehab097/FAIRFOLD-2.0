@@ -108,7 +108,7 @@ export function ResumePage() {
           }}
           onClick={() => inputRef.current?.click()}
           className={
-            'flex w-full flex-col items-center justify-center gap-2 rounded border border-dashed px-6 py-10 text-center ' +
+            'flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-6 py-10 text-center shadow-sm ' +
             (dragging ? 'border-primary-text bg-primary-subtle' : 'border-border bg-surface hover:bg-raised')
           }
         >
@@ -131,10 +131,10 @@ export function ResumePage() {
       {noResume && <Banner tone="info">No resume uploaded yet. Upload one to apply to jobs.</Banner>}
 
       {resume && (
-        <div className="divide-y divide-border rounded border border-border bg-surface">
+        <div className="divide-y divide-border rounded-xl border border-border bg-surface shadow-sm">
           <div className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-primary-text">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-subtle text-primary-text">
                 <Icon icon={FileText} size={20} />
               </div>
               <div>
@@ -167,7 +167,7 @@ export function ResumePage() {
               <iframe
                 src={previewUrl}
                 title={resume.filename ?? 'Resume preview'}
-                className="h-[720px] w-full rounded-sm border border-border bg-bg"
+                className="h-[720px] w-full rounded-xl border border-border bg-bg"
               />
             </div>
           )}

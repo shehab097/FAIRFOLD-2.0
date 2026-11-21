@@ -16,7 +16,7 @@ export function Logo({ to = '/', subtitle }: { to?: string; subtitle?: string })
       <span className="flex items-center gap-2">
         <span className="text-lg font-bold tracking-tight text-text">FairFold</span>
         {subtitle && (
-          <span className="rounded-sm bg-primary-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-text">
+          <span className="rounded-md bg-primary-subtle px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-text">
             {subtitle}
           </span>
         )}

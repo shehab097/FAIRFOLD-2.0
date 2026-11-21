@@ -58,7 +58,7 @@ export function ChangePasswordPage() {
 
       {error && <Banner tone="error">{error}</Banner>}
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded border border-border bg-surface p-6">
+      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-border bg-surface p-6 shadow-sm">
         <div>
           <label htmlFor="current-password" className="mb-1 block text-xs text-text-secondary">
             Current password

@@ -53,7 +53,7 @@ FairFold is a recruitment web platform with two portals. Employers post jobs, re
 |---|---|
 | **Backend** | Java 21, Spring Boot 3.5, Spring Web, Security, Data JPA, Validation, Flyway, Mail |
 | **Database** | **MariaDB** (InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`) — driver `org.mariadb.jdbc:mariadb-java-client`, migrations via `flyway-mysql` |
-| **Frontend** | React 18, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind CSS (dark only), lucide-react, `@fontsource-variable/inter` |
+| **Frontend** | React 18, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind CSS (Dark & Light mode with theme switcher and rounded corners), in-house Markdown editor/renderer, lucide-react, `@fontsource-variable/inter` |
 | **API docs** | springdoc-openapi (Swagger UI + `/v3/api-docs`) |
 | **Auth** | JWT access token (in memory), refresh token in an HttpOnly cookie, BCrypt, rate limiting (Bucket4j) |
 | **AI** | DeepSeek behind an `AiProvider` interface, with a `RuleBasedFallbackProvider` (works with no key) |
@@ -81,14 +81,15 @@ fairfold/
 │           └── application*.yml
 ├── frontend/                React + Vite + TypeScript — run from this directory
 │   └── src/
-│       ├── app/             router, auth context, guards
+│       ├── app/             router, auth context, theme context (Dark/Light/System), guards
 │       ├── api/             Axios client + API modules
-│       ├── features/        feature pages (auth, …)
-│       ├── components/      ui/ primitives and layout shells
-│       └── styles/          design tokens
-├── docs/                    PRD, design system, plan, roadmap, prompts, progress
-├── scripts/check-design.sh  fails on rounded corners / gradients / shadows
-├── data/                    resume files in development (git-ignored)
+│       ├── features/        feature pages (auth, jobs, candidate, employer, account, notifications)
+│       ├── components/      ui/ primitives (incl. MarkdownEditor, ThemeToggle, Logo) and layout shells
+│       └── styles/          design tokens (dark & light mode, radius scale)
+├── docs/                    PRD, design system, plan, roadmap, prompts, progress, openapi.json
+├── scripts/check-design.sh  verifies token colours and forbids off-palette hex / gradients
+├── data/                    uploaded resume files in development (git-ignored)
+├── dummy-data/              local dummy data generator, 5 PDF CVs, users.csv, seed_data.sql (git-ignored)
 ├── .env.example             every setting the app reads
 └── .env                     your local values (git-ignored — never commit)
 ```
@@ -309,8 +310,19 @@ cd backend
 cd frontend
 npm test
 
-# Design system guard (fails on rounded corners / gradients / shadows / off-token colours)
+# Design system guard (verifies token colours and forbids gradients / raw hex)
 ./scripts/check-design.sh
+```
+
+---
+
+## Dummy seed data (local development)
+
+A local generator script in `dummy-data/` (git-ignored) creates **20 active jobs**, **10 users** (6 candidates and 4 employer HRs across 4 companies), and **5 PDF CVs** (copied into `data/resumes/`), along with `dummy-data/users.csv` containing `id,name,email,role,password` (all accounts use `Password123!`):
+
+```bash
+python3 dummy-data/generate_dummy_data.py
+mariadb -u shehab -p1234 fairfold < dummy-data/seed_data.sql
 ```
 
 ---
@@ -368,7 +380,7 @@ curl http://localhost:8080/v3/api-docs -o docs/openapi.json
 | File | Contents |
 |---|---|
 | [`docs/FairFold_PRD_v2_1.md`](docs/FairFold_PRD_v2_1.md) | Product requirements, goals, roles, functional requirements |
-| [`docs/design.md`](docs/design.md) | Design system: dark-only, square corners, five-colour palette, components |
+| [`docs/design.md`](docs/design.md) | Design system: Dark & Light mode support, rounded corner scale, five-colour palette, components |
 | [`docs/plan.md`](docs/plan.md) | 10-day build plan, local setup, chunk-by-chunk checklist |
 | [`docs/roadmap.md`](docs/roadmap.md) | Milestones, timeline, production-readiness gates |
 | [`docs/progress.md`](docs/progress.md) | Live status, decisions (including **D-15: MariaDB**), test log, history |

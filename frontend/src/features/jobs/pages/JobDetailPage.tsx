@@ -92,7 +92,7 @@ export function JobDetailPage() {
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+        <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
           <section className="pb-6">
             <h2 className="mb-3 text-lg font-semibold">About the role</h2>
             <Markdown source={job.description} />
@@ -113,7 +113,7 @@ export function JobDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   {job.requiredSkills.length === 0 && <span className="text-sm text-text-subtle">None listed</span>}
                   {job.requiredSkills.map((s) => (
-                    <span key={s} className="rounded-sm bg-raised px-2.5 py-1 text-xs font-medium text-text">
+                    <span key={s} className="rounded-md bg-raised px-2.5 py-1 text-xs font-medium text-text">
                       {s}
                     </span>
                   ))}
@@ -124,7 +124,7 @@ export function JobDetailPage() {
                   <div className="mb-1.5 text-xs text-text-secondary">Nice to have</div>
                   <div className="flex flex-wrap gap-2">
                     {job.niceToHaveSkills.map((s) => (
-                      <span key={s} className="rounded-sm bg-bg px-2.5 py-1 text-xs text-text-secondary">
+                      <span key={s} className="rounded-md bg-bg px-2.5 py-1 text-xs text-text-secondary">
                         {s}
                       </span>
                     ))}
@@ -136,7 +136,7 @@ export function JobDetailPage() {
         </div>
 
         <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="space-y-4 rounded border border-border bg-surface p-5">
+          <div className="space-y-4 rounded-xl border border-border bg-surface p-5 shadow-sm">
             <dl className="space-y-2.5 text-sm">
               <div className="flex justify-between">
                 <dt className="text-text-secondary">Company</dt>

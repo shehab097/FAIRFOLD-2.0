@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, FileText, KeyRound, LogOut, Mail, Shield } from 'lucide-react';
+import { Check, FileText, KeyRound, LogOut, Mail, Monitor, Moon, Shield, Sun } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
+import { useTheme } from '../../../app/theme/ThemeContext';
 import { useProfile, useResume, useSkills } from '../../candidate/queries';
 import { useCompany } from '../../employer/queries';
 import { Badge } from '../../../components/ui/Badge';
@@ -27,7 +28,7 @@ function CandidateSnapshot() {
   const { data: resume } = useResume();
 
   return (
-    <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+    <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3 pb-5">
         <h2 className="text-base font-semibold">Candidate profile</h2>
         <div className="flex flex-wrap gap-2">
@@ -99,7 +100,7 @@ function EmployerCompanySnapshot() {
   if (!company) return null;
 
   return (
-    <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+    <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-3 pb-5">
         <h2 className="text-base font-semibold">Company profile</h2>
         <Link to="/employer/company">
@@ -161,6 +162,7 @@ function EmployerCompanySnapshot() {
 
 export function AccountPage() {
   const { user, signOut } = useAuth();
+  const { theme, setTheme } = useTheme();
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U';
 
   return (
@@ -184,9 +186,9 @@ export function AccountPage() {
         </div>
       </div>
 
-      <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+      <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
         <div className="flex items-center gap-4 pb-6">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-base font-bold text-primary-text">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-subtle text-lg font-bold text-primary-text">
             {initials}
           </div>
           <div>
@@ -205,7 +207,7 @@ export function AccountPage() {
           </div>
         </div>
 
-        <dl className="grid gap-y-5 gap-x-8 pt-6 sm:grid-cols-2 lg:grid-cols-3">
+        <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-3">
           <DetailItem label="Full name" value={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()} />
           <DetailItem label="First name" value={user?.firstName} />
           <DetailItem label="Last name" value={user?.lastName} />
@@ -214,6 +216,49 @@ export function AccountPage() {
           <DetailItem label="Account ID" value={user?.id} />
           {user?.companyId && <DetailItem label="Company ID" value={user.companyId} />}
         </dl>
+
+        <div className="pt-6">
+          <h3 className="text-sm font-semibold text-text">Theme & appearance</h3>
+          <p className="mt-0.5 text-xs text-text-secondary">Choose how FairFold looks to you.</p>
+          <div className="mt-3 flex flex-wrap gap-2.5">
+            <button
+              type="button"
+              onClick={() => setTheme('light')}
+              className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors ${
+                theme === 'light'
+                  ? 'border-primary bg-primary-subtle text-primary-text'
+                  : 'border-border bg-bg text-text hover:bg-raised'
+              }`}
+            >
+              <Icon icon={Sun} size={16} />
+              Light mode
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors ${
+                theme === 'dark'
+                  ? 'border-primary bg-primary-subtle text-primary-text'
+                  : 'border-border bg-bg text-text hover:bg-raised'
+              }`}
+            >
+              <Icon icon={Moon} size={16} />
+              Dark mode
+            </button>
+            <button
+              type="button"
+              onClick={() => setTheme('system')}
+              className={`inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-colors ${
+                theme === 'system'
+                  ? 'border-primary bg-primary-subtle text-primary-text'
+                  : 'border-border bg-bg text-text hover:bg-raised'
+              }`}
+            >
+              <Icon icon={Monitor} size={16} />
+              System default
+            </button>
+          </div>
+        </div>
       </div>
 
       {user?.role === 'CANDIDATE' && <CandidateSnapshot />}

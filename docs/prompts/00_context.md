@@ -183,27 +183,27 @@ Application transitions (anything else returns 409; every change writes `applica
 
 ## 9. Design rules (summary)
 
-**Dark mode only. Square corners everywhere (radius 0). No gradients. No shadows. Five-colour palette. One sans-serif font (Inter).**
+**Dark & Light mode support (via CSS variables, `ThemeContext`, and `ThemeToggle`). Smooth rounded corners across the UI (`rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-full`). No gradients. Subtle shadows. Five-colour palette. One sans-serif font (Inter).**
 
-| Token | Hex | Use |
-|---|---|---|
-| `bg` | `#1C1B1F` | Page background |
-| `surface` | `#26242A` | Cards, tables, sidebar, top bar |
-| `raised` | `#302D36` | Dialogs, menus, hovered rows |
-| `border` | `#4B4453` | Dividers, card borders |
-| `border-strong` | `#8B8396` | Input and button outlines |
-| `text` | `#F4F2F7` | Main text |
-| `text-secondary` | `#B0A8B9` | Labels, captions |
-| `text-subtle` | `#9A92A5` | Placeholders, disabled |
-| `primary` | `#845EC2` | Primary button fill, active bar (white text on it) |
-| `primary-hover` / `primary-pressed` | `#6F4BAA` / `#5C3D91` | Button states |
-| `primary-text` | `#B79CF0` | Links, active nav text, focus outline, success text |
-| `primary-subtle` | `#372E45` | Selected row, active nav bg, success badge bg |
-| `danger` | `#C34A36` | Destructive fill, failed badge (white text) |
-| `danger-subtle` | `#422B2C` | Error banner bg |
-| `accent` | `#FF8066` | Warning and error text, flags |
-| `accent-subtle` | `#4D3535` | Warning badge and banner bg |
-| `highlight` | `#563837` | Evidence quote background |
+| Token | Dark Mode | Light Mode | Use |
+|---|---|---|---|
+| `bg` | `#1C1B1F` | `#F7F6F9` | Page background |
+| `surface` | `#26242A` | `#FFFFFF` | Cards, tables, sidebar, top bar |
+| `raised` | `#302D36` | `#F0EDF5` | Dialogs, menus, hovered rows |
+| `border` | `#4B4453` | `#E3DFE8` | Dividers, card borders |
+| `border-strong` | `#8B8396` | `#BCB4C6` | Input and button outlines |
+| `text` | `#F4F2F7` | `#191620` | Main text |
+| `text-secondary` | `#B0A8B9` | `#5B5365` | Labels, captions |
+| `text-subtle` | `#9A92A5` | `#898094` | Placeholders, disabled |
+| `primary` | `#845EC2` | `#845EC2` | Primary button fill, active bar (white text on it) |
+| `primary-hover` / `primary-pressed` | `#6F4BAA` / `#5C3D91` | `#714BB0` / `#5C3996` | Button states |
+| `primary-text` | `#B79CF0` | `#6E3CAE` | Links, active nav text, focus outline, success text |
+| `primary-subtle` | `#372E45` | `#F1ECF9` | Selected row, active nav bg, success badge bg |
+| `danger` | `#C34A36` | `#C34A36` | Destructive fill, failed badge (white text) |
+| `danger-subtle` | `#422B2C` | `#FCEEED` | Error banner bg |
+| `accent` | `#FF8066` | `#D65135` | Warning and error text, flags |
+| `accent-subtle` | `#4D3535` | `#FDF0ED` | Warning badge and banner bg |
+| `highlight` | `#563837` | `#FEEAE4` | Evidence quote background |
 
 - Tailwind config: all `borderRadius` = 0, `boxShadow` = none, `backgroundImage` = {}, `colors` limited to the tokens above (as CSS variables), `fontFamily.sans` only. No `rounded-*`, `shadow-*`, gradient classes or raw hex colours in components.
 - Type: Inter only. h1 28/36 700, h2 20/28 600, h3 16/24 600, body 14/22, labels 12/16 600 uppercase tracking 0.06em, numbers with tabular figures. Never below 12 px.
@@ -241,7 +241,7 @@ Application transitions (anything else returns 409; every change writes `applica
 | P07 | Reset password | `/reset-password?token=` | Guest | 1 |
 | P08 | Accept invite | `/accept-invite?token=` | Guest | 4 |
 | P09 | Notifications | `/notifications` | Signed in | 1 |
-| P10 | Account settings | `/account` | Signed in | 1, 5 |
+| P10 | Account settings | `/account`, `/account/password` | Signed in | 1, 5 |
 | P11 | Not found / No access | `*`, `/403` | Everyone | 1 |
 | P12 | Candidate dashboard | `/candidate` | Candidate | 1 |
 | P13 | Profile | `/candidate/profile` | Candidate | 1, 2, 3 |

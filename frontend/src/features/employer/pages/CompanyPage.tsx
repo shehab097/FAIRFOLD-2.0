@@ -74,17 +74,17 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
     .toUpperCase();
 
   return (
-    <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+    <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
       <div className="flex flex-col justify-between gap-4 pb-6 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
           {company.logoUrl ? (
             <img
               src={company.logoUrl}
               alt={company.name ?? 'Company logo'}
-              className="h-14 w-14 shrink-0 rounded-sm bg-bg object-contain"
+              className="h-14 w-14 shrink-0 rounded-xl bg-bg object-contain"
             />
           ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-lg font-bold text-primary-text">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary-subtle text-lg font-bold text-primary-text">
               {initials}
             </div>
           )}
@@ -312,7 +312,7 @@ export function CompanyPage() {
         <>
           {error && <Banner tone="error">{error}</Banner>}
 
-          <form onSubmit={onSubmit} className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+          <form onSubmit={onSubmit} className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
             <div className="space-y-4 pb-6">
               <h2 className="text-base font-semibold">Basics</h2>
               <div className="grid gap-4 sm:grid-cols-2">

@@ -17,11 +17,11 @@ export function Badge({ status, tone, icon, children }: BadgeProps) {
     return (
       <span
         className={cn(
-          'inline-flex h-6 items-center gap-1 rounded-sm px-2 text-xs font-semibold uppercase tracking-[0.06em]',
+          'inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold uppercase tracking-[0.06em]',
           statusToneClasses(style.tone),
         )}
       >
-        <Icon icon={style.icon} size={16} />
+        <Icon icon={style.icon} size={14} />
         {style.label}
       </span>
     );
@@ -31,11 +31,11 @@ export function Badge({ status, tone, icon, children }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex h-6 items-center gap-1 rounded-sm px-2 text-xs font-semibold uppercase tracking-[0.06em]',
+        'inline-flex h-6 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold uppercase tracking-[0.06em]',
         statusToneClasses(resolvedTone),
       )}
     >
-      {icon && <Icon icon={icon} size={16} />}
+      {icon && <Icon icon={icon} size={14} />}
       {children}
     </span>
   );

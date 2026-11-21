@@ -285,10 +285,10 @@ export function ProfilePage() {
       />
 
       {tab === 'overview' && (
-        <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+        <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-base font-bold text-primary-text">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-subtle text-base font-bold text-primary-text">
                 {initials}
               </div>
               <div>
@@ -364,7 +364,7 @@ export function ProfilePage() {
       )}
 
       {tab === 'edit' && (
-        <div className="rounded border border-border bg-surface p-6 sm:p-8">
+        <div className="rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
           <h2 className="mb-4 text-base font-semibold">Edit profile details</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>

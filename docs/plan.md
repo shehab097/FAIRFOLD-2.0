@@ -8,7 +8,7 @@ Based on PRD v2.1 and the Architecture file. Build and run everything directly o
 - **Demo gate.** Do not start the next chunk until the demo of the current one works end to end.
 - **Honest budget.** 10 days has no buffer. Treat days 11 and 12 as spare. Chunks 5 and 6 are the ones most likely to spill over.
 - **AI helps, rules stay yours.** Scoring, stripping and status transitions are small, well-tested services that you read line by line.
-- **Design rules.** Every screen follows `design.md`: dark only, square corners, no gradients, the five-colour palette. Run `scripts/check-design.sh` before each commit.
+- **Design rules.** Every screen follows `design.md`: Dark & Light mode support via CSS tokens, smooth rounded corners, no gradients, the five-colour palette. Run `scripts/check-design.sh` before each commit.
 
 | Chunk | Theme | Days | Running total |
 |---|---|---|---|

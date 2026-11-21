@@ -20,7 +20,7 @@ export function Checkbox({ checked, onChange, label, disabled = false }: Checkbo
     >
       <span
         className={cn(
-          'flex h-[18px] w-[18px] items-center justify-center border',
+          'flex h-[18px] w-[18px] items-center justify-center rounded border',
           checked ? 'border-primary bg-primary text-white' : 'border-border-strong bg-bg text-transparent',
         )}
       >
