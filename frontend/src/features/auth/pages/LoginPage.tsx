@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Eye, EyeOff, Lock, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
@@ -34,45 +34,44 @@ export function LoginPage() {
 
   return (
     <div>
-      <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-primary-text">
-        ← Back to home
-      </Link>
-
-      <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary-subtle px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-primary-text">
-        <Icon icon={ShieldCheck} size={14} />
-        Secure sign-in
-      </div>
-      <h1 className="mt-4 text-[30px] font-bold leading-tight">Welcome back.</h1>
-      <p className="mt-1.5 text-sm text-text-secondary">
-        Log in to continue your fair hiring journey.
-      </p>
+      <h1 className="text-[28px] font-bold leading-tight">Log in</h1>
+      <p className="mt-1 text-sm text-text-secondary">Welcome back to FairFold.</p>
 
       {error && (
-        <div className="mt-5">
+        <div className="mt-6">
           <Banner tone={errorCode === 'ACCOUNT_LOCKED' ? 'warning' : 'error'}>{error}</Banner>
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
         <div>
-          <label htmlFor="email" className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-            Email address
+          <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-text">
+            Email
           </label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            autoComplete="email"
-            disabled={loading}
-            required
-          />
+          <div className="relative">
+            <Icon
+              icon={Mail}
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-subtle"
+            />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              autoComplete="email"
+              disabled={loading}
+              className="pl-9"
+              autoFocus
+              required
+            />
+          </div>
         </div>
 
         <div>
-          <div className="mb-1 flex items-center justify-between gap-3">
-            <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
+          <div className="mb-1.5 flex items-center justify-between gap-3">
+            <label htmlFor="password" className="block text-sm font-medium text-text">
               Password
             </label>
             <Link to="/forgot-password" className="text-xs font-medium text-primary-text hover:underline">
@@ -80,15 +79,20 @@ export function LoginPage() {
             </Link>
           </div>
           <div className="relative">
+            <Icon
+              icon={Lock}
+              size={16}
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-subtle"
+            />
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="••••••••"
               autoComplete="current-password"
               disabled={loading}
-              className="pr-11"
+              className="pl-9 pr-11"
               required
             />
             <button
@@ -104,27 +108,14 @@ export function LoginPage() {
 
         <Button type="submit" loading={loading} className="w-full">
           Log in
-          <Icon icon={ArrowRight} size={16} />
         </Button>
       </form>
 
-      <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-text-subtle">
-          New to FairFold?
-        </span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
-
-      <Link to="/register">
-        <Button variant="secondary" className="w-full">
+      <p className="mt-8 text-center text-sm text-text-secondary">
+        New to FairFold?{' '}
+        <Link to="/register" className="font-semibold text-primary-text hover:underline">
           Create an account
-        </Button>
-      </Link>
-
-      <p className="mt-5 flex items-start gap-2 text-xs leading-5 text-text-secondary">
-        <Icon icon={Lock} size={14} className="mt-0.5 shrink-0 text-primary-text" />
-        Your identity stays private during screening. Only your experience and evidence are reviewed.
+        </Link>
       </p>
     </div>
   );
