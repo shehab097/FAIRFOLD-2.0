@@ -142,19 +142,23 @@ public class AuthService {
         if (rawToken == null || rawToken.isBlank()) {
             throw ApiException.unauthorized("UNAUTHORIZED", "Authentication required.");
         }
-        RefreshToken token = refreshTokenRepository.findByTokenHash(hash(rawToken))
-                .orElseThrow(() -> ApiException.unauthorized("UNAUTHORIZED", "Authentication required."));
-        if (token.getRevokedAt() != null || token.getExpiresAt().isBefore(clock.instant())) {
+        try {
+            RefreshToken token = refreshTokenRepository.findByTokenHashForUpdate(hash(rawToken))
+                    .orElseThrow(() -> ApiException.unauthorized("UNAUTHORIZED", "Authentication required."));
+            if (token.getRevokedAt() != null || token.getExpiresAt().isBefore(clock.instant())) {
+                throw ApiException.unauthorized("UNAUTHORIZED", "Authentication required.");
+            }
+            User user = userRepository.findById(token.getUserId())
+                    .orElseThrow(() -> ApiException.unauthorized("UNAUTHORIZED", "Authentication required."));
+
+            token.setRevokedAt(clock.instant());
+            refreshTokenRepository.save(token);
+
+            String newRefreshToken = issueRefreshToken(user);
+            return new AuthSession(jwtService.generateAccessToken(user), newRefreshToken, UserDto.from(user));
+        } catch (org.springframework.dao.DataAccessException e) {
             throw ApiException.unauthorized("UNAUTHORIZED", "Authentication required.");
         }
-        User user = userRepository.findById(token.getUserId())
-                .orElseThrow(() -> ApiException.unauthorized("UNAUTHORIZED", "Authentication required."));
-
-        token.setRevokedAt(clock.instant());
-        refreshTokenRepository.save(token);
-
-        String newRefreshToken = issueRefreshToken(user);
-        return new AuthSession(jwtService.generateAccessToken(user), newRefreshToken, UserDto.from(user));
     }
 
     @Transactional

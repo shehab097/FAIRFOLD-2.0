@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import type { AuthResponse } from '../features/auth/types';
 
 // No baseURL: every endpoint is an explicit relative path starting with /api,
 // so the Vite proxy forwards it to the backend (single origin, no CORS).
@@ -25,16 +26,42 @@ api.interceptors.request.use((config) => {
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
-let refreshPromise: Promise<string | null> | null = null;
+let refreshPromise: Promise<AuthResponse | null> | null = null;
 
-async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const { data } = await axios.post<{ accessToken: string }>('/api/auth/refresh', null, {
+/**
+ * Deduplicated token refresh: ensures only one /api/auth/refresh request
+ * is ever in-flight across bootstrap, interceptors, and concurrent callers.
+ */
+export async function requestTokenRefresh(): Promise<AuthResponse | null> {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  refreshPromise = axios
+    .post<AuthResponse>('/api/auth/refresh', null, {
       withCredentials: true,
+    })
+    .then((res) => {
+      setAccessToken(res.data.accessToken);
+      return res.data;
+    })
+    .catch((err: AxiosError) => {
+      if (err.response?.status === 401) {
+        setAccessToken(null);
+      }
+      return null;
+    })
+    .finally(() => {
+      refreshPromise = null;
     });
-    return data.accessToken;
-  } catch {
-    return null;
+
+  return refreshPromise;
+}
+
+export function notifySessionExpired(): void {
+  setAccessToken(null);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('auth:session-expired'));
   }
 }
 
@@ -48,17 +75,13 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && original && !original._retry && !isAuthEndpoint) {
       original._retry = true;
-      refreshPromise = refreshPromise ?? refreshAccessToken().finally(() => {
-        refreshPromise = null;
-      });
-      const token = await refreshPromise;
-      if (token) {
-        setAccessToken(token);
-        original.headers.Authorization = `Bearer ${token}`;
+      const session = await requestTokenRefresh();
+      if (session?.accessToken) {
+        original.headers.Authorization = `Bearer ${session.accessToken}`;
         return api(original);
       }
-      setAccessToken(null);
-      window.location.assign(`/login?next=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      // Refresh failed with 401; notify auth context cleanly without hard window reload
+      notifySessionExpired();
     }
     return Promise.reject(error);
   },

@@ -47,6 +47,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(body);
     }
 
+    @ExceptionHandler(org.springframework.dao.ConcurrencyFailureException.class)
+    public ResponseEntity<ErrorResponse> handleConcurrency(org.springframework.dao.ConcurrencyFailureException ex) {
+        log.warn("Concurrency conflict: {}", ex.getMessage());
+        var body = new ErrorResponse(Instant.now(), 409, "Conflict", "CONCURRENCY_CONFLICT",
+                "A concurrent request was detected. Please retry.", null);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
         log.error("Unhandled exception", ex);

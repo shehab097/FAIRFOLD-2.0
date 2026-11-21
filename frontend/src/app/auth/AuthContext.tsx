@@ -23,8 +23,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session) setUser(session.user);
       setInitializing(false);
     });
+
+    const handleSessionExpired = () => {
+      setUser(null);
+    };
+    window.addEventListener('auth:session-expired', handleSessionExpired);
+
     return () => {
       active = false;
+      window.removeEventListener('auth:session-expired', handleSessionExpired);
     };
   }, []);
 

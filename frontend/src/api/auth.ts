@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { api, setAccessToken } from './client';
+import { api, requestTokenRefresh, setAccessToken } from './client';
 import type { AuthResponse } from '../features/auth/types';
 
 export interface RegisterInput {
@@ -16,15 +15,7 @@ export interface ForgotPasswordInput {
 }
 
 export async function bootstrapSession(): Promise<AuthResponse | null> {
-  try {
-    const { data } = await axios.post<AuthResponse>('/api/auth/refresh', null, {
-      withCredentials: true,
-    });
-    setAccessToken(data.accessToken);
-    return data;
-  } catch {
-    return null;
-  }
+  return requestTokenRefresh();
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
