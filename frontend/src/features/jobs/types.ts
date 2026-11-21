@@ -131,6 +131,13 @@ export interface SkillDto {
 
 export const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+'] as const;
 export const EXPERIENCE_LEVELS: ExperienceLevel[] = ['entry', 'mid', 'senior', 'lead'];
+
+export const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
+  entry: 'Junior',
+  mid: 'Mid',
+  senior: 'Senior',
+  lead: 'Lead',
+};
 export const SALARY_TYPES: SalaryType[] = ['fixed', 'range', 'negotiable'];
 export const SALARY_PERIODS: SalaryPeriod[] = ['year', 'month', 'hour'];
 

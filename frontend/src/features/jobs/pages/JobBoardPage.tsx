@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Briefcase, Building2, MapPin, RotateCcw, Search } from 'lucide-react';
 import { useJobs } from '../queries';
-import { EXPERIENCE_LEVELS, type ExperienceLevel } from '../types';
+import { EXPERIENCE_LABELS, EXPERIENCE_LEVELS, type ExperienceLevel } from '../types';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { CompanyLogo } from '../../../components/ui/CompanyLogo';
@@ -206,17 +206,17 @@ export function JobBoardPage() {
                     <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2 pl-[52px]">
-                    <span className="rounded-md bg-primary-subtle px-2.5 py-0.5 text-xs font-medium text-primary-text">
+                    <span className="rounded-md bg-success-subtle px-2.5 py-0.5 text-xs font-medium text-success">
                       {formatSalary(job)}
                     </span>
-                    <span className="rounded-md bg-bg px-2.5 py-0.5 text-xs font-medium capitalize text-text-secondary">
-                      {job.experienceLevel}
+                    <span className="rounded-md bg-info-subtle px-2.5 py-0.5 text-xs font-medium text-info">
+                      {EXPERIENCE_LABELS[job.experienceLevel]}
                     </span>
-                    <span className="rounded-md bg-bg px-2.5 py-0.5 text-xs text-text-secondary">
+                    <span className="rounded-md bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">
                       {job.remote ? 'Remote' : 'On-site'}
                     </span>
-                    {job.topSkills.map((s) => (
-                      <span key={s} className="rounded-md bg-bg px-2.5 py-0.5 text-xs text-text-secondary">
+                    {job.topSkills.slice(0, 2).map((s) => (
+                      <span key={s} className="rounded-md bg-raised px-2.5 py-0.5 text-xs text-text-secondary">
                         {s}
                       </span>
                     ))}
@@ -355,7 +355,7 @@ export function JobBoardPage() {
                 <option value="">Any experience level</option>
                 {EXPERIENCE_LEVELS.map((l) => (
                   <option key={l} value={l}>
-                    {l}
+                    {EXPERIENCE_LABELS[l]}
                   </option>
                 ))}
               </Select>

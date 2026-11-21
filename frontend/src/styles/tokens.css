@@ -17,6 +17,12 @@
   --primary-subtle: rgba(249, 115, 22, 0.15);
   --danger: #EF4444;
   --danger-subtle: #450A0A;
+  --success: #34D399;
+  --success-subtle: rgba(52, 211, 153, 0.15);
+  --info: #93C5FD;
+  --info-subtle: rgba(96, 165, 250, 0.15);
+  --warning: #FBBF24;
+  --warning-subtle: rgba(251, 191, 36, 0.15);
   --accent: #FB923C;
   --accent-subtle: rgba(251, 146, 60, 0.15);
   --highlight: #78350F;
@@ -51,6 +57,12 @@ html.light,
   --primary-subtle: #FFEDD5;
   --danger: #DC2626;
   --danger-subtle: #FEE2E2;
+  --success: #047857;
+  --success-subtle: #D1FAE5;
+  --info: #1D4ED8;
+  --info-subtle: #DBEAFE;
+  --warning: #92400E;
+  --warning-subtle: #FEF3C7;
   --accent: #C2410C;
   --accent-subtle: #FEF3C7;
   --highlight: #FEF3C7;

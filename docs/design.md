@@ -60,6 +60,12 @@ A modern, clean, user-friendly interface for an evidence-based hiring platform. 
 | `primary-subtle` | `rgba(249,115,22,0.15)` | `#FFEDD5` | Active nav background, badge background |
 | `danger` | `#EF4444` | `#DC2626` | Destructive button fill, failed or rejected badge fill |
 | `danger-subtle` | `#450A0A` | `#FEE2E2` | Error banner background |
+| `success` | `#34D399` | `#047857` | Salary badge text, positive states |
+| `success-subtle` | `rgba(52,211,153,0.15)` | `#D1FAE5` | Salary badge background |
+| `info` | `#93C5FD` | `#1D4ED8` | Experience-level badge text |
+| `info-subtle` | `rgba(96,165,250,0.15)` | `#DBEAFE` | Experience-level badge background |
+| `warning` | `#FBBF24` | `#92400E` | Work-mode badge text |
+| `warning-subtle` | `rgba(251,191,36,0.15)` | `#FEF3C7` | Work-mode badge background |
 | `accent` | `#FB923C` | `#C2410C` | Warning text and icons, error text, flagged outline |
 | `accent-subtle` | `rgba(251,146,60,0.15)` | `#FEF3C7` | Warning badge and banner background |
 | `highlight` | `#78350F` | `#FEF3C7` | Evidence quote highlight background |
@@ -146,7 +152,7 @@ Short description in text-secondary
 
 | Type | Pages | Pattern |
 |---|---|---|
-| Browse | P01 | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. |
+| Browse | P01 | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. Each job card shows salary (green `success` badge), experience level (blue `info` badge, with `entry` labelled **Junior**), work mode (amber `warning` badge) and **at most two** neutral `raised` skill chips. |
 | Public detail | P02 | Two columns: Markdown job description/requirements and skill chips on the left, sticky summary and Apply card on the right. |
 | Auth | P03 to P08 | AuthShell with `ThemeToggle`. |
 | Dashboard | P12, P20, P31 | Row of stat blocks (4 across, 2 on tablet, 1 on mobile), each a rounded `surface` block with a big tabular number, a label and a link; below them lists. |
@@ -289,6 +295,9 @@ Target WCAG 2.1 AA.
   --primary: #F97316;      --primary-hover: #FB923C;  --primary-pressed: #EA580C;
   --primary-text: #FB923C; --primary-subtle: rgba(249, 115, 22, 0.15);
   --danger: #EF4444;       --danger-subtle: #450A0A;
+  --success: #34D399;      --success-subtle: rgba(52, 211, 153, 0.15);
+  --info: #93C5FD;         --info-subtle: rgba(96, 165, 250, 0.15);
+  --warning: #FBBF24;      --warning-subtle: rgba(251, 191, 36, 0.15);
   --accent: #FB923C;       --accent-subtle: rgba(251, 146, 60, 0.15); --highlight: #78350F;
   --scrim: rgba(11, 15, 23, 0.7);
   --white: #FFFFFF;        --black: #000000;
@@ -307,6 +316,9 @@ html.light,
   --primary: #F97316;      --primary-hover: #EA580C;  --primary-pressed: #C2410C;
   --primary-text: #C2410C; --primary-subtle: #FFEDD5;
   --danger: #DC2626;       --danger-subtle: #FEE2E2;
+  --success: #047857;      --success-subtle: #D1FAE5;
+  --info: #1D4ED8;         --info-subtle: #DBEAFE;
+  --warning: #92400E;      --warning-subtle: #FEF3C7;
   --accent: #C2410C;       --accent-subtle: #FEF3C7;  --highlight: #FEF3C7;
   --scrim: rgba(15, 23, 42, 0.5);
 }
@@ -342,6 +354,9 @@ export default {
       primary: 'var(--primary)', 'primary-hover': 'var(--primary-hover)', 'primary-pressed': 'var(--primary-pressed)',
       'primary-text': 'var(--primary-text)', 'primary-subtle': 'var(--primary-subtle)',
       danger: 'var(--danger)', 'danger-subtle': 'var(--danger-subtle)',
+      success: 'var(--success)', 'success-subtle': 'var(--success-subtle)',
+      info: 'var(--info)', 'info-subtle': 'var(--info-subtle)',
+      warning: 'var(--warning)', 'warning-subtle': 'var(--warning-subtle)',
       accent: 'var(--accent)', 'accent-subtle': 'var(--accent-subtle)', highlight: 'var(--highlight)',
     },
     fontFamily: { sans: ['var(--font-sans)'] },
