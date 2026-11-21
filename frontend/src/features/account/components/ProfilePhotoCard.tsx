@@ -8,7 +8,7 @@ import { UserAvatar } from '../../../components/ui/UserAvatar';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 
-const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 export function ProfilePhotoCard() {
   const { user, updateUser } = useAuth();
@@ -27,7 +27,7 @@ export function ProfilePhotoCard() {
     event.target.value = '';
     if (!file) return;
     if (file.size > MAX_PHOTO_BYTES) {
-      toast('Profile photo must be at most 2 MB.', 'error');
+      toast('Profile photo must be at most 5 MB.', 'error');
       return;
     }
 
@@ -60,7 +60,9 @@ export function ProfilePhotoCard() {
         <UserAvatar name={name} avatarUrl={user.avatarUrl} size="xl" />
         <div>
           <h2 className="text-base font-semibold">Profile photo</h2>
-          <p className="mt-0.5 text-xs text-text-secondary">PNG, JPEG, GIF, WebP or SVG · max 2 MB.</p>
+          <p className="mt-0.5 text-xs text-text-secondary">
+            PNG, JPEG, GIF or WebP · converted to 480×480 WebP · max 5 MB.
+          </p>
         </div>
       </div>
 
@@ -68,7 +70,7 @@ export function ProfilePhotoCard() {
         <input
           ref={inputRef}
           type="file"
-          accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+          accept="image/png,image/jpeg,image/gif,image/webp"
           className="sr-only"
           onChange={onFile}
         />

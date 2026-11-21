@@ -249,7 +249,7 @@ export const SERIES = ['#845EC2', '#FF8066', '#B0A8B9', '#C34A36'];
 
 - `lucide-react`, 20 px in controls, 16 px inside badges. Set `strokeLinecap="square"` and `strokeLinejoin="miter"` globally so icon corners are sharp too (wrap the icons in one `Icon` component that sets this).
 - Icons are `text-secondary` by default and take the text colour of their context.
-- No stock photos or illustrations. Candidates and EMPLOYER_HR users may upload an optional profile photo (`UserAvatar`/`ProfilePhotoCard`). The photo is private to the signed-in user: it appears in their own portal avatar and account page, and is never included in employer-facing application/job DTOs, preserving the anonymised-screening fairness rule.
+- No stock photos or illustrations. Candidates and EMPLOYER_HR users may upload an optional profile photo (`UserAvatar`/`ProfilePhotoCard`). Uploads are normalized server-side to a **480×480 WebP** image (center-cropped 1:1) before storage. The photo is private to the signed-in user: it appears in their own portal avatar and account page, and is never included in employer-facing application/job DTOs, preserving the anonymised-screening fairness rule.
 - Company logos show in a square frame (`CompanyLogo`) beside the job title on Browse Jobs and the job detail page, and in the company profile header. When a company hides its name (`showNamePublicly = false`) the logo is hidden too; the component falls back to company initials or a `Building2` icon.
 
 ## 11. Fairness patterns

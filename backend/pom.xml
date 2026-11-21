@@ -102,6 +102,14 @@
             <version>8.10.1</version>
         </dependency>
 
+        <!-- WebP ImageIO reader/writer for profile-photo conversion -->
+        <dependency>
+            <groupId>com.github.usefulness</groupId>
+            <artifactId>webp-imageio</artifactId>
+            <version>0.10.0</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -43,7 +43,7 @@ public class AccountController {
 
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('CANDIDATE', 'EMPLOYER_HR')")
-    @Operation(summary = "Upload or replace the current user's profile photo")
+    @Operation(summary = "Upload or replace the current user's profile photo (480×480 WebP)")
     public UserDto uploadPhoto(
             @AuthenticationPrincipal CurrentUser currentUser,
             @RequestParam("file") MultipartFile file) {

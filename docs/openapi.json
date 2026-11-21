@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8080",
+            "url": "http://localhost:8090",
             "description": "Generated server url"
         }
     ],
@@ -980,7 +980,7 @@
                 "tags": [
                     "Account"
                 ],
-                "summary": "Upload or replace the current user's profile photo",
+                "summary": "Upload or replace the current user's profile photo (480×480 WebP)",
                 "operationId": "uploadPhoto",
                 "requestBody": {
                     "content": {
