@@ -27,8 +27,8 @@ FairFold is a recruitment web platform with two portals. Employers post jobs, re
 
 | | |
 |---|---|
-| **Candidates** | Build a profile from a PDF resume, apply to jobs, see how they were scored, take skill assessments, practise interviews in text, and track a career journey. |
-| **Employers** | Post jobs with a fixed, range or negotiable salary, receive anonymised applications, run AI screening, see a ranked list with evidence quotes, shortlist (only then is identity revealed), schedule interviews and message candidates. |
+| **Candidates** | Build a profile from a PDF resume, upload a profile photo, apply to jobs, see how they were scored, take skill assessments, practise interviews in text, and track a career journey. |
+| **Employers** | Post jobs with a fixed, range or negotiable salary, upload a profile photo, receive anonymised applications, run AI screening, see a ranked list with evidence quotes, shortlist (only then is identity revealed), schedule interviews and message candidates. |
 | **Interviewers** | Get a question pack and submit structured feedback. |
 | **Admins** | Manage users, content, resources and the audit log. |
 | **Guests** | Browse public jobs. |

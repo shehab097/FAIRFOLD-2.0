@@ -20,7 +20,7 @@ export function PublicShell() {
           <div className="flex items-center gap-6">
             <Logo />
             <NavLink
-              to="/"
+              to="/jobs"
               end
               className={({ isActive }) =>
                 cn(

@@ -32,7 +32,7 @@ export interface NavItem {
 export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
   CANDIDATE: [
     { label: 'Dashboard', to: '/candidate', enabled: true, icon: LayoutDashboard, end: true },
-    { label: 'Browse jobs', to: '/', enabled: true, icon: Search, end: true },
+    { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Applications', to: '/candidate/applications', enabled: true, icon: FolderKanban },
     { label: 'Resume', to: '/candidate/resume', enabled: true, icon: FileText },
     { label: 'Profile', to: '/candidate/profile', enabled: true, icon: User },
@@ -44,7 +44,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Dashboard', to: '/employer', enabled: false, icon: LayoutDashboard, end: true },
     { label: 'Jobs', to: '/employer/jobs', enabled: true, icon: Briefcase },
     { label: 'Company', to: '/employer/company', enabled: true, icon: Building2 },
-    { label: 'Browse jobs', to: '/', enabled: true, icon: Search, end: true },
+    { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: false, icon: Video },
     { label: 'Analytics', to: '/employer/analytics', enabled: false, icon: BarChart3 },
     { label: 'Team', to: '/employer/team', enabled: false, icon: Users },
@@ -53,17 +53,17 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
   EMPLOYER_MANAGER: [
     { label: 'Dashboard', to: '/employer', enabled: false, icon: LayoutDashboard, end: true },
     { label: 'Jobs', to: '/employer/jobs', enabled: true, icon: Briefcase },
-    { label: 'Browse jobs', to: '/', enabled: true, icon: Search, end: true },
+    { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: false, icon: Video },
     { label: 'Analytics', to: '/employer/analytics', enabled: false, icon: BarChart3 },
   ],
   INTERVIEWER: [
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },
-    { label: 'Browse jobs', to: '/', enabled: true, icon: Search, end: true },
+    { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
   ],
   ADMIN: [
     { label: 'Dashboard', to: '/admin', enabled: true, icon: LayoutDashboard, end: true },
-    { label: 'Browse jobs', to: '/', enabled: true, icon: Search, end: true },
+    { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Users', to: '/admin/users', enabled: false, icon: Users },
     { label: 'Audit log', to: '/admin/audit', enabled: false, icon: Shield },
     { label: 'Content', to: '/admin/content', enabled: false, icon: FileText },

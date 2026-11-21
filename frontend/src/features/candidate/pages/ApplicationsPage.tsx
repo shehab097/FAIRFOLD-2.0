@@ -88,7 +88,7 @@ export function ApplicationsPage() {
           empty={
             <div className="border border-border bg-surface p-8 text-center text-text-secondary">
               No applications yet.{' '}
-              <Link to="/" className="text-primary-text hover:underline">
+              <Link to="/jobs" className="text-primary-text hover:underline">
                 Browse jobs
               </Link>
             </div>

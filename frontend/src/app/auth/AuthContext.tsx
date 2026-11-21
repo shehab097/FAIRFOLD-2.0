@@ -8,6 +8,7 @@ interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>;
   register: (input: authApi.RegisterInput) => Promise<void>;
   signOut: () => Promise<void>;
+  updateUser: (user: UserDto) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -50,8 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const updateUser = useCallback((next: UserDto) => {
+    setUser(next);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, initializing, signIn, register, signOut }}>
+    <AuthContext.Provider value={{ user, initializing, signIn, register, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

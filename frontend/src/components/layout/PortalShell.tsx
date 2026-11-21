@@ -8,6 +8,7 @@ import { SIDEBAR_ITEMS } from '../../lib/nav';
 import { Icon } from '../ui/Icon';
 import { Logo } from '../ui/Logo';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { UserAvatar } from '../ui/UserAvatar';
 
 export function PortalShell() {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ export function PortalShell() {
     enabled: Boolean(user),
   });
 
-  const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U';
+  const displayName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
   const roleLabel = user?.role.replace('_', ' ') ?? '';
 
   const sidebarContent = (onNavigate?: () => void) => (
@@ -63,9 +64,7 @@ export function PortalShell() {
           onClick={onNavigate}
           className="flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-raised"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-subtle text-xs font-bold text-primary-text">
-            {initials}
-          </div>
+          <UserAvatar name={displayName} avatarUrl={user?.avatarUrl} size="sm" />
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-medium text-text">
               {user?.firstName} {user?.lastName}
@@ -124,9 +123,7 @@ export function PortalShell() {
               aria-label="Account profile"
               className="flex h-9 items-center gap-2 rounded-lg px-2.5 text-sm font-medium text-text transition-colors hover:bg-raised"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-subtle text-xs font-bold text-primary-text">
-                {initials}
-              </span>
+              <UserAvatar name={displayName} avatarUrl={user?.avatarUrl} size="xs" />
               <span className="hidden sm:inline">{user?.firstName}</span>
             </Link>
           </div>

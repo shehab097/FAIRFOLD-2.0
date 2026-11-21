@@ -36,6 +36,9 @@ public class User extends BaseEntity {
     @Column(name = "company_id", columnDefinition = "char(36)")
     private UUID companyId;
 
+    @Column(name = "avatar_url", length = 512)
+    private String avatarUrl;
+
     @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = true;
 
@@ -94,6 +97,14 @@ public class User extends BaseEntity {
 
     public void setCompanyId(UUID companyId) {
         this.companyId = companyId;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public boolean isEmailVerified() {

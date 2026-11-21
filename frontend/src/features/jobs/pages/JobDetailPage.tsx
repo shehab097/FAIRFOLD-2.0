@@ -61,7 +61,7 @@ export function JobDetailPage() {
     return (
       <Banner tone="error">
         Job not found or no longer available.{' '}
-        <Link to="/" className="text-primary-text hover:underline">
+        <Link to="/jobs" className="text-primary-text hover:underline">
           Back to jobs
         </Link>
       </Banner>
@@ -71,7 +71,7 @@ export function JobDetailPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/" className="text-sm text-text-secondary hover:text-primary-text">
+        <Link to="/jobs" className="text-sm text-text-secondary hover:text-primary-text">
           ← Browse jobs
         </Link>
         <div className="mt-2 flex items-start gap-3">

@@ -4,12 +4,19 @@ import { useAuth } from './auth/AuthContext';
 import { homePathForRole } from '../lib/auth';
 import type { Role } from '../features/auth/types';
 
-function FullScreenLoader() {
+export function FullScreenLoader() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg">
       <div className="animate-pulse text-sm text-text-secondary">Loading…</div>
     </div>
   );
+}
+
+/** Role-aware landing: signed-in users go to their dashboard, guests to the job board. */
+export function HomeRedirect() {
+  const { user, initializing } = useAuth();
+  if (initializing) return <FullScreenLoader />;
+  return <Navigate to={user ? homePathForRole(user.role) : '/jobs'} replace />;
 }
 
 export function RequireAuth({ children }: { children: ReactNode }) {

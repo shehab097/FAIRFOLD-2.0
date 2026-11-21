@@ -126,8 +126,8 @@ Notes:
 
 | Shell | Structure |
 |---|---|
-| **PublicShell** | For guests: sticky top bar (56 px, `surface`, 1 px bottom border) with Logo, Browse jobs link, `ThemeToggle`, Log in, and Register buttons. **When a user is signed in, `PublicShell` delegates to `PortalShell`** so the left sidebar and top bar remain visible on public routes like Browse Jobs (`/`). |
-| **PortalShell** | Sticky top bar (56 px) with `ThemeToggle`, notification bell (with rounded pill unread badge) and account profile chip. Sticky left sidebar (`240 px`, `lg:sticky lg:top-0 lg:h-screen`, `surface`, 1 px right border) from 1024 px up so it never scrolls out of view; drawer below 1024 px. Sign-out and Change Password live inside the Account Profile page (`/account` and `/account/password`), keeping the navigation uncluttered. |
+| **PublicShell** | For guests: sticky top bar (56 px, `surface`, 1 px bottom border) with Logo, Browse jobs link, `ThemeToggle`, Log in, and Register buttons. **When a user is signed in, `PublicShell` delegates to `PortalShell`** so the left sidebar and top bar remain visible on public routes like Browse Jobs (`/jobs`). The `/` route is a role-aware landing redirect: candidates → `/candidate`, employer roles → `/employer`, guests → `/jobs`. |
+| **PortalShell** | Sticky top bar (56 px) with `ThemeToggle`, notification bell (with rounded pill unread badge) and account profile chip (`UserAvatar`, which shows the uploaded profile photo or initials). Sticky left sidebar (`240 px`, `lg:sticky lg:top-0 lg:h-screen`, `surface`, 1 px right border) from 1024 px up so it never scrolls out of view; drawer below 1024 px. Sign-out and Change Password live inside the Account Profile page (`/account` and `/account/password`), keeping the navigation uncluttered. |
 | **FocusShell** | For the assessment attempt (P18): no sidebar, a slim top bar with the title, the countdown timer and the question navigator. |
 | **AuthShell** | Two columns from 768 px up: a left panel in `primary-subtle` with the wordmark and three rounded pillar cards (Anonymised screening, Explained scores, People decide), and a `rounded-2xl` form card on the right with a floating `ThemeToggle` in the top-right corner. |
 
@@ -152,7 +152,7 @@ Short description in text-secondary
 
 | Type | Pages | Pattern |
 |---|---|---|
-| Browse | P01 | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. Each job card shows salary (green `success` badge), experience level (blue `info` badge, with `entry` labelled **Junior**), work mode (amber `warning` badge) and **at most two** neutral `raised` skill chips. |
+| Browse | P01 (`/jobs`) | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. Each job card shows salary (green `success` badge), experience level (blue `info` badge, with `entry` labelled **Junior**), work mode (amber `warning` badge) and **at most two** neutral `raised` skill chips. |
 | Public detail | P02 | Two columns: Markdown job description/requirements and skill chips on the left, sticky summary and Apply card on the right. |
 | Auth | P03 to P08 | AuthShell with `ThemeToggle`. |
 | Dashboard | P12, P20, P31 | Row of stat blocks (4 across, 2 on tablet, 1 on mobile), each a rounded `surface` block with a big tabular number, a label and a link; below them lists. |
@@ -249,7 +249,7 @@ export const SERIES = ['#845EC2', '#FF8066', '#B0A8B9', '#C34A36'];
 
 - `lucide-react`, 20 px in controls, 16 px inside badges. Set `strokeLinecap="square"` and `strokeLinejoin="miter"` globally so icon corners are sharp too (wrap the icons in one `Icon` component that sets this).
 - Icons are `text-secondary` by default and take the text colour of their context.
-- No stock photos, illustrations or avatars from images. Candidates have no photos anywhere (this is part of the product's fairness).
+- No stock photos or illustrations. Candidates and EMPLOYER_HR users may upload an optional profile photo (`UserAvatar`/`ProfilePhotoCard`). The photo is private to the signed-in user: it appears in their own portal avatar and account page, and is never included in employer-facing application/job DTOs, preserving the anonymised-screening fairness rule.
 - Company logos show in a square frame (`CompanyLogo`) beside the job title on Browse Jobs and the job detail page, and in the company profile header. When a company hides its name (`showNamePublicly = false`) the logo is hidden too; the component falls back to company initials or a `Building2` icon.
 
 ## 11. Fairness patterns
@@ -393,7 +393,7 @@ src/components/ui/
   Button.tsx  Input.tsx  Select.tsx  Textarea.tsx  Checkbox.tsx  ThemeToggle.tsx
   Badge.tsx   Tabs.tsx   Card.tsx    Table.tsx     Logo.tsx
   Dialog.tsx  Toast.tsx  Banner.tsx  Skeleton.tsx
-  Markdown.tsx  MarkdownEditor.tsx   Icon.tsx
+  Markdown.tsx  MarkdownEditor.tsx   Icon.tsx  UserAvatar.tsx
 ```
 
 ## 14. Checklist before a page is done

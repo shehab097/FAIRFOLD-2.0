@@ -10,7 +10,8 @@ public record UserDto(
         String firstName,
         String lastName,
         String role,
-        UUID companyId
+        UUID companyId,
+        String avatarUrl
 ) {
     public static UserDto from(User user) {
         return new UserDto(
@@ -19,6 +20,7 @@ public record UserDto(
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole().name(),
-                user.getCompanyId());
+                user.getCompanyId(),
+                user.getAvatarUrl());
     }
 }

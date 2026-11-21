@@ -90,7 +90,7 @@ export function DashboardPage() {
             {data.latestApplications.length === 0 ? (
               <div className="px-4 pb-4 text-sm text-text-subtle">
                 No applications yet.{' '}
-                <Link to="/" className="text-primary-text hover:underline">
+                <Link to="/jobs" className="text-primary-text hover:underline">
                   Browse jobs
                 </Link>
               </div>

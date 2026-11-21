@@ -19,6 +19,8 @@ import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { emptyLocation, formatLocation, parseLocation, type LocationValue } from '../../../lib/locations';
+import { ProfilePhotoCard } from '../../account/components/ProfilePhotoCard';
+import { UserAvatar } from '../../../components/ui/UserAvatar';
 
 function DetailItem({ label, value }: { label: string; value: ReactNode }) {
   const empty = value === null || value === undefined || value === '';
@@ -254,7 +256,7 @@ export function ProfilePage() {
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
 
-  const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'C';
+  const displayName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
 
   return (
     <div className="space-y-6">
@@ -287,12 +289,12 @@ export function ProfilePage() {
       />
 
       {tab === 'overview' && (
+        <>
+        <ProfilePhotoCard />
         <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-6">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-subtle text-base font-bold text-primary-text">
-                {initials}
-              </div>
+              <UserAvatar name={displayName} avatarUrl={user?.avatarUrl} size="lg" />
               <div>
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h2 className="text-xl font-bold text-text">
@@ -363,6 +365,7 @@ export function ProfilePage() {
             {profile?.bio ? <Markdown source={profile.bio} /> : <span className="text-sm text-text-subtle">No bio written yet.</span>}
           </div>
         </div>
+        </>
       )}
 
       {tab === 'edit' && (

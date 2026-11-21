@@ -12,6 +12,7 @@ export interface UserDto {
   lastName: string;
   role: Role;
   companyId: string | null;
+  avatarUrl: string | null;
 }
 
 export interface AuthResponse {

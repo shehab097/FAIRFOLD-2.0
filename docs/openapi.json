@@ -38,6 +38,10 @@
             "description": "Skill lookup and suggestions"
         },
         {
+            "name": "Users",
+            "description": "Public user resources"
+        },
+        {
             "name": "Notifications",
             "description": "In-app notifications for the signed-in user"
         },
@@ -971,6 +975,64 @@
                 }
             }
         },
+        "/api/account/photo": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Upload or replace the current user's profile photo",
+                "operationId": "uploadPhoto",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Remove the current user's profile photo",
+                "operationId": "deletePhoto",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/account/change-password": {
             "post": {
                 "tags": [
@@ -991,6 +1053,38 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/users/photo/{storageKey}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a profile photo image by storage key",
+                "operationId": "getPhoto",
+                "parameters": [
+                    {
+                        "name": "storageKey",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "byte"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -2067,6 +2161,9 @@
                     "companyId": {
                         "type": "string",
                         "format": "uuid"
+                    },
+                    "avatarUrl": {
+                        "type": "string"
                     }
                 }
             },

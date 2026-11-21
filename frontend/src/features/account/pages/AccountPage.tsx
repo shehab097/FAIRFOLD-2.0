@@ -5,10 +5,12 @@ import { useAuth } from '../../../app/auth/AuthContext';
 import { useTheme } from '../../../app/theme/ThemeContext';
 import { useProfile, useResume, useSkills } from '../../candidate/queries';
 import { useCompany } from '../../employer/queries';
+import { ProfilePhotoCard } from '../components/ProfilePhotoCard';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { Markdown } from '../../../components/ui/Markdown';
+import { UserAvatar } from '../../../components/ui/UserAvatar';
 
 function DetailItem({ label, value }: { label: string; value: ReactNode }) {
   const empty = value === null || value === undefined || value === '';
@@ -163,7 +165,7 @@ function EmployerCompanySnapshot() {
 export function AccountPage() {
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
-  const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U';
+  const displayName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
 
   return (
     <div className="space-y-6">
@@ -186,11 +188,11 @@ export function AccountPage() {
         </div>
       </div>
 
+      <ProfilePhotoCard />
+
       <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
         <div className="flex items-center gap-4 pb-6">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-subtle text-lg font-bold text-primary-text">
-            {initials}
-          </div>
+          <UserAvatar name={displayName} avatarUrl={user?.avatarUrl} size="lg" />
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
               <h2 className="text-xl font-semibold text-text">
