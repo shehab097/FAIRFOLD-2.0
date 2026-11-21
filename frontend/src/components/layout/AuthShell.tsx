@@ -1,45 +1,77 @@
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
+import { BarChart3, EyeOff, ShieldCheck, UserCheck, type LucideIcon } from 'lucide-react';
+import { Icon } from '../ui/Icon';
 import { Logo } from '../ui/Logo';
 import { ThemeToggle } from '../ui/ThemeToggle';
 
-const PILLARS = [
-  { code: '01', title: 'Anonymised screening', desc: 'Identities stay hidden during initial evaluation so work and skills speak first.' },
-  { code: '02', title: 'Explained scores', desc: 'Every score is backed by direct resume evidence and clear, auditable criteria.' },
-  { code: '03', title: 'People decide', desc: 'Scores are advisory. Hiring teams review the evidence and make every decision.' },
+const PILLARS: { icon: LucideIcon; label: string }[] = [
+  { icon: EyeOff, label: 'Anonymised' },
+  { icon: BarChart3, label: 'Explained' },
+  { icon: UserCheck, label: 'Human-led' },
 ];
 
 export function AuthShell() {
   return (
-    <div className="relative flex min-h-screen bg-bg">
-      <div className="absolute right-4 top-4 z-20">
-        <ThemeToggle />
-      </div>
-      <aside className="hidden w-1/2 flex-col justify-between border-r border-border bg-primary-subtle p-10 md:flex">
-        <div>
+    <div className="flex min-h-screen bg-bg">
+      {/* Brand panel */}
+      <aside className="hidden w-[46%] flex-col justify-between border-r border-border bg-surface p-10 lg:flex xl:p-14">
+        <Link to="/" aria-label="FairFold home" className="self-start">
           <Logo />
-          <p className="mt-4 max-w-md text-sm text-text-secondary">
-            Structured, transparent hiring built for candidates and engineering teams.
-          </p>
-        </div>
-        <div className="space-y-3">
-          {PILLARS.map((p) => (
-            <div key={p.code} className="rounded-xl border border-border border-l-4 border-l-primary bg-surface p-4 shadow-sm">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs font-bold uppercase tracking-[0.06em] text-primary-text">{p.code}</span>
-                <h2 className="text-base font-semibold text-text">{p.title}</h2>
-              </div>
-              <p className="mt-1 text-xs text-text-secondary">{p.desc}</p>
-            </div>
-          ))}
-        </div>
-        <div className="text-xs text-text-subtle">FairFold Hiring Platform</div>
-      </aside>
-      <main className="flex w-full flex-col justify-center px-6 py-10 md:w-1/2">
+        </Link>
+
         <div className="mx-auto w-full max-w-md">
-          <div className="mb-6 md:hidden">
-            <Logo />
+          <h2 className="text-[32px] font-bold leading-tight tracking-tight">
+            Hire on evidence,
+            <br />
+            <span className="text-primary-text">not assumptions.</span>
+          </h2>
+
+          <div className="mt-8 rounded-2xl bg-bg p-5 shadow-sm ring-1 ring-border">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-xs text-text-secondary">Screening result</div>
+                <div className="mt-0.5 text-sm font-semibold text-text">Senior Backend Engineer</div>
+              </div>
+              <span className="rounded-full bg-success-subtle px-2.5 py-1 text-sm font-bold text-success">86</span>
+            </div>
+            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-raised">
+              <div className="h-full w-[86%] rounded-full bg-primary" />
+            </div>
+            <p className="mt-4 rounded-lg bg-primary-subtle p-3 text-sm text-text">
+              “Built a real-time pipeline handling 40k events/sec with Kafka.”
+            </p>
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-text-secondary">
+              <Icon icon={ShieldCheck} size={14} />
+              Candidate identity hidden
+            </div>
           </div>
-          <div className="rounded-2xl border border-border border-t-2 border-t-primary bg-surface p-6 shadow-sm sm:p-8">
+
+          <div className="mt-8 flex flex-wrap gap-2">
+            {PILLARS.map((p) => (
+              <span
+                key={p.label}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary-subtle px-3 py-1.5 text-xs font-medium text-primary-text"
+              >
+                <Icon icon={p.icon} size={14} />
+                {p.label}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-xs text-text-subtle">© FairFold</div>
+      </aside>
+
+      {/* Form panel */}
+      <main className="relative flex flex-1 flex-col">
+        <div className="flex items-center justify-between p-4 sm:p-6">
+          <Link to="/" aria-label="FairFold home" className="lg:invisible">
+            <Logo />
+          </Link>
+          <ThemeToggle />
+        </div>
+        <div className="flex flex-1 items-center justify-center px-6 pb-16">
+          <div className="w-full max-w-md">
             <Outlet />
           </div>
         </div>
