@@ -86,6 +86,21 @@ class PublicJobBoardIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void Fr042_filter_salary_range() throws Exception {
+        TestEmployer employer = setupEmployer("hr@acme.com");
+        createActiveJobWithSalary(employer, "Fixed Job", "fixed", 60000, null);
+        createActiveJobWithSalary(employer, "Range Job", "range", 80000, 100000);
+        createActiveJobWithSalary(employer, "Negotiable Job", "negotiable", null, null);
+
+        mockMvc.perform(get("/api/jobs").param("salaryMin", "55000").param("salaryMax", "70000"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].title").value("Fixed Job"))
+                .andExpect(jsonPath("$.items[0].salaryType").value("fixed"))
+                .andExpect(jsonPath("$.items[0].salaryMin").value(60000.0));
+    }
+
+    @Test
     void Fr042_filter_remote_and_level() throws Exception {
         TestEmployer employer = setupEmployer("hr@acme.com");
         createActiveJob(employer, "Remote Senior", "desc", "Bangladesh", true, "senior", List.of());
@@ -166,8 +181,24 @@ class PublicJobBoardIntegrationTest extends AbstractIntegrationTest {
         return createJob(employer, title, "desc", "Bangladesh", false, "mid", List.of());
     }
 
+    private UUID createActiveJobWithSalary(TestEmployer employer, String title, String salaryType,
+                                           Integer salaryMin, Integer salaryMax) throws Exception {
+        UUID jobId = createJob(employer, title, "desc", "Bangladesh", false, "mid", List.of(),
+                salaryType, salaryMin, salaryMax);
+        mockMvc.perform(post("/api/employer/jobs/" + jobId + "/activate")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
+                .andExpect(status().isOk());
+        return jobId;
+    }
+
     private UUID createJob(TestEmployer employer, String title, String description,
                            String country, boolean remote, String level, List<String> skillNames) throws Exception {
+        return createJob(employer, title, description, country, remote, level, skillNames, null, null, null);
+    }
+
+    private UUID createJob(TestEmployer employer, String title, String description, String country,
+                           boolean remote, String level, List<String> skillNames,
+                           String salaryType, Integer salaryMin, Integer salaryMax) throws Exception {
         List<String> skillIds = skillNames.stream().map(this::skillId).map(UUID::toString).toList();
         Map<String, Object> body = new HashMap<>();
         body.put("title", title);
@@ -180,6 +211,11 @@ class PublicJobBoardIntegrationTest extends AbstractIntegrationTest {
         body.put("requiredSkillIds", skillIds);
         body.put("niceToHaveSkillIds", List.of());
         body.put("mustHaveSkillIds", List.of());
+        body.put("salaryType", salaryType == null ? "negotiable" : salaryType);
+        if (salaryMin != null) body.put("salaryMin", salaryMin);
+        if (salaryMax != null) body.put("salaryMax", salaryMax);
+        body.put("salaryCurrency", "USD");
+        body.put("salaryPeriod", "year");
 
         var result = mockMvc.perform(post("/api/employer/jobs")
                         .header(HttpHeaders.AUTHORIZATION, bearer(employer.token()))

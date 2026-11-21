@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8090",
+            "url": "http://localhost:8080",
             "description": "Generated server url"
         }
     ],
@@ -1114,6 +1114,22 @@
                         }
                     },
                     {
+                        "name": "salaryMin",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "salaryMax",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
                         "name": "remote",
                         "in": "query",
                         "required": false,
@@ -1481,6 +1497,24 @@
                         "format": "int32",
                         "maximum": 100,
                         "minimum": 0
+                    },
+                    "salaryType": {
+                        "type": "string"
+                    },
+                    "salaryMin": {
+                        "type": "number"
+                    },
+                    "salaryMax": {
+                        "type": "number"
+                    },
+                    "salaryCurrency": {
+                        "type": "string"
+                    },
+                    "salaryPeriod": {
+                        "type": "string"
+                    },
+                    "salaryNegotiable": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -1562,6 +1596,34 @@
                     "publishedAt": {
                         "type": "string",
                         "format": "date-time"
+                    },
+                    "salaryType": {
+                        "type": "string",
+                        "enum": [
+                            "fixed",
+                            "range",
+                            "negotiable"
+                        ]
+                    },
+                    "salaryMin": {
+                        "type": "number"
+                    },
+                    "salaryMax": {
+                        "type": "number"
+                    },
+                    "salaryCurrency": {
+                        "type": "string"
+                    },
+                    "salaryPeriod": {
+                        "type": "string",
+                        "enum": [
+                            "year",
+                            "month",
+                            "hour"
+                        ]
+                    },
+                    "salaryNegotiable": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -2196,6 +2258,34 @@
                     },
                     "companyLogoUrl": {
                         "type": "string"
+                    },
+                    "salaryType": {
+                        "type": "string",
+                        "enum": [
+                            "fixed",
+                            "range",
+                            "negotiable"
+                        ]
+                    },
+                    "salaryMin": {
+                        "type": "number"
+                    },
+                    "salaryMax": {
+                        "type": "number"
+                    },
+                    "salaryCurrency": {
+                        "type": "string"
+                    },
+                    "salaryPeriod": {
+                        "type": "string",
+                        "enum": [
+                            "year",
+                            "month",
+                            "hour"
+                        ]
+                    },
+                    "salaryNegotiable": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -2257,6 +2347,34 @@
                     },
                     "companyLogoUrl": {
                         "type": "string"
+                    },
+                    "salaryType": {
+                        "type": "string",
+                        "enum": [
+                            "fixed",
+                            "range",
+                            "negotiable"
+                        ]
+                    },
+                    "salaryMin": {
+                        "type": "number"
+                    },
+                    "salaryMax": {
+                        "type": "number"
+                    },
+                    "salaryCurrency": {
+                        "type": "string"
+                    },
+                    "salaryPeriod": {
+                        "type": "string",
+                        "enum": [
+                            "year",
+                            "month",
+                            "hour"
+                        ]
+                    },
+                    "salaryNegotiable": {
+                        "type": "boolean"
                     }
                 }
             },

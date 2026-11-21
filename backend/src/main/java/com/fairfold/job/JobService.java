@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ public class JobService {
 
     @Transactional(readOnly = true)
     public PageResponse<PublicJobListItem> searchPublic(String q, String location, String country,
+                                                         BigDecimal salaryMin, BigDecimal salaryMax,
                                                          Boolean remote, String level, Pageable pageable) {
         String query = q == null ? "" : q.trim();
         String qEscaped = escapeLike(query);
@@ -57,7 +59,8 @@ public class JobService {
         String countryParam = normalize(country);
 
         Page<Job> page = jobRepository.searchActive(
-                query, qEscaped, locationParam, countryParam, remote, levelParam, pageable);
+                query, qEscaped, locationParam, countryParam, salaryMin, salaryMax,
+                remote, levelParam, pageable);
         return PageResponse.of(
                 page.getContent().stream().map(this::toPublicListItem).toList(),
                 page.getNumber(), page.getSize(), page.getTotalElements());
@@ -183,6 +186,12 @@ public class JobService {
         copy.setAddress(source.getAddress());
         copy.setCountry(source.getCountry());
         copy.setRemote(source.isRemote());
+        copy.setSalaryType(source.getSalaryType());
+        copy.setSalaryMin(source.getSalaryMin());
+        copy.setSalaryMax(source.getSalaryMax());
+        copy.setSalaryCurrency(source.getSalaryCurrency());
+        copy.setSalaryPeriod(source.getSalaryPeriod());
+        copy.setSalaryNegotiable(source.isSalaryNegotiable());
         copy.setHfMinYears(source.getHfMinYears());
         copy.setHfCountry(source.getHfCountry());
         copy.setCutoffScore(source.getCutoffScore());
@@ -227,10 +236,73 @@ public class JobService {
         job.setAddress(trimToNull(request.address()));
         job.setCountry(request.country().trim());
         job.setRemote(request.remote());
+        applySalary(job, request);
         job.setHfMinYears(request.hfMinYears());
         job.setHfCountry(trimToNull(request.hfCountry()));
         job.setCutoffScore(request.cutoffScore());
         job.setSkills(buildSkills(job, request));
+    }
+
+    private void applySalary(Job job, JobRequest request) {
+        SalaryType type = parseSalaryType(request.salaryType());
+        BigDecimal min = request.salaryMin();
+        BigDecimal max = request.salaryMax();
+        String currency = request.salaryCurrency() == null ? "" : request.salaryCurrency().trim().toUpperCase();
+        if (currency.isEmpty()) {
+            currency = "USD";
+        }
+        if (!currency.matches("[A-Z]{3}")) {
+            throw ApiException.badRequest("INVALID_SALARY", "Salary currency must be a 3-letter code.");
+        }
+        SalaryPeriod period = parseSalaryPeriod(request.salaryPeriod());
+        boolean negotiable = request.salaryNegotiable() == null || request.salaryNegotiable();
+
+        if (type == SalaryType.negotiable) {
+            min = null;
+            max = null;
+            negotiable = true;
+        } else if (type == SalaryType.fixed) {
+            if (min == null || min.signum() < 0) {
+                throw ApiException.badRequest("INVALID_SALARY", "A fixed salary requires a non-negative amount.");
+            }
+            max = null;
+        } else {
+            if (min == null || max == null) {
+                throw ApiException.badRequest("INVALID_SALARY", "A salary range requires both a minimum and a maximum.");
+            }
+            if (min.signum() < 0 || max.compareTo(min) < 0) {
+                throw ApiException.badRequest("INVALID_SALARY", "The salary maximum must be greater than or equal to the minimum.");
+            }
+        }
+
+        job.setSalaryType(type);
+        job.setSalaryMin(min);
+        job.setSalaryMax(max);
+        job.setSalaryCurrency(currency);
+        job.setSalaryPeriod(period);
+        job.setSalaryNegotiable(negotiable);
+    }
+
+    private SalaryType parseSalaryType(String value) {
+        if (value == null || value.isBlank()) {
+            return SalaryType.negotiable;
+        }
+        try {
+            return SalaryType.valueOf(value.trim().toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw ApiException.badRequest("INVALID_SALARY", "Salary type must be fixed, range or negotiable.");
+        }
+    }
+
+    private SalaryPeriod parseSalaryPeriod(String value) {
+        if (value == null || value.isBlank()) {
+            return SalaryPeriod.year;
+        }
+        try {
+            return SalaryPeriod.valueOf(value.trim().toLowerCase());
+        } catch (IllegalArgumentException e) {
+            throw ApiException.badRequest("INVALID_SALARY", "Salary period must be year, month or hour.");
+        }
     }
 
     private List<JobSkill> buildSkills(Job job, JobRequest request) {
@@ -292,7 +364,9 @@ public class JobService {
                 job.getExperienceLevel(), job.getCity(), job.getAddress(), job.getCountry(), job.isRemote(),
                 required, niceToHave,
                 job.getHfMinYears(), job.getHfCountry(), job.getCutoffScore(),
-                job.getStatus(), job.getPublishedAt());
+                job.getStatus(), job.getPublishedAt(),
+                job.getSalaryType(), job.getSalaryMin(), job.getSalaryMax(),
+                job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable());
     }
 
     private PublicJobListItem toPublicListItem(Job job) {
@@ -306,7 +380,9 @@ public class JobService {
                 job.getId(), job.getTitle(), job.getCity(), job.getCountry(), job.isRemote(),
                 job.getExperienceLevel(), topSkills, job.getPublishedAt(),
                 company == null ? null : company.getName(),
-                company == null ? null : company.getLogoUrl());
+                company == null ? null : company.getLogoUrl(),
+                job.getSalaryType(), job.getSalaryMin(), job.getSalaryMax(),
+                job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable());
     }
 
     private PublicJobDetail toPublicDetail(Job job) {
@@ -325,7 +401,9 @@ public class JobService {
                 job.getCity(), job.getAddress(), job.getCountry(), job.isRemote(), job.getExperienceLevel(),
                 required, niceToHave, job.getPublishedAt(),
                 company == null ? null : company.getName(),
-                company == null ? null : company.getLogoUrl());
+                company == null ? null : company.getLogoUrl(),
+                job.getSalaryType(), job.getSalaryMin(), job.getSalaryMax(),
+                job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable());
     }
 
     private Company resolvePublicCompany(UUID companyId) {

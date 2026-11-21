@@ -86,6 +86,20 @@ class CompanyJobIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void Fr025_create_job_invalid_salary_range_400() throws Exception {
+        TestEmployer employer = registerEmployer("hr@acme.com");
+        mockMvc.perform(post("/api/employer/jobs")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jobBody(Map.of(
+                                "salaryType", "range",
+                                "salaryMin", 70000,
+                                "salaryMax", 50000))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_SALARY"));
+    }
+
+    @Test
     void Fr025_create_job_must_have_not_required_400() throws Exception {
         TestEmployer employer = registerEmployer("hr@acme.com");
         UUID react = skillId("React");

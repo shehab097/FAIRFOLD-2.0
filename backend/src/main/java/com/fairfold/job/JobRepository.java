@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +32,14 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
                    OR LOWER(j.city) LIKE CONCAT('%', LOWER(:location), '%')
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
               AND (:country IS NULL OR LOWER(j.country) = LOWER(:country))
+              AND (:salaryMin IS NULL OR (
+                  j.salary_type <> 'negotiable'
+                  AND COALESCE(j.salary_max, j.salary_min) >= :salaryMin
+              ))
+              AND (:salaryMax IS NULL OR (
+                  j.salary_type <> 'negotiable'
+                  AND j.salary_min <= :salaryMax
+              ))
               AND (
                   :q = ''
                   OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE) > 0
@@ -49,6 +58,14 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
                    OR LOWER(j.city) LIKE CONCAT('%', LOWER(:location), '%')
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
               AND (:country IS NULL OR LOWER(j.country) = LOWER(:country))
+              AND (:salaryMin IS NULL OR (
+                  j.salary_type <> 'negotiable'
+                  AND COALESCE(j.salary_max, j.salary_min) >= :salaryMin
+              ))
+              AND (:salaryMax IS NULL OR (
+                  j.salary_type <> 'negotiable'
+                  AND j.salary_min <= :salaryMax
+              ))
               AND (
                   :q = ''
                   OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE) > 0
@@ -63,6 +80,8 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
             @Param("qEscaped") String qEscaped,
             @Param("location") String location,
             @Param("country") String country,
+            @Param("salaryMin") BigDecimal salaryMin,
+            @Param("salaryMax") BigDecimal salaryMax,
             @Param("remote") Boolean remote,
             @Param("level") String level,
             Pageable pageable);

@@ -12,28 +12,37 @@ import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { formatDate } from '../../../lib/format';
 import { COUNTRIES } from '../../../lib/locations';
+import { formatSalary } from '../../../lib/salary';
 
 export function JobBoardPage() {
   const [params, setParams] = useSearchParams();
   const qParam = params.get('q') ?? '';
   const locationParam = params.get('location') ?? '';
   const countryParam = params.get('country') ?? '';
+  const salaryMinParam = params.get('salaryMin') ?? '';
+  const salaryMaxParam = params.get('salaryMax') ?? '';
   const remoteParam = params.get('remote') ?? '';
   const levelParam = (params.get('level') ?? '') as ExperienceLevel | '';
   const page = Math.max(0, Number(params.get('page') ?? '0') || 0);
 
   const [qInput, setQInput] = useState(qParam);
   const [locationInput, setLocationInput] = useState(locationParam);
+  const [salaryMinInput, setSalaryMinInput] = useState(salaryMinParam);
+  const [salaryMaxInput, setSalaryMaxInput] = useState(salaryMaxParam);
 
   useEffect(() => {
     setQInput(qParam);
     setLocationInput(locationParam);
-  }, [qParam, locationParam]);
+    setSalaryMinInput(salaryMinParam);
+    setSalaryMaxInput(salaryMaxParam);
+  }, [qParam, locationParam, salaryMinParam, salaryMaxParam]);
 
   const { data, isLoading, isError, refetch } = useJobs({
     q: qParam || undefined,
     location: locationParam || undefined,
     country: countryParam || undefined,
+    salaryMin: salaryMinParam ? Number(salaryMinParam) : undefined,
+    salaryMax: salaryMaxParam ? Number(salaryMaxParam) : undefined,
     remote: remoteParam === '' ? undefined : remoteParam === 'true',
     level: levelParam || undefined,
     page,
@@ -43,6 +52,8 @@ export function JobBoardPage() {
     q?: string;
     location?: string;
     country?: string;
+    salaryMin?: string;
+    salaryMax?: string;
     remote?: string;
     level?: string;
     page?: number;
@@ -51,6 +62,8 @@ export function JobBoardPage() {
     const nextQ = (overrides.q ?? qInput).trim();
     const nextLoc = (overrides.location ?? locationInput).trim();
     const nextCountry = overrides.country ?? countryParam;
+    const nextSalaryMin = (overrides.salaryMin ?? salaryMinInput).trim();
+    const nextSalaryMax = (overrides.salaryMax ?? salaryMaxInput).trim();
     const nextRemote = overrides.remote ?? remoteParam;
     const nextLevel = overrides.level ?? levelParam;
     const nextPage = overrides.page ?? 0;
@@ -58,6 +71,8 @@ export function JobBoardPage() {
     if (nextQ) next.set('q', nextQ);
     if (nextLoc) next.set('location', nextLoc);
     if (nextCountry) next.set('country', nextCountry);
+    if (nextSalaryMin) next.set('salaryMin', nextSalaryMin);
+    if (nextSalaryMax) next.set('salaryMax', nextSalaryMax);
     if (nextRemote) next.set('remote', nextRemote);
     if (nextLevel) next.set('level', nextLevel);
     if (nextPage > 0) next.set('page', String(nextPage));
@@ -72,10 +87,14 @@ export function JobBoardPage() {
   function resetFilters() {
     setQInput('');
     setLocationInput('');
+    setSalaryMinInput('');
+    setSalaryMaxInput('');
     setParams(new URLSearchParams());
   }
 
-  const hasFilters = Boolean(qParam || locationParam || countryParam || remoteParam || levelParam);
+  const hasFilters = Boolean(
+    qParam || locationParam || countryParam || salaryMinParam || salaryMaxParam || remoteParam || levelParam,
+  );
   const totalPages = data?.totalPages ?? 0;
 
   return (
@@ -102,6 +121,11 @@ export function JobBoardPage() {
                 {qParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">“{qParam}”</span>}
                 {locationParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">{locationParam}</span>}
                 {countryParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">{countryParam}</span>}
+                {(salaryMinParam || salaryMaxParam) && (
+                  <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">
+                    Salary {salaryMinParam || '0'}–{salaryMaxParam || '∞'}
+                  </span>
+                )}
                 {remoteParam && (
                   <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">
                     {remoteParam === 'true' ? 'Remote' : 'On-site'}
@@ -182,7 +206,10 @@ export function JobBoardPage() {
                     <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2 pl-[52px]">
-                    <span className="rounded-md bg-primary-subtle px-2.5 py-0.5 text-xs font-medium capitalize text-primary-text">
+                    <span className="rounded-md bg-primary-subtle px-2.5 py-0.5 text-xs font-medium text-primary-text">
+                      {formatSalary(job)}
+                    </span>
+                    <span className="rounded-md bg-bg px-2.5 py-0.5 text-xs font-medium capitalize text-text-secondary">
                       {job.experienceLevel}
                     </span>
                     <span className="rounded-md bg-bg px-2.5 py-0.5 text-xs text-text-secondary">
@@ -273,6 +300,32 @@ export function JobBoardPage() {
                   </option>
                 ))}
               </Select>
+            </div>
+
+            <div>
+              <label htmlFor="job-search-salary-min" className="mb-1 block text-xs text-text-secondary">
+                Salary range
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  id="job-search-salary-min"
+                  type="number"
+                  min={0}
+                  value={salaryMinInput}
+                  onChange={(e) => setSalaryMinInput(e.target.value)}
+                  placeholder="Min"
+                  aria-label="Minimum salary"
+                />
+                <Input
+                  id="job-search-salary-max"
+                  type="number"
+                  min={0}
+                  value={salaryMaxInput}
+                  onChange={(e) => setSalaryMaxInput(e.target.value)}
+                  placeholder="Max"
+                  aria-label="Maximum salary"
+                />
+              </div>
             </div>
 
             <div>

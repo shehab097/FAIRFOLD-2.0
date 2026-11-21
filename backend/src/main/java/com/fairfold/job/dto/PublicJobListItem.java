@@ -1,7 +1,10 @@
 package com.fairfold.job.dto;
 
 import com.fairfold.job.ExperienceLevel;
+import com.fairfold.job.SalaryPeriod;
+import com.fairfold.job.SalaryType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +19,12 @@ public record PublicJobListItem(
         List<String> topSkills,
         Instant publishedAt,
         String companyName,
-        String companyLogoUrl
+        String companyLogoUrl,
+        SalaryType salaryType,
+        BigDecimal salaryMin,
+        BigDecimal salaryMax,
+        String salaryCurrency,
+        SalaryPeriod salaryPeriod,
+        boolean salaryNegotiable
 ) {
 }

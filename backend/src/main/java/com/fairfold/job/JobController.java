@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -32,10 +33,12 @@ public class JobController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String country,
+            @RequestParam(required = false) BigDecimal salaryMin,
+            @RequestParam(required = false) BigDecimal salaryMax,
             @RequestParam(required = false) Boolean remote,
             @RequestParam(required = false) String level,
             @PageableDefault(size = 20) Pageable pageable) {
-        return jobService.searchPublic(q, location, country, remote, level, pageable);
+        return jobService.searchPublic(q, location, country, salaryMin, salaryMax, remote, level, pageable);
     }
 
     @GetMapping("/{id}")

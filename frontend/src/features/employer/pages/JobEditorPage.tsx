@@ -2,7 +2,15 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCreateJob, useEmployerJob, useUpdateJob } from '../queries';
 import { SkillPicker, type SelectedSkill } from '../components/SkillPicker';
-import { EXPERIENCE_LEVELS, type ExperienceLevel, type JobInput } from '../../jobs/types';
+import {
+  EXPERIENCE_LEVELS,
+  SALARY_PERIODS,
+  SALARY_TYPES,
+  type ExperienceLevel,
+  type JobInput,
+  type SalaryPeriod,
+  type SalaryType,
+} from '../../jobs/types';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
@@ -12,6 +20,7 @@ import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { MarkdownEditor } from '../../../components/ui/MarkdownEditor';
 import { emptyLocation, type LocationValue } from '../../../lib/locations';
+import { CURRENCIES } from '../../../lib/currencies';
 import { getApiErrorMessage, getFieldErrors } from '../../../lib/errors';
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
@@ -39,6 +48,12 @@ export function JobEditorPage() {
   const [level, setLevel] = useState<ExperienceLevel>('mid');
   const [location, setLocation] = useState<LocationValue>(emptyLocation);
   const [remote, setRemote] = useState(false);
+  const [salaryType, setSalaryType] = useState<SalaryType>('negotiable');
+  const [salaryMin, setSalaryMin] = useState('');
+  const [salaryMax, setSalaryMax] = useState('');
+  const [salaryCurrency, setSalaryCurrency] = useState('USD');
+  const [salaryPeriod, setSalaryPeriod] = useState<SalaryPeriod>('year');
+  const [salaryNegotiable, setSalaryNegotiable] = useState(true);
   const [requiredSkills, setRequiredSkills] = useState<SelectedSkill[]>([]);
   const [niceToHaveSkills, setNiceToHaveSkills] = useState<SelectedSkill[]>([]);
   const [hfMinYears, setHfMinYears] = useState('');
@@ -55,6 +70,12 @@ export function JobEditorPage() {
       setLevel(job.experienceLevel);
       setLocation({ country: job.country, city: job.city ?? '', address: job.address ?? '' });
       setRemote(job.remote);
+      setSalaryType(job.salaryType);
+      setSalaryMin(job.salaryMin?.toString() ?? '');
+      setSalaryMax(job.salaryMax?.toString() ?? '');
+      setSalaryCurrency(job.salaryCurrency || 'USD');
+      setSalaryPeriod(job.salaryPeriod);
+      setSalaryNegotiable(job.salaryNegotiable);
       setRequiredSkills(job.requiredSkills.map((s) => ({ id: s.id, name: s.name, mustHave: s.mustHave })));
       setNiceToHaveSkills(job.niceToHaveSkills.map((s) => ({ id: s.id, name: s.name, mustHave: false })));
       setHfMinYears(job.hfMinYears?.toString() ?? '');
@@ -73,6 +94,12 @@ export function JobEditorPage() {
       address: location.address,
       country: location.country,
       remote,
+      salaryType,
+      salaryMin: salaryType === 'negotiable' || salaryMin === '' ? null : Number(salaryMin),
+      salaryMax: salaryType === 'range' && salaryMax !== '' ? Number(salaryMax) : null,
+      salaryCurrency,
+      salaryPeriod,
+      salaryNegotiable: salaryType === 'negotiable' ? true : salaryNegotiable,
       requiredSkillIds: requiredSkills.map((s) => s.id),
       niceToHaveSkillIds: niceToHaveSkills.map((s) => s.id),
       mustHaveSkillIds: requiredSkills.filter((s) => s.mustHave).map((s) => s.id),
@@ -163,6 +190,97 @@ export function JobEditorPage() {
           <div className="flex items-center">
             <Checkbox checked={remote} onChange={setRemote} label="Remote" />
           </div>
+        </section>
+
+        <section className="space-y-4 border border-border bg-surface p-6">
+          <h2 className="text-xl font-semibold">Salary</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Salary type">
+              <Select value={salaryType} onChange={(e) => setSalaryType(e.target.value as SalaryType)}>
+                {SALARY_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type === 'fixed' ? 'Fixed amount' : type === 'range' ? 'Salary range' : 'Negotiable'}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+
+            {salaryType !== 'negotiable' && (
+              <Field label="Currency">
+                <Select value={salaryCurrency} onChange={(e) => setSalaryCurrency(e.target.value)}>
+                  {CURRENCIES.map((currency) => (
+                    <option key={currency.code} value={currency.code}>
+                      {currency.label}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            )}
+
+            {salaryType === 'fixed' && (
+              <Field label="Amount">
+                <Input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={salaryMin}
+                  onChange={(e) => setSalaryMin(e.target.value)}
+                  required
+                  placeholder="e.g. 60000"
+                />
+              </Field>
+            )}
+
+            {salaryType === 'range' && (
+              <>
+                <Field label="Minimum">
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={salaryMin}
+                    onChange={(e) => setSalaryMin(e.target.value)}
+                    required
+                    placeholder="e.g. 50000"
+                  />
+                </Field>
+                <Field label="Maximum">
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={salaryMax}
+                    onChange={(e) => setSalaryMax(e.target.value)}
+                    required
+                    placeholder="e.g. 70000"
+                  />
+                </Field>
+              </>
+            )}
+
+            {salaryType !== 'negotiable' && (
+              <Field label="Period">
+                <Select value={salaryPeriod} onChange={(e) => setSalaryPeriod(e.target.value as SalaryPeriod)}>
+                  {SALARY_PERIODS.map((period) => (
+                    <option key={period} value={period}>
+                      {period === 'year' ? 'Per year' : period === 'month' ? 'Per month' : 'Per hour'}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            )}
+          </div>
+          {salaryType === 'negotiable' ? (
+            <p className="text-sm text-text-secondary">
+              No amount is shown. The job will display “Salary negotiable”.
+            </p>
+          ) : (
+            <Checkbox
+              checked={salaryNegotiable}
+              onChange={setSalaryNegotiable}
+              label="Salary is negotiable (uncheck for “not negotiable”)"
+            />
+          )}
         </section>
 
         <section className="space-y-4 border border-border bg-surface p-6">

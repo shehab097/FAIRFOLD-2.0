@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,26 @@ public class Job extends BaseEntity {
 
     @Column(nullable = false)
     private boolean remote;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "salary_type", nullable = false, length = 20)
+    private SalaryType salaryType = SalaryType.negotiable;
+
+    @Column(name = "salary_min", precision = 12, scale = 2)
+    private BigDecimal salaryMin;
+
+    @Column(name = "salary_max", precision = 12, scale = 2)
+    private BigDecimal salaryMax;
+
+    @Column(name = "salary_currency", nullable = false, length = 3)
+    private String salaryCurrency = "USD";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "salary_period", nullable = false, length = 10)
+    private SalaryPeriod salaryPeriod = SalaryPeriod.year;
+
+    @Column(name = "salary_negotiable", nullable = false)
+    private boolean salaryNegotiable = true;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -153,6 +174,54 @@ public class Job extends BaseEntity {
 
     public void setRemote(boolean remote) {
         this.remote = remote;
+    }
+
+    public SalaryType getSalaryType() {
+        return salaryType;
+    }
+
+    public void setSalaryType(SalaryType salaryType) {
+        this.salaryType = salaryType;
+    }
+
+    public BigDecimal getSalaryMin() {
+        return salaryMin;
+    }
+
+    public void setSalaryMin(BigDecimal salaryMin) {
+        this.salaryMin = salaryMin;
+    }
+
+    public BigDecimal getSalaryMax() {
+        return salaryMax;
+    }
+
+    public void setSalaryMax(BigDecimal salaryMax) {
+        this.salaryMax = salaryMax;
+    }
+
+    public String getSalaryCurrency() {
+        return salaryCurrency;
+    }
+
+    public void setSalaryCurrency(String salaryCurrency) {
+        this.salaryCurrency = salaryCurrency;
+    }
+
+    public SalaryPeriod getSalaryPeriod() {
+        return salaryPeriod;
+    }
+
+    public void setSalaryPeriod(SalaryPeriod salaryPeriod) {
+        this.salaryPeriod = salaryPeriod;
+    }
+
+    public boolean isSalaryNegotiable() {
+        return salaryNegotiable;
+    }
+
+    public void setSalaryNegotiable(boolean salaryNegotiable) {
+        this.salaryNegotiable = salaryNegotiable;
     }
 
     public JobStatus getStatus() {

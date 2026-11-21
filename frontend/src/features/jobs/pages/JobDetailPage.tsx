@@ -14,6 +14,7 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorCode, getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
+import { formatSalary } from '../../../lib/salary';
 
 export function JobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -156,6 +157,10 @@ export function JobDetailPage() {
                   {job.city ? `${job.city}, ` : ''}
                   {job.country}
                 </dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="shrink-0 text-text-secondary">Salary</dt>
+                <dd className="text-right font-medium text-text">{formatSalary(job)}</dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-text-secondary">Work mode</dt>

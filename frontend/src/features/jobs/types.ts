@@ -1,7 +1,18 @@
 export type ExperienceLevel = 'entry' | 'mid' | 'senior' | 'lead';
 export type JobStatus = 'draft' | 'active' | 'paused' | 'closed';
+export type SalaryType = 'fixed' | 'range' | 'negotiable';
+export type SalaryPeriod = 'year' | 'month' | 'hour';
 
-export interface PublicJobListItem {
+export interface SalaryFields {
+  salaryType: SalaryType;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string;
+  salaryPeriod: SalaryPeriod;
+  salaryNegotiable: boolean;
+}
+
+export interface PublicJobListItem extends SalaryFields {
   id: string;
   title: string;
   city: string | null;
@@ -14,7 +25,7 @@ export interface PublicJobListItem {
   companyLogoUrl: string | null;
 }
 
-export interface PublicJobDetail {
+export interface PublicJobDetail extends SalaryFields {
   id: string;
   title: string;
   description: string;
@@ -46,7 +57,7 @@ export interface SkillRef {
   mustHave: boolean;
 }
 
-export interface EmployerJobDetail {
+export interface EmployerJobDetail extends SalaryFields {
   id: string;
   title: string;
   description: string;
@@ -65,7 +76,7 @@ export interface EmployerJobDetail {
   publishedAt: string | null;
 }
 
-export interface JobInput {
+export interface JobInput extends SalaryFields {
   title: string;
   description: string;
   requirements: string;
@@ -86,6 +97,8 @@ export interface JobFilters {
   q?: string;
   location?: string;
   country?: string;
+  salaryMin?: number;
+  salaryMax?: number;
   remote?: boolean;
   level?: ExperienceLevel;
   page?: number;
@@ -118,6 +131,8 @@ export interface SkillDto {
 
 export const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+'] as const;
 export const EXPERIENCE_LEVELS: ExperienceLevel[] = ['entry', 'mid', 'senior', 'lead'];
+export const SALARY_TYPES: SalaryType[] = ['fixed', 'range', 'negotiable'];
+export const SALARY_PERIODS: SalaryPeriod[] = ['year', 'month', 'hour'];
 
 export interface EmployerApplicantListItem {
   id: string;

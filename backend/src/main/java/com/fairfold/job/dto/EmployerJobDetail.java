@@ -2,7 +2,10 @@ package com.fairfold.job.dto;
 
 import com.fairfold.job.ExperienceLevel;
 import com.fairfold.job.JobStatus;
+import com.fairfold.job.SalaryPeriod;
+import com.fairfold.job.SalaryType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +26,13 @@ public record EmployerJobDetail(
         String hfCountry,
         Integer cutoffScore,
         JobStatus status,
-        Instant publishedAt
+        Instant publishedAt,
+        SalaryType salaryType,
+        BigDecimal salaryMin,
+        BigDecimal salaryMax,
+        String salaryCurrency,
+        SalaryPeriod salaryPeriod,
+        boolean salaryNegotiable
 ) {
     public record SkillRef(UUID id, String name, boolean mustHave) {}
 }

@@ -13,6 +13,7 @@ import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
+import { formatSalary } from '../../../lib/salary';
 import type { EmployerApplicantListItem, EmployerJobDetail, JobStatus } from '../../jobs/types';
 
 const ACTIONS: Record<JobStatus, { label: string; value: JobAction }[]> = {
@@ -90,6 +91,7 @@ function Overview({ job, applicantCount }: { job: EmployerJobDetail; applicantCo
             <Fact label="Applicants">{applicantCount}</Fact>
             <Fact label="Level"><span className="capitalize">{job.experienceLevel}</span></Fact>
             <Fact label="Location">{[job.city, job.country].filter(Boolean).join(', ')}</Fact>
+            <Fact label="Salary">{formatSalary(job)}</Fact>
             <Fact label="Work mode">{job.remote ? 'Remote' : 'On-site'}</Fact>
             <Fact label="Published">{job.publishedAt ? formatDate(job.publishedAt) : '—'}</Fact>
           </dl>
