@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.URL;
 
@@ -16,7 +17,7 @@ public record CompanyProfileRequest(
         @Size(max = 160) String tagline,
         @Size(max = 20000) String about,
         @URL(regexp = "^(https?://.*)?$") @Size(max = 2048) String website,
-        @URL(regexp = "^(https?://.*)?$") @Size(max = 2048) String logoUrl,
+        @Pattern(regexp = "^(https?://.*|/api/companies/.*)?$", message = "Must be a valid URL") @Size(max = 2048) String logoUrl,
         @URL(regexp = "^(https?://.*)?$") @Size(max = 2048) String linkedinUrl,
         @Min(1800) @Max(2100) Integer foundedYear,
         @Size(max = 255) String headquarters,

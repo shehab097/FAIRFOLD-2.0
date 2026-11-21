@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Check, Eye, EyeOff, Globe, KeyRound, LogOut, Mail, MapPin, Pencil, Phone } from 'lucide-react';
+import { Building2, Check, Eye, EyeOff, Globe, KeyRound, LogOut, Mail, MapPin, Pencil, Phone, Trash2, Upload } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
-import { useCompany, useUpdateCompany } from '../queries';
+import { useCompany, useDeleteCompanyLogo, useUpdateCompany, useUploadCompanyLogo } from '../queries';
 import { COMPANY_SIZES, type CompanyProfile } from '../../jobs/types';
 import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
@@ -37,7 +37,6 @@ const BASICS: { key: keyof Form; label: string; type?: string; required?: boolea
 const CONTACT: typeof BASICS = [
   { key: 'website', label: 'Website', type: 'url', placeholder: 'https://example.com' },
   { key: 'linkedinUrl', label: 'LinkedIn', type: 'url', placeholder: 'https://linkedin.com/company/…' },
-  { key: 'logoUrl', label: 'Logo URL', type: 'url', placeholder: 'https://…/logo.png' },
   { key: 'contactEmail', label: 'Contact email', type: 'email', placeholder: 'talent@example.com' },
   { key: 'phone', label: 'Phone', type: 'tel', placeholder: '+880…' },
 ];
@@ -65,7 +64,17 @@ function DetailItem({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
-function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEdit: () => void }) {
+function CompanyProfileView({
+  company,
+  onEdit,
+  onUploadLogoClick,
+  isUploadingLogo,
+}: {
+  company: CompanyProfile;
+  onEdit: () => void;
+  onUploadLogoClick: () => void;
+  isUploadingLogo: boolean;
+}) {
   const initials = (company.name ?? 'CO')
     .split(/\s+/)
     .map((w) => w[0])
@@ -77,17 +86,19 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
     <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
       <div className="flex flex-col justify-between gap-4 pb-6 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
-          {company.logoUrl ? (
-            <img
-              src={company.logoUrl}
-              alt={company.name ?? 'Company logo'}
-              className="h-14 w-14 shrink-0 rounded-xl bg-bg object-contain"
-            />
-          ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary-subtle text-lg font-bold text-primary-text">
-              {initials}
-            </div>
-          )}
+          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-sm">
+            {company.logoUrl ? (
+              <img
+                src={company.logoUrl}
+                alt={company.name ?? 'Company logo'}
+                className="h-full w-full object-contain"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary-subtle text-xl font-bold text-primary-text">
+                {initials}
+              </div>
+            )}
+          </div>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
               <h2 className="text-xl font-bold text-text">{company.name || 'Unnamed company'}</h2>
@@ -116,10 +127,16 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
             </div>
           </div>
         </div>
-        <Button variant="secondary" onClick={onEdit}>
-          <Icon icon={Pencil} size={15} />
-          Edit profile
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="secondary" onClick={onUploadLogoClick} loading={isUploadingLogo}>
+            <Icon icon={Upload} size={15} />
+            {company.logoUrl ? 'Change logo' : 'Upload logo'}
+          </Button>
+          <Button variant="secondary" onClick={onEdit}>
+            <Icon icon={Pencil} size={15} />
+            Edit profile
+          </Button>
+        </div>
       </div>
 
       <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -177,11 +194,12 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
           }
         />
         <DetailItem
-          label="Logo URL"
+          label="Logo"
           value={
             company.logoUrl ? (
-              <a href={company.logoUrl} target="_blank" rel="noopener noreferrer" className="text-primary-text hover:underline">
-                {company.logoUrl}
+              <a href={company.logoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-primary-text hover:underline">
+                <img src={company.logoUrl} alt="" className="h-4 w-4 rounded object-contain" />
+                View logo image
               </a>
             ) : null
           }
@@ -214,7 +232,11 @@ export function CompanyPage() {
   const { signOut } = useAuth();
   const { data: company, isLoading } = useCompany();
   const update = useUpdateCompany();
+  const uploadLogo = useUploadCompanyLogo();
+  const deleteLogo = useDeleteCompanyLogo();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const overviewFileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<Form>(EMPTY);
   const [tab, setTab] = useState<'view' | 'edit'>('view');
   const [error, setError] = useState<string | null>(null);
@@ -233,6 +255,31 @@ export function CompanyPage() {
 
   const set = (key: keyof Form) => (value: string | boolean) => setForm((f) => ({ ...f, [key]: value }));
 
+  async function handleUploadLogo(file: File) {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast('Logo file must be at most 2 MB.', 'error');
+      return;
+    }
+    try {
+      const updated = await uploadLogo.mutateAsync(file);
+      setForm((f) => ({ ...f, logoUrl: updated.logoUrl ?? '' }));
+      toast('Company logo uploaded.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err) || 'Failed to upload company logo.', 'error');
+    }
+  }
+
+  async function handleRemoveLogo() {
+    try {
+      await deleteLogo.mutateAsync();
+      setForm((f) => ({ ...f, logoUrl: '' }));
+      toast('Company logo removed.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err) || 'Failed to remove company logo.', 'error');
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
@@ -250,6 +297,12 @@ export function CompanyPage() {
   if (isLoading) return <Skeleton className="h-64 w-full" />;
 
   const isComplete = Boolean(company?.name && company?.industry && company?.size);
+  const initials = (form.name || company?.name || 'CO')
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   const inputs = (fields: typeof BASICS) =>
     fields.map((f) => (
@@ -306,14 +359,112 @@ export function CompanyPage() {
         onChange={(k) => setTab(k as 'view' | 'edit')}
       />
 
-      {tab === 'view' && company && <CompanyProfileView company={company} onEdit={() => setTab('edit')} />}
+      <input
+        type="file"
+        ref={overviewFileInputRef}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleUploadLogo(file);
+          e.target.value = '';
+        }}
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        className="hidden"
+      />
+
+      {tab === 'view' && company && (
+        <CompanyProfileView
+          company={company}
+          onEdit={() => setTab('edit')}
+          onUploadLogoClick={() => overviewFileInputRef.current?.click()}
+          isUploadingLogo={uploadLogo.isPending}
+        />
+      )}
 
       {tab === 'edit' && (
         <>
           {error && <Banner tone="error">{error}</Banner>}
 
           <form onSubmit={onSubmit} className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+            {/* Company Logo section */}
             <div className="space-y-4 pb-6">
+              <div>
+                <h2 className="text-base font-semibold">Company logo</h2>
+                <p className="text-xs text-text-secondary">
+                  Upload an image for your company. PNG, JPEG, WebP, GIF, or SVG (max 2 MB).
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-sm">
+                  {form.logoUrl ? (
+                    <img
+                      src={form.logoUrl}
+                      alt={form.name || 'Company logo'}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary-subtle text-xl font-bold text-primary-text">
+                      {initials}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleUploadLogo(file);
+                      e.target.value = '';
+                    }}
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                    className="hidden"
+                  />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => fileInputRef.current?.click()}
+                      loading={uploadLogo.isPending}
+                    >
+                      <Icon icon={Upload} size={15} />
+                      {form.logoUrl ? 'Change logo' : 'Upload logo'}
+                    </Button>
+
+                    {form.logoUrl && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={handleRemoveLogo}
+                        loading={deleteLogo.isPending}
+                        className="text-text-secondary hover:text-accent"
+                      >
+                        <Icon icon={Trash2} size={15} />
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                  <span className="text-xs text-text-subtle">
+                    Recommended square aspect ratio, minimum 128×128 px.
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <Field label="Or specify an external logo URL" error={fieldErrors.logoUrl}>
+                  <Input
+                    type="url"
+                    value={form.logoUrl}
+                    onChange={(e) => set('logoUrl')(e.target.value)}
+                    placeholder="https://example.com/logo.png"
+                    error={Boolean(fieldErrors.logoUrl)}
+                  />
+                </Field>
+              </div>
+            </div>
+
+            <div className="space-y-4 py-6">
               <h2 className="text-base font-semibold">Basics</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {inputs(BASICS.slice(0, 2))}

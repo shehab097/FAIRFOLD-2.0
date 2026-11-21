@@ -11,12 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.web.servlet.MvcResult;
 
 class CompanyJobIntegrationTest extends AbstractIntegrationTest {
 
@@ -238,5 +244,47 @@ class CompanyJobIntegrationTest extends AbstractIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("closed"));
+    }
+
+    @Test
+    void upload_and_delete_company_logo() throws Exception {
+        TestEmployer employer = registerEmployer("hr_logo@acme.com");
+        byte[] pngBytes = new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 0};
+        MockMultipartFile file = new MockMultipartFile("file", "logo.png", "image/png", pngBytes);
+
+        MvcResult uploadResult = mockMvc.perform(multipart("/api/employer/company/logo")
+                        .file(file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.logoUrl").isNotEmpty())
+                .andReturn();
+
+        JsonNode node = objectMapper.readTree(uploadResult.getResponse().getContentAsString());
+        String logoUrl = node.get("logoUrl").asText();
+        assertTrue(logoUrl.startsWith("/api/companies/logo/"));
+
+        // Public retrieval of logo by storage key
+        mockMvc.perform(get(logoUrl))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "image/png"))
+                .andExpect(content().bytes(pngBytes));
+
+        // Delete logo
+        mockMvc.perform(delete("/api/employer/company/logo")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.logoUrl").isEmpty());
+    }
+
+    @Test
+    void upload_company_logo_invalid_type_returns_400() throws Exception {
+        TestEmployer employer = registerEmployer("hr_invalid@acme.com");
+        MockMultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "not an image".getBytes());
+
+        mockMvc.perform(multipart("/api/employer/company/logo")
+                        .file(file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_IMAGE"));
     }
 }

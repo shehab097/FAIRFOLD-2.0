@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getCompany, updateCompany } from '../../api/company';
+import { deleteCompanyLogo, getCompany, updateCompany, uploadCompanyLogo } from '../../api/company';
 import {
   createJob,
   deleteJob,
@@ -20,6 +20,22 @@ export function useUpdateCompany() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: updateCompany,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['employer', 'company'] }),
+  });
+}
+
+export function useUploadCompanyLogo() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: uploadCompanyLogo,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['employer', 'company'] }),
+  });
+}
+
+export function useDeleteCompanyLogo() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteCompanyLogo,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['employer', 'company'] }),
   });
 }
