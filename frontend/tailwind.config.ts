@@ -38,6 +38,7 @@ export default {
       text: 'var(--text)',
       'text-secondary': 'var(--text-secondary)',
       'text-subtle': 'var(--text-subtle)',
+      'primary-brand': 'var(--primary-brand)',
       primary: 'var(--primary)',
       'primary-hover': 'var(--primary-hover)',
       'primary-pressed': 'var(--primary-pressed)',

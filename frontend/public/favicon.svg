@@ -1,6 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="7" fill="#845EC2"/>
-  <path d="M22 0H25C28.866 0 32 3.13401 32 7V10L22 0Z" fill="#FF8066"/>
-  <path d="M22 0V7C22 8.65685 23.3431 10 25 10H32L22 0Z" fill="#5C3D91"/>
-  <path d="M9 8H20V11.5H12.5V14.8H18.5V18.2H12.5V24H9V8Z" fill="#F4F2F7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Vertical Spine (Deep Burnt Orange) -->
+  <polygon points="55,30 85,30 85,170 55,150" fill="#C2410C" />
+  
+  <!-- Top Horizontal Fold (Vibrant Orange) -->
+  <polygon points="55,30 155,30 135,60 55,60" fill="#F97316" />
+  
+  <!-- Middle Arm Fold (Warm Amber) -->
+  <polygon points="85,85 135,85 120,112 85,112" fill="#FB923C" />
 </svg>

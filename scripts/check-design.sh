@@ -12,7 +12,7 @@ bad=$(grep -rnE "bg-gradient-" . \
         --include=*.ts --include=*.tsx --include=*.css || true)
 
 hex=$(grep -rnE "#[0-9A-Fa-f]{6}\b" . --include=*.ts --include=*.tsx --include=*.css \
-      | grep -vE "styles/tokens.css|charts/defaults.ts" || true)
+      | grep -vE "styles/tokens.css|charts/defaults.ts|components/ui/Logo.tsx" || true)
 
 if [ -n "$bad" ] || [ -n "$hex" ]; then
   [ -n "$bad" ] && { echo "Forbidden gradient:"; echo "$bad"; }

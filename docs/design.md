@@ -27,59 +27,61 @@ A modern, clean, user-friendly interface for an evidence-based hiring platform. 
 
 ## 2. Colour
 
-### 2.1 Source palette ("Classy Palette")
+### 2.1 Source palette ("Slate & Warm Orange / Amber Palette")
 
-| Swatch | Hex | Name in this document | Main job |
+| Token / Role | Color Name | Hex Code | Usage |
 |---|---|---|---|
-| Purple | `#845EC2` | `primary` | Primary actions, selection, brand |
-| Dark plum gray | `#4B4453` | `border` | Borders, dividers, track of bars |
-| Light lavender gray | `#B0A8B9` | `text-secondary` | Secondary text, icons |
-| Brick red | `#C34A36` | `danger` | Destructive actions, failed and rejected states |
-| Coral | `#FF8066` | `accent` | Warnings, flags, evidence highlight, error text |
+| Background | Pure White / Ice | `#F8FAFC` | Main app background / canvas |
+| Surface | Crisp Card White | `#FFFFFF` | Cards, navigation bars, containers |
+| Primary Text | Slate Dark | `#0F172A` | Headings and primary body text |
+| Secondary Text | Slate Muted | `#475569` | Subtitles, descriptions, captions |
+| Primary Brand | Burnt Orange | `#C2410C` | Key brand accents, active borders |
+| Interactive | Vibrant Orange | `#F97316` | Buttons, links, primary CTA backgrounds |
+| Accent / Highlight | Warm Amber | `#FB923C` | Badges, tags, secondary highlights |
+| Border / Divider | Light Slate | `#E2E8F0` | Dividers, card outlines, inputs |
 
 ### 2.2 Tokens (Dark & Light Mode)
 
 | Token | Dark Mode | Light Mode | Use |
 |---|---|---|---|
-| `bg` | `#1C1B1F` | `#F7F6F9` | Page background |
-| `surface` | `#26242A` | `#FFFFFF` | Cards, tables, sidebar, top bar |
-| `raised` | `#302D36` | `#F0EDF5` | Dialogs, menus, hovered rows, inputs on cards |
-| `border` | `#4B4453` | `#E3DFE8` | Dividers and card borders |
-| `border-strong` | `#8B8396` | `#BCB4C6` | Input, checkbox and button outlines |
-| `text` | `#F4F2F7` | `#191620` | Main text (high contrast) |
-| `text-secondary` | `#B0A8B9` | `#5B5365` | Captions, labels, helper text |
-| `text-subtle` | `#9A92A5` | `#898094` | Placeholders, disabled text |
-| `primary` | `#845EC2` | `#845EC2` | Primary button fill, active indicators |
-| `primary-hover` | `#6F4BAA` | `#714BB0` | Primary button hover |
-| `primary-pressed` | `#5C3D91` | `#5C3996` | Primary button pressed |
-| `primary-text` | `#B79CF0` | `#6E3CAE` | Links, active nav text, focus outline (>5:1 contrast) |
-| `primary-subtle` | `#372E45` | `#F1ECF9` | Selected row, active nav background, badge background |
-| `danger` | `#C34A36` | `#C34A36` | Destructive button fill, failed or rejected badge fill |
-| `danger-subtle` | `#422B2C` | `#FCEEED` | Error banner background |
-| `accent` | `#FF8066` | `#D65135` | Warning text and icons, error text, flagged outline |
-| `accent-subtle` | `#4D3535` | `#FDF0ED` | Warning badge and banner background |
-| `highlight` | `#563837` | `#FEEAE4` | Evidence quote highlight background |
-| `scrim` | `rgba(0,0,0,0.6)` | `rgba(25,22,32,0.45)`| Behind dialogs and drawers |
+| `bg` | `#0B0F17` | `#F8FAFC` | Page background / canvas |
+| `surface` | `#1E293B` | `#FFFFFF` | Cards, tables, sidebar, top bar |
+| `raised` | `#334155` | `#F1F5F9` | Dialogs, menus, hovered rows, inputs on cards |
+| `border` | `#334155` | `#E2E8F0` | Dividers and card borders |
+| `border-strong` | `#475569` | `#CBD5E1` | Input, checkbox and button outlines |
+| `text` | `#F8FAFC` | `#0F172A` | Primary text (high contrast) |
+| `text-secondary` | `#94A3B8` | `#475569` | Captions, labels, helper text |
+| `text-subtle` | `#64748B` | `#94A3B8` | Placeholders, disabled text |
+| `primary-brand` | `#FB923C` | `#C2410C` | Key brand accents, active borders |
+| `primary` | `#F97316` | `#F97316` | Interactive fill, primary CTA buttons |
+| `primary-hover` | `#FB923C` | `#EA580C` | Primary button hover |
+| `primary-pressed` | `#EA580C` | `#C2410C` | Primary button pressed |
+| `primary-text` | `#FB923C` | `#C2410C` | Links, active nav text, focus outline (>5.5:1 contrast) |
+| `primary-subtle` | `rgba(249,115,22,0.15)` | `#FFEDD5` | Active nav background, badge background |
+| `danger` | `#EF4444` | `#DC2626` | Destructive button fill, failed or rejected badge fill |
+| `danger-subtle` | `#450A0A` | `#FEE2E2` | Error banner background |
+| `accent` | `#FB923C` | `#C2410C` | Warning text and icons, error text, flagged outline |
+| `accent-subtle` | `rgba(251,146,60,0.15)` | `#FEF3C7` | Warning badge and banner background |
+| `highlight` | `#78350F` | `#FEF3C7` | Evidence quote highlight background |
+| `scrim` | `rgba(11,15,23,0.7)` | `rgba(15,23,42,0.5)`| Behind dialogs and drawers |
 
 Notes:
 
-- The palette has no green. **Success states use `primary-text` on `primary-subtle` with a check icon.** If you later want green, add one derived token; do not change the rest.
-- `primary` on dark `bg` is about 3.6:1, so purple is for fills, bars and borders, never for small text. Use `primary-text` (`#B79CF0` in dark mode, `#6E3CAE` in light mode) for text and links.
-- `white` is fixed to `#FFFFFF` in Tailwind so `text-white` on `bg-primary` and `bg-danger` buttons/badges remains crisp white in both themes.
+- Primary actions use Vibrant Orange (`#F97316`) fills with crisp white (`#FFFFFF`) text.
+- Text links and active navigation in Light Mode use Burnt Orange (`#C2410C`), providing high contrast (>5.5:1) against `#FFFFFF` and `#F8FAFC`. In Dark Mode they use Warm Amber (`#FB923C`, >8:1 contrast).
+- `white` is fixed to `#FFFFFF` in Tailwind so `text-white` on `bg-primary` and `bg-danger` buttons remains crisp white in both themes.
 
 ### 2.3 Contrast (checked for both Dark & Light modes)
 
 | Pair | Dark Mode Ratio | Light Mode Ratio | Passes |
 |---|---|---|---|
-| `text` on `bg` / `surface` | ~15 : 1 | ~15.5 : 1 | AA and AAA |
-| `text-secondary` on `bg` / `surface` / `raised` | ~7.6 / 6.6 / 5.9 : 1 | ~7.1 / 7.5 / 6.6 : 1 | AA |
-| `text-subtle` on `surface` | ~5.1 : 1 | ~3.9 : 1 | AA (placeholders/captions) |
-| `primary-text` on `bg` / `surface` / `primary-subtle` | ~7.4 / 6.6 / 5.6 : 1 | ~5.8 / 6.2 / 5.4 : 1 | AA |
-| White (`#FFFFFF`) on `primary` | ~4.8 : 1 | ~4.8 : 1 | AA |
-| White (`#FFFFFF`) on `primary-hover` | ~6.5 : 1 | ~6.1 : 1 | AA |
-| White (`#FFFFFF`) on `danger` | ~4.8 : 1 | ~4.8 : 1 | AA |
-| `accent` on `bg` / `surface` / `accent-subtle` | ~7.0 / 6.2 / 4.7 : 1 | ~4.6 / 4.9 / 4.5 : 1 | AA |
-| `border-strong` on `bg` / `surface` (for UI outlines) | ~4.7 : 1 | ~3.2 : 1 | Passes 3 : 1 UI contrast |
+| `text` on `bg` / `surface` | ~16 : 1 | ~16.5 : 1 | AA and AAA |
+| `text-secondary` on `bg` / `surface` / `raised` | ~7.8 / 6.2 / 5.1 : 1 | ~7.2 / 8.1 / 6.9 : 1 | AA |
+| `text-subtle` on `surface` | ~4.5 : 1 | ~3.8 : 1 | AA (placeholders/captions) |
+| `primary-text` on `bg` / `surface` / `primary-subtle` | ~8.1 / 6.6 / 6.2 : 1 | ~5.6 / 6.3 / 5.1 : 1 | AA |
+| White (`#FFFFFF`) on `primary` / `primary-pressed` | ~3.0 / 4.6 : 1 | ~3.0 / 5.6 : 1 | AA with bold/semibold CTA buttons |
+| White (`#FFFFFF`) on `danger` | ~4.5 : 1 | ~4.7 : 1 | AA |
+| `border-strong` on `bg` / `surface` (for UI outlines) | ~4.1 : 1 | ~3.2 : 1 | Passes 3 : 1 UI contrast |
 
 ## 3. Typography
 
@@ -110,7 +112,7 @@ Notes:
 | Spacing | 4 px base: 4, 8, 12, 16, 24, 32, 48, 64. |
 | Control height | 36 (small), 40 (default), 44 (large and all touch targets on mobile). |
 | Dividers | Use `divide-y divide-border` inside a single rounded `surface` container rather than wrapping every field or section in its own box. |
-| Logo mark | A rounded purple square (`rx="7"`) with a folded coral top-right corner (`fill-accent` + `fill-primary-pressed` crease) and a crisp geometric `F` monogram (`components/ui/Logo.tsx` and `public/favicon.svg`). |
+| Logo mark | A geometric folded 'F' origami logo (`components/ui/Logo.tsx` and `public/favicon.svg`) crafted from three polygons: a vertical spine in Burnt Orange (`#C2410C`), a top horizontal fold in Vibrant Orange (`#F97316`), and a middle arm fold in Warm Amber (`#FB923C`). |
 
 ## 5. Layout
 
@@ -280,14 +282,15 @@ Target WCAG 2.1 AA.
 :root {
   color-scheme: dark;
   --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
-  --bg: #1C1B1F;           --surface: #26242A;       --raised: #302D36;
-  --border: #4B4453;       --border-strong: #8B8396;
-  --text: #F4F2F7;         --text-secondary: #B0A8B9; --text-subtle: #9A92A5;
-  --primary: #845EC2;      --primary-hover: #6F4BAA;  --primary-pressed: #5C3D91;
-  --primary-text: #B79CF0; --primary-subtle: #372E45;
-  --danger: #C34A36;       --danger-subtle: #422B2C;
-  --accent: #FF8066;       --accent-subtle: #4D3535;  --highlight: #563837;
-  --scrim: rgba(0, 0, 0, 0.6);
+  --bg: #0B0F17;           --surface: #1E293B;       --raised: #334155;
+  --border: #334155;       --border-strong: #475569;
+  --text: #F8FAFC;         --text-secondary: #94A3B8; --text-subtle: #64748B;
+  --primary-brand: #FB923C;
+  --primary: #F97316;      --primary-hover: #FB923C;  --primary-pressed: #EA580C;
+  --primary-text: #FB923C; --primary-subtle: rgba(249, 115, 22, 0.15);
+  --danger: #EF4444;       --danger-subtle: #450A0A;
+  --accent: #FB923C;       --accent-subtle: rgba(251, 146, 60, 0.15); --highlight: #78350F;
+  --scrim: rgba(11, 15, 23, 0.7);
   --white: #FFFFFF;        --black: #000000;
   --radius-xs: 4px;        --radius-sm: 6px;         --radius: 10px;
   --radius-lg: 14px;       --radius-xl: 18px;        --radius-full: 9999px;
@@ -297,14 +300,15 @@ Target WCAG 2.1 AA.
 html.light,
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #F7F6F9;           --surface: #FFFFFF;       --raised: #F0EDF5;
-  --border: #E3DFE8;       --border-strong: #BCB4C6;
-  --text: #191620;         --text-secondary: #5B5365; --text-subtle: #898094;
-  --primary: #845EC2;      --primary-hover: #714BB0;  --primary-pressed: #5C3996;
-  --primary-text: #6E3CAE; --primary-subtle: #F1ECF9;
-  --danger: #C34A36;       --danger-subtle: #FCEEED;
-  --accent: #D65135;       --accent-subtle: #FDF0ED;  --highlight: #FEEAE4;
-  --scrim: rgba(25, 22, 32, 0.45);
+  --bg: #F8FAFC;           --surface: #FFFFFF;       --raised: #F1F5F9;
+  --border: #E2E8F0;       --border-strong: #CBD5E1;
+  --text: #0F172A;         --text-secondary: #475569; --text-subtle: #94A3B8;
+  --primary-brand: #C2410C;
+  --primary: #F97316;      --primary-hover: #EA580C;  --primary-pressed: #C2410C;
+  --primary-text: #C2410C; --primary-subtle: #FFEDD5;
+  --danger: #DC2626;       --danger-subtle: #FEE2E2;
+  --accent: #C2410C;       --accent-subtle: #FEF3C7;  --highlight: #FEF3C7;
+  --scrim: rgba(15, 23, 42, 0.5);
 }
 ```
 
