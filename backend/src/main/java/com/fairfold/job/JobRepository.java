@@ -30,6 +30,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
               AND (:location IS NULL
                    OR LOWER(j.city) LIKE CONCAT('%', LOWER(:location), '%')
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
+              AND (:country IS NULL OR LOWER(j.country) = LOWER(:country))
               AND (
                   :q = ''
                   OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE) > 0
@@ -47,6 +48,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
               AND (:location IS NULL
                    OR LOWER(j.city) LIKE CONCAT('%', LOWER(:location), '%')
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
+              AND (:country IS NULL OR LOWER(j.country) = LOWER(:country))
               AND (
                   :q = ''
                   OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE) > 0
@@ -60,6 +62,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
             @Param("q") String q,
             @Param("qEscaped") String qEscaped,
             @Param("location") String location,
+            @Param("country") String country,
             @Param("remote") Boolean remote,
             @Param("level") String level,
             Pageable pageable);

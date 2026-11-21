@@ -12,12 +12,14 @@ public record PublicJobDetail(
         String description,
         String requirements,
         String city,
+        String address,
         String country,
         boolean remote,
         ExperienceLevel experienceLevel,
         List<String> requiredSkills,
         List<String> niceToHaveSkills,
         Instant publishedAt,
-        String companyName
+        String companyName,
+        String companyLogoUrl
 ) {
 }

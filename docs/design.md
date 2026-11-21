@@ -244,7 +244,7 @@ export const SERIES = ['#845EC2', '#FF8066', '#B0A8B9', '#C34A36'];
 - `lucide-react`, 20 px in controls, 16 px inside badges. Set `strokeLinecap="square"` and `strokeLinejoin="miter"` globally so icon corners are sharp too (wrap the icons in one `Icon` component that sets this).
 - Icons are `text-secondary` by default and take the text colour of their context.
 - No stock photos, illustrations or avatars from images. Candidates have no photos anywhere (this is part of the product's fairness).
-- Company logos (if added later) show in a square frame.
+- Company logos show in a square frame (`CompanyLogo`) beside the job title on Browse Jobs and the job detail page, and in the company profile header. When a company hides its name (`showNamePublicly = false`) the logo is hidden too; the component falls back to company initials or a `Building2` icon.
 
 ## 11. Fairness patterns
 

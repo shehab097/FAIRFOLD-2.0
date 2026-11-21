@@ -10,6 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { Icon } from '../../../components/ui/Icon';
 import { Input } from '../../../components/ui/Input';
+import { LocationFields } from '../../../components/ui/LocationFields';
 import { Markdown } from '../../../components/ui/Markdown';
 import { MarkdownEditor } from '../../../components/ui/MarkdownEditor';
 import { Select } from '../../../components/ui/Select';
@@ -17,6 +18,7 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage, getFieldErrors } from '../../../lib/errors';
+import { emptyLocation, formatLocation, parseLocation, type LocationValue } from '../../../lib/locations';
 
 type TextKey = Exclude<keyof CompanyProfile, 'showNamePublicly' | 'foundedYear'>;
 type Form = Record<TextKey | 'foundedYear', string> & { showNamePublicly: boolean };
@@ -31,7 +33,6 @@ const BASICS: { key: keyof Form; label: string; type?: string; required?: boolea
   { key: 'industry', label: 'Industry', required: true },
   { key: 'tagline', label: 'Tagline', placeholder: 'One line about what you do' },
   { key: 'foundedYear', label: 'Founded year', type: 'number', placeholder: '2015' },
-  { key: 'headquarters', label: 'Headquarters', placeholder: 'Dhaka, Bangladesh' },
 ];
 
 const CONTACT: typeof BASICS = [
@@ -238,6 +239,7 @@ export function CompanyPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const overviewFileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<Form>(EMPTY);
+  const [headquarters, setHeadquarters] = useState<LocationValue>(emptyLocation);
   const [tab, setTab] = useState<'view' | 'edit'>('view');
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -250,6 +252,7 @@ export function CompanyPage() {
         if (v !== null && v !== undefined) (next as Record<string, unknown>)[k] = k === 'showNamePublicly' ? v : String(v);
       }
       setForm(next);
+      setHeadquarters(parseLocation(company.headquarters));
     }
   }, [company]);
 
@@ -285,7 +288,11 @@ export function CompanyPage() {
     setError(null);
     setFieldErrors({});
     try {
-      await update.mutateAsync({ ...form, foundedYear: form.foundedYear === '' ? null : Number(form.foundedYear) });
+      await update.mutateAsync({
+        ...form,
+        headquarters: formatLocation(headquarters),
+        foundedYear: form.foundedYear === '' ? null : Number(form.foundedYear),
+      });
       toast('Company profile saved.', 'success');
       setTab('view');
     } catch (err) {
@@ -480,6 +487,7 @@ export function CompanyPage() {
                 </Field>
                 {inputs(BASICS.slice(2))}
               </div>
+              <LocationFields value={headquarters} onChange={setHeadquarters} />
               <Checkbox
                 checked={form.showNamePublicly}
                 onChange={set('showNamePublicly')}

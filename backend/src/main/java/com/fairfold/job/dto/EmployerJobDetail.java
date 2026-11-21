@@ -14,6 +14,7 @@ public record EmployerJobDetail(
         String requirements,
         ExperienceLevel experienceLevel,
         String city,
+        String address,
         String country,
         boolean remote,
         List<SkillRef> requiredSkills,

@@ -11,6 +11,7 @@ export interface PublicJobListItem {
   topSkills: string[];
   publishedAt: string;
   companyName: string | null;
+  companyLogoUrl: string | null;
 }
 
 export interface PublicJobDetail {
@@ -19,6 +20,7 @@ export interface PublicJobDetail {
   description: string;
   requirements: string;
   city: string | null;
+  address: string | null;
   country: string;
   remote: boolean;
   experienceLevel: ExperienceLevel;
@@ -26,6 +28,7 @@ export interface PublicJobDetail {
   niceToHaveSkills: string[];
   publishedAt: string;
   companyName: string | null;
+  companyLogoUrl: string | null;
 }
 
 export interface EmployerJobListItem {
@@ -50,6 +53,7 @@ export interface EmployerJobDetail {
   requirements: string;
   experienceLevel: ExperienceLevel;
   city: string | null;
+  address: string | null;
   country: string;
   remote: boolean;
   requiredSkills: SkillRef[];
@@ -67,6 +71,7 @@ export interface JobInput {
   requirements: string;
   experienceLevel: ExperienceLevel;
   city: string;
+  address: string;
   country: string;
   remote: boolean;
   requiredSkillIds: string[];
@@ -80,6 +85,7 @@ export interface JobInput {
 export interface JobFilters {
   q?: string;
   location?: string;
+  country?: string;
   remote?: boolean;
   level?: ExperienceLevel;
   page?: number;

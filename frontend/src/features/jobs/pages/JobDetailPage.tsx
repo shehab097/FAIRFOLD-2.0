@@ -6,6 +6,7 @@ import { useApply } from '../../candidate/queries';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { CompanyLogo } from '../../../components/ui/CompanyLogo';
 import { Dialog } from '../../../components/ui/Dialog';
 import { Icon } from '../../../components/ui/Icon';
 import { Markdown } from '../../../components/ui/Markdown';
@@ -72,22 +73,28 @@ export function JobDetailPage() {
         <Link to="/" className="text-sm text-text-secondary hover:text-primary-text">
           ← Browse jobs
         </Link>
-        <h1 className="mt-2 text-[28px] font-bold leading-9">{job.title}</h1>
-        <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
-          <span className="inline-flex items-center gap-1.5">
-            <Icon icon={Building2} size={15} />
-            {job.companyName ?? 'Confidential company'}
-          </span>
-          <span>·</span>
-          <span className="inline-flex items-center gap-1.5">
-            <Icon icon={MapPin} size={15} />
-            {job.city ? `${job.city}, ` : ''}
-            {job.country}
-          </span>
-          <span>·</span>
-          <span>{job.remote ? 'Remote' : 'On-site'}</span>
-          <span>·</span>
-          <span className="capitalize">{job.experienceLevel}</span>
+        <div className="mt-2 flex items-start gap-3">
+          <CompanyLogo name={job.companyName} logoUrl={job.companyLogoUrl} size="lg" />
+          <div className="min-w-0">
+            <h1 className="text-[28px] font-bold leading-9">{job.title}</h1>
+            <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+              <span className="inline-flex items-center gap-1.5">
+                <Icon icon={Building2} size={15} />
+                {job.companyName ?? 'Confidential company'}
+              </span>
+              <span>·</span>
+              <span className="inline-flex items-center gap-1.5">
+                <Icon icon={MapPin} size={15} />
+                {job.address ? `${job.address}, ` : ''}
+                {job.city ? `${job.city}, ` : ''}
+                {job.country}
+              </span>
+              <span>·</span>
+              <span>{job.remote ? 'Remote' : 'On-site'}</span>
+              <span>·</span>
+              <span className="capitalize">{job.experienceLevel}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -144,7 +151,8 @@ export function JobDetailPage() {
               </div>
               <div className="flex justify-between">
                 <dt className="text-text-secondary">Location</dt>
-                <dd className="font-medium text-text">
+                <dd className="max-w-[65%] break-words text-right font-medium text-text">
+                  {job.address ? `${job.address}, ` : ''}
                   {job.city ? `${job.city}, ` : ''}
                   {job.country}
                 </dd>

@@ -7,9 +7,11 @@ import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Checkbox } from '../../../components/ui/Checkbox';
 import { Input } from '../../../components/ui/Input';
+import { LocationFields } from '../../../components/ui/LocationFields';
 import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { MarkdownEditor } from '../../../components/ui/MarkdownEditor';
+import { emptyLocation, type LocationValue } from '../../../lib/locations';
 import { getApiErrorMessage, getFieldErrors } from '../../../lib/errors';
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
@@ -35,8 +37,7 @@ export function JobEditorPage() {
   const [description, setDescription] = useState('');
   const [requirements, setRequirements] = useState('');
   const [level, setLevel] = useState<ExperienceLevel>('mid');
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
+  const [location, setLocation] = useState<LocationValue>(emptyLocation);
   const [remote, setRemote] = useState(false);
   const [requiredSkills, setRequiredSkills] = useState<SelectedSkill[]>([]);
   const [niceToHaveSkills, setNiceToHaveSkills] = useState<SelectedSkill[]>([]);
@@ -52,8 +53,7 @@ export function JobEditorPage() {
       setDescription(job.description);
       setRequirements(job.requirements ?? '');
       setLevel(job.experienceLevel);
-      setCity(job.city ?? '');
-      setCountry(job.country);
+      setLocation({ country: job.country, city: job.city ?? '', address: job.address ?? '' });
       setRemote(job.remote);
       setRequiredSkills(job.requiredSkills.map((s) => ({ id: s.id, name: s.name, mustHave: s.mustHave })));
       setNiceToHaveSkills(job.niceToHaveSkills.map((s) => ({ id: s.id, name: s.name, mustHave: false })));
@@ -69,8 +69,9 @@ export function JobEditorPage() {
       description,
       requirements,
       experienceLevel: level,
-      city,
-      country,
+      city: location.city,
+      address: location.address,
+      country: location.country,
       remote,
       requiredSkillIds: requiredSkills.map((s) => s.id),
       niceToHaveSkillIds: niceToHaveSkills.map((s) => s.id),
@@ -144,25 +145,23 @@ export function JobEditorPage() {
 
         <section className="space-y-4 border border-border bg-surface p-6">
           <h2 className="text-xl font-semibold">Level and location</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Experience level" error={fieldErrors.experienceLevel}>
-              <Select value={level} onChange={(e) => setLevel(e.target.value as ExperienceLevel)}>
-                {EXPERIENCE_LEVELS.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="City">
-              <Input value={city} onChange={(e) => setCity(e.target.value)} />
-            </Field>
-            <Field label="Country" error={fieldErrors.country}>
-              <Input value={country} onChange={(e) => setCountry(e.target.value)} required />
-            </Field>
-            <div className="flex items-end pb-2">
-              <Checkbox checked={remote} onChange={setRemote} label="Remote" />
-            </div>
+          <Field label="Experience level" error={fieldErrors.experienceLevel}>
+            <Select value={level} onChange={(e) => setLevel(e.target.value as ExperienceLevel)}>
+              {EXPERIENCE_LEVELS.map((l) => (
+                <option key={l} value={l}>
+                  {l}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <LocationFields
+            value={location}
+            onChange={setLocation}
+            requiredCountry
+            countryError={fieldErrors.country}
+          />
+          <div className="flex items-center">
+            <Checkbox checked={remote} onChange={setRemote} label="Remote" />
           </div>
         </section>
 

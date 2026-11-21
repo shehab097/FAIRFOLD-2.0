@@ -5,16 +5,19 @@ import { useJobs } from '../queries';
 import { EXPERIENCE_LEVELS, type ExperienceLevel } from '../types';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { CompanyLogo } from '../../../components/ui/CompanyLogo';
 import { Icon } from '../../../components/ui/Icon';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { formatDate } from '../../../lib/format';
+import { COUNTRIES } from '../../../lib/locations';
 
 export function JobBoardPage() {
   const [params, setParams] = useSearchParams();
   const qParam = params.get('q') ?? '';
   const locationParam = params.get('location') ?? '';
+  const countryParam = params.get('country') ?? '';
   const remoteParam = params.get('remote') ?? '';
   const levelParam = (params.get('level') ?? '') as ExperienceLevel | '';
   const page = Math.max(0, Number(params.get('page') ?? '0') || 0);
@@ -30,21 +33,31 @@ export function JobBoardPage() {
   const { data, isLoading, isError, refetch } = useJobs({
     q: qParam || undefined,
     location: locationParam || undefined,
+    country: countryParam || undefined,
     remote: remoteParam === '' ? undefined : remoteParam === 'true',
     level: levelParam || undefined,
     page,
   });
 
-  function applyParams(overrides: { q?: string; location?: string; remote?: string; level?: string; page?: number }) {
+  function applyParams(overrides: {
+    q?: string;
+    location?: string;
+    country?: string;
+    remote?: string;
+    level?: string;
+    page?: number;
+  }) {
     const next = new URLSearchParams();
     const nextQ = (overrides.q ?? qInput).trim();
     const nextLoc = (overrides.location ?? locationInput).trim();
+    const nextCountry = overrides.country ?? countryParam;
     const nextRemote = overrides.remote ?? remoteParam;
     const nextLevel = overrides.level ?? levelParam;
     const nextPage = overrides.page ?? 0;
 
     if (nextQ) next.set('q', nextQ);
     if (nextLoc) next.set('location', nextLoc);
+    if (nextCountry) next.set('country', nextCountry);
     if (nextRemote) next.set('remote', nextRemote);
     if (nextLevel) next.set('level', nextLevel);
     if (nextPage > 0) next.set('page', String(nextPage));
@@ -62,7 +75,7 @@ export function JobBoardPage() {
     setParams(new URLSearchParams());
   }
 
-  const hasFilters = Boolean(qParam || locationParam || remoteParam || levelParam);
+  const hasFilters = Boolean(qParam || locationParam || countryParam || remoteParam || levelParam);
   const totalPages = data?.totalPages ?? 0;
 
   return (
@@ -88,6 +101,7 @@ export function JobBoardPage() {
                 <span>Filtered by:</span>
                 {qParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">“{qParam}”</span>}
                 {locationParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">{locationParam}</span>}
+                {countryParam && <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">{countryParam}</span>}
                 {remoteParam && (
                   <span className="rounded-md bg-surface px-2 py-1 text-text shadow-sm">
                     {remoteParam === 'true' ? 'Remote' : 'On-site'}
@@ -148,23 +162,26 @@ export function JobBoardPage() {
                   className="block p-5 transition-colors hover:bg-raised"
                 >
                   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
-                    <div className="min-w-0">
-                      <h2 className="text-base font-semibold text-text">{job.title}</h2>
-                      <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Icon icon={Building2} size={14} />
-                          {job.companyName ?? 'Confidential company'}
-                        </span>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Icon icon={MapPin} size={14} />
-                          {job.city ? `${job.city}, ` : ''}
-                          {job.country}
-                        </span>
+                    <div className="flex min-w-0 items-start gap-3">
+                      <CompanyLogo name={job.companyName} logoUrl={job.companyLogoUrl} size="md" />
+                      <div className="min-w-0">
+                        <h2 className="text-base font-semibold text-text">{job.title}</h2>
+                        <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Icon icon={Building2} size={14} />
+                            {job.companyName ?? 'Confidential company'}
+                          </span>
+                          <span className="inline-flex items-center gap-1.5">
+                            <Icon icon={MapPin} size={14} />
+                            {job.city ? `${job.city}, ` : ''}
+                            {job.country}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
                   </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2 pl-[52px]">
                     <span className="rounded-md bg-primary-subtle px-2.5 py-0.5 text-xs font-medium capitalize text-primary-text">
                       {job.experienceLevel}
                     </span>
@@ -238,6 +255,24 @@ export function JobBoardPage() {
                 onChange={(e) => setLocationInput(e.target.value)}
                 placeholder="City or country"
               />
+            </div>
+
+            <div>
+              <label htmlFor="job-search-country" className="mb-1 block text-xs text-text-secondary">
+                Country
+              </label>
+              <Select
+                id="job-search-country"
+                value={countryParam}
+                onChange={(e) => applyParams({ country: e.target.value, page: 0 })}
+              >
+                <option value="">Any country</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.isoCode} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </Select>
             </div>
 
             <div>

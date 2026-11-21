@@ -53,7 +53,7 @@ FairFold is a recruitment web platform with two portals. Employers post jobs, re
 |---|---|
 | **Backend** | Java 21, Spring Boot 3.5, Spring Web, Security, Data JPA, Validation, Flyway, Mail |
 | **Database** | **MariaDB** (InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`) — driver `org.mariadb.jdbc:mariadb-java-client`, migrations via `flyway-mysql` |
-| **Frontend** | React 18, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind CSS (Dark & Light mode with theme switcher and rounded corners), in-house Markdown editor/renderer, lucide-react, `@fontsource-variable/inter` |
+| **Frontend** | React 18, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form, Tailwind CSS (Dark & Light mode with theme switcher and rounded corners), in-house Markdown editor/renderer, `country-state-city` + free Photon (OpenStreetMap-based) for location dropdowns, lucide-react, `@fontsource-variable/inter` |
 | **API docs** | springdoc-openapi (Swagger UI + `/v3/api-docs`) |
 | **Auth** | JWT access token (in memory), refresh token in an HttpOnly cookie, BCrypt, rate limiting (Bucket4j) |
 | **AI** | DeepSeek behind an `AiProvider` interface, with a `RuleBasedFallbackProvider` (works with no key) |

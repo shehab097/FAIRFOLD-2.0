@@ -10,6 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { Icon } from '../../../components/ui/Icon';
 import { Input } from '../../../components/ui/Input';
+import { LocationFields } from '../../../components/ui/LocationFields';
 import { Markdown } from '../../../components/ui/Markdown';
 import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
@@ -17,6 +18,7 @@ import { Table, type Column } from '../../../components/ui/Table';
 import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
+import { emptyLocation, formatLocation, parseLocation, type LocationValue } from '../../../lib/locations';
 
 function DetailItem({ label, value }: { label: string; value: ReactNode }) {
   const empty = value === null || value === undefined || value === '';
@@ -177,7 +179,7 @@ export function ProfilePage() {
   const [phone, setPhone] = useState('');
   const [title, setTitle] = useState('');
   const [bio, setBio] = useState('');
-  const [location, setLocation] = useState('');
+  const [location, setLocation] = useState<LocationValue>(emptyLocation);
   const [remotePreference, setRemotePreference] = useState('any');
   const [totalExperienceYears, setTotalExperienceYears] = useState('');
   const [educationLevel, setEducationLevel] = useState('');
@@ -192,7 +194,7 @@ export function ProfilePage() {
     setPhone(profile.phone ?? '');
     setTitle(profile.title ?? '');
     setBio(profile.bio ?? '');
-    setLocation(profile.location ?? '');
+    setLocation(parseLocation(profile.location));
     setRemotePreference(profile.remotePreference ?? 'any');
     setTotalExperienceYears(profile.totalExperienceYears?.toString() ?? '');
     setEducationLevel(profile.educationLevel ?? '');
@@ -204,7 +206,7 @@ export function ProfilePage() {
         phone,
         title,
         bio,
-        location,
+        location: formatLocation(location),
         remotePreference: remotePreference as (typeof REMOTE_PREFERENCES)[number],
         totalExperienceYears: totalExperienceYears.trim() === '' ? null : Number(totalExperienceYears),
         educationLevel: educationLevel || null,
@@ -371,9 +373,8 @@ export function ProfilePage() {
               <label className="mb-1 block text-xs text-text-secondary">Title</label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Backend Engineer" />
             </div>
-            <div>
-              <label className="mb-1 block text-xs text-text-secondary">Location</label>
-              <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City" />
+            <div className="sm:col-span-2">
+              <LocationFields value={location} onChange={setLocation} />
             </div>
             <div>
               <label className="mb-1 block text-xs text-text-secondary">Phone</label>

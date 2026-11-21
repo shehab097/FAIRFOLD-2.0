@@ -39,6 +39,9 @@ export function DashboardPage() {
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (isError || !data) return <Banner tone="error">Could not load your dashboard.</Banner>;
 
+  const setupComplete =
+    data.checklist.profileSaved && data.checklist.resumeUploaded && data.checklist.skillsAdded;
+
   const columns: Column<LatestApplication>[] = [
     {
       header: 'Job',
@@ -56,20 +59,26 @@ export function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-[28px] font-bold leading-9">Dashboard</h1>
-        <p className="text-text-secondary">Complete your profile to start applying.</p>
+        <p className="text-text-secondary">
+          {setupComplete
+            ? 'Your profile is ready — browse jobs and track your applications.'
+            : 'Complete your profile to start applying.'}
+        </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-0">
-          <h2 className="px-4 pt-4 text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-            Setup checklist
-          </h2>
-          <div className="mt-2">
-            <Step done={data.checklist.profileSaved} label="Add your title and location" to="/candidate/profile" />
-            <Step done={data.checklist.resumeUploaded} label="Upload your resume" to="/candidate/resume" />
-            <Step done={data.checklist.skillsAdded} label="Add your skills" to="/candidate/profile" />
-          </div>
-        </Card>
+      <div className={setupComplete ? 'grid gap-6' : 'grid gap-6 lg:grid-cols-2'}>
+        {!setupComplete && (
+          <Card className="p-0">
+            <h2 className="px-4 pt-4 text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
+              Setup checklist
+            </h2>
+            <div className="mt-2">
+              <Step done={data.checklist.profileSaved} label="Add your title and location" to="/candidate/profile" />
+              <Step done={data.checklist.resumeUploaded} label="Upload your resume" to="/candidate/resume" />
+              <Step done={data.checklist.skillsAdded} label="Add your skills" to="/candidate/profile" />
+            </div>
+          </Card>
+        )}
 
         <Card className="p-0">
           <div className="px-4 pt-4">

@@ -44,6 +44,9 @@ public class Job extends BaseEntity {
     @Column(length = 255)
     private String city;
 
+    @Column(length = 255)
+    private String address;
+
     @Column(nullable = false, length = 255)
     private String country;
 
@@ -126,6 +129,14 @@ public class Job extends BaseEntity {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getCountry() {

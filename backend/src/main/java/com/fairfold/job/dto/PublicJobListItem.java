@@ -15,6 +15,7 @@ public record PublicJobListItem(
         ExperienceLevel experienceLevel,
         List<String> topSkills,
         Instant publishedAt,
-        String companyName
+        String companyName,
+        String companyLogoUrl
 ) {
 }

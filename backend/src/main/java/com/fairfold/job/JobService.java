@@ -48,13 +48,16 @@ public class JobService {
     // --- public board ------------------------------------------------------
 
     @Transactional(readOnly = true)
-    public PageResponse<PublicJobListItem> searchPublic(String q, String location, Boolean remote, String level, Pageable pageable) {
+    public PageResponse<PublicJobListItem> searchPublic(String q, String location, String country,
+                                                         Boolean remote, String level, Pageable pageable) {
         String query = q == null ? "" : q.trim();
         String qEscaped = escapeLike(query);
         String levelParam = normalize(level);
         String locationParam = normalize(location);
+        String countryParam = normalize(country);
 
-        Page<Job> page = jobRepository.searchActive(query, qEscaped, locationParam, remote, levelParam, pageable);
+        Page<Job> page = jobRepository.searchActive(
+                query, qEscaped, locationParam, countryParam, remote, levelParam, pageable);
         return PageResponse.of(
                 page.getContent().stream().map(this::toPublicListItem).toList(),
                 page.getNumber(), page.getSize(), page.getTotalElements());
@@ -177,6 +180,7 @@ public class JobService {
         copy.setRequirements(source.getRequirements());
         copy.setExperienceLevel(source.getExperienceLevel());
         copy.setCity(source.getCity());
+        copy.setAddress(source.getAddress());
         copy.setCountry(source.getCountry());
         copy.setRemote(source.isRemote());
         copy.setHfMinYears(source.getHfMinYears());
@@ -220,6 +224,7 @@ public class JobService {
         job.setRequirements(request.requirements() == null ? "" : request.requirements());
         job.setExperienceLevel(parseLevel(request.experienceLevel()));
         job.setCity(trimToNull(request.city()));
+        job.setAddress(trimToNull(request.address()));
         job.setCountry(request.country().trim());
         job.setRemote(request.remote());
         job.setHfMinYears(request.hfMinYears());
@@ -284,7 +289,7 @@ public class JobService {
         }
         return new EmployerJobDetail(
                 job.getId(), job.getTitle(), job.getDescription(), job.getRequirements(),
-                job.getExperienceLevel(), job.getCity(), job.getCountry(), job.isRemote(),
+                job.getExperienceLevel(), job.getCity(), job.getAddress(), job.getCountry(), job.isRemote(),
                 required, niceToHave,
                 job.getHfMinYears(), job.getHfCountry(), job.getCutoffScore(),
                 job.getStatus(), job.getPublishedAt());
@@ -296,9 +301,12 @@ public class JobService {
                 .limit(5)
                 .map(js -> js.getSkill().getName())
                 .toList();
+        Company company = resolvePublicCompany(job.getCompanyId());
         return new PublicJobListItem(
                 job.getId(), job.getTitle(), job.getCity(), job.getCountry(), job.isRemote(),
-                job.getExperienceLevel(), topSkills, job.getPublishedAt(), resolveCompanyName(job.getCompanyId()));
+                job.getExperienceLevel(), topSkills, job.getPublishedAt(),
+                company == null ? null : company.getName(),
+                company == null ? null : company.getLogoUrl());
     }
 
     private PublicJobDetail toPublicDetail(Job job) {
@@ -311,16 +319,18 @@ public class JobService {
                 niceToHave.add(js.getSkill().getName());
             }
         }
+        Company company = resolvePublicCompany(job.getCompanyId());
         return new PublicJobDetail(
                 job.getId(), job.getTitle(), job.getDescription(), job.getRequirements(),
-                job.getCity(), job.getCountry(), job.isRemote(), job.getExperienceLevel(),
-                required, niceToHave, job.getPublishedAt(), resolveCompanyName(job.getCompanyId()));
+                job.getCity(), job.getAddress(), job.getCountry(), job.isRemote(), job.getExperienceLevel(),
+                required, niceToHave, job.getPublishedAt(),
+                company == null ? null : company.getName(),
+                company == null ? null : company.getLogoUrl());
     }
 
-    private String resolveCompanyName(UUID companyId) {
+    private Company resolvePublicCompany(UUID companyId) {
         return companyRepository.findById(companyId)
                 .filter(Company::isShowNamePublicly)
-                .map(Company::getName)
                 .orElse(null);
     }
 

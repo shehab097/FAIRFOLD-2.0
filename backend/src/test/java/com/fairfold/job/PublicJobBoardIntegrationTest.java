@@ -55,6 +55,37 @@ class PublicJobBoardIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void Fr042_filter_country() throws Exception {
+        TestEmployer employer = setupEmployer("hr@acme.com");
+        createActiveJob(employer, "Bangladesh Job", "desc", "Bangladesh", false, "mid", List.of());
+        createActiveJob(employer, "India Job", "desc", "India", false, "mid", List.of());
+
+        mockMvc.perform(get("/api/jobs").param("country", "bangladesh"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].title").value("Bangladesh Job"));
+    }
+
+    @Test
+    void Fr042_company_logo_shown_with_public_name() throws Exception {
+        TestEmployer employer = registerEmployer("hr@acme.com");
+        mockMvc.perform(put("/api/employer/company")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Acme Corp","industry":"Software","size":"11-50",
+                                 "showNamePublicly":true,"logoUrl":"https://example.com/logo.png"}
+                                """))
+                .andExpect(status().isOk());
+        createActiveJob(employer, "Logo Job", "desc", "Bangladesh", false, "mid", List.of());
+
+        mockMvc.perform(get("/api/jobs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].companyName").value("Acme Corp"))
+                .andExpect(jsonPath("$.items[0].companyLogoUrl").value("https://example.com/logo.png"));
+    }
+
+    @Test
     void Fr042_filter_remote_and_level() throws Exception {
         TestEmployer employer = setupEmployer("hr@acme.com");
         createActiveJob(employer, "Remote Senior", "desc", "Bangladesh", true, "senior", List.of());

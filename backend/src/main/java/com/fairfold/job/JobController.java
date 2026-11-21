@@ -31,10 +31,11 @@ public class JobController {
     public PageResponse<PublicJobListItem> list(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String location,
+            @RequestParam(required = false) String country,
             @RequestParam(required = false) Boolean remote,
             @RequestParam(required = false) String level,
             @PageableDefault(size = 20) Pageable pageable) {
-        return jobService.searchPublic(q, location, remote, level, pageable);
+        return jobService.searchPublic(q, location, country, remote, level, pageable);
     }
 
     @GetMapping("/{id}")

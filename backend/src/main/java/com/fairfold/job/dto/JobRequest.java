@@ -14,6 +14,7 @@ public record JobRequest(
         String requirements,
         @NotBlank String experienceLevel,
         String city,
+        String address,
         @NotBlank String country,
         boolean remote,
         List<UUID> requiredSkillIds,
