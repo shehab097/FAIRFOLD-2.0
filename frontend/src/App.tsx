@@ -22,6 +22,7 @@ import { ApplicationsPage } from './features/candidate/pages/ApplicationsPage';
 import { ApplicationDetailPage } from './features/candidate/pages/ApplicationDetailPage';
 import { NotificationsPage } from './features/notifications/pages/NotificationsPage';
 import { AccountPage } from './features/account/pages/AccountPage';
+import { ChangePasswordPage } from './features/account/pages/ChangePasswordPage';
 
 export default function App() {
   return (
@@ -93,6 +94,7 @@ export default function App() {
         />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/account" element={<AccountPage />} />
+        <Route path="/account/password" element={<ChangePasswordPage />} />
         <Route
           path="/employer"
           element={

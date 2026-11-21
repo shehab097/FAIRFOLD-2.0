@@ -126,13 +126,19 @@ Notes:
 | **FocusShell** | For the assessment attempt (P18): no sidebar, a slim top bar with the title, the countdown timer and the question navigator. |
 | **AuthShell** | Two columns from 900 px up: a left panel in `primary-subtle` with the wordmark and three short statements (Anonymised screening, Explained scores, People decide), and the form on the right. Below 900 px only the form. No illustration, no gradient. |
 
-### 5.2 Page header
+### 5.2 Page header and block structure
 
 ```text
+KICKER LABEL (12 px uppercase primary-text)
 Page title (h1)                                   [Secondary]  [Primary action]
 Short description in text-secondary
 ------------------------------------------------------------------------------
 ```
+
+- **Page header rule:** Every page header ends with a 1 px `border` bottom rule (`border-b border-border pb-4`) to anchor the layout.
+- **Top accent bar:** Primary shells (`PortalShell`, `PublicShell`, `AuthShell`) and primary hero/profile blocks carry a 2 px solid `primary` top border (`border-t-2 border-t-primary`) for visual hierarchy without gradients or shadows.
+- **Structured block headers:** Multi-field cards use a distinct header strip (`border-b border-border bg-raised px-6 py-3.5`) above the `surface` body.
+- **Definition tiles:** Profile views and read-only details use bordered `bg` cells (`border border-border bg-bg p-3.5`) with a 12 px uppercase `text-secondary` label and a 14 px `text` value (`Not specified` in `text-subtle` when empty) so all profile attributes remain visible.
 
 ### 5.3 Sidebar
 
