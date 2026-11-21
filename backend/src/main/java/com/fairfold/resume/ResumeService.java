@@ -69,6 +69,17 @@ public class ResumeService {
         return toResponse(resume);
     }
 
+    @Transactional(readOnly = true)
+    public DownloadedResume loadCurrentFile(UUID userId) {
+        Resume resume = resumeRepository.findByUserIdAndCurrentTrue(userId)
+                .orElseThrow(() -> ApiException.notFound("RESUME_NOT_FOUND", "No resume uploaded yet."));
+        byte[] bytes = storageService.load(resume.getStorageKey());
+        String filename = resume.getOriginalFilename() != null ? resume.getOriginalFilename() : "resume.pdf";
+        return new DownloadedResume(filename, bytes);
+    }
+
+    public record DownloadedResume(String filename, byte[] bytes) {}
+
     private boolean isPdf(byte[] content) {
         if (content.length < PDF_SIGNATURE.length) {
             return false;

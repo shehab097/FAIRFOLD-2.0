@@ -57,6 +57,13 @@ export async function getResume(): Promise<Resume> {
   return data;
 }
 
+export async function getResumeFileBlob(): Promise<Blob> {
+  const { data } = await api.get<Blob>('/api/candidate/resume/file', {
+    responseType: 'blob',
+  });
+  return data;
+}
+
 export async function uploadResume(file: File): Promise<Resume> {
   const form = new FormData();
   form.append('file', file);

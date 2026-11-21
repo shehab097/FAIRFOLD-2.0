@@ -19,7 +19,7 @@ const TONE_ICONS = {
 
 export function Banner({ tone = 'info', children }: { tone?: BannerTone; children: ReactNode }) {
   return (
-    <div className={cn('flex items-start gap-2 border-l-4 px-4 py-3 text-sm text-text', TONE_CLASSES[tone])}>
+    <div className={cn('flex items-start gap-2 rounded border-l-4 px-4 py-3 text-sm text-text', TONE_CLASSES[tone])}>
       <Icon icon={TONE_ICONS[tone]} size={20} className="mt-0.5 shrink-0" />
       <div className="min-w-0">{children}</div>
     </div>

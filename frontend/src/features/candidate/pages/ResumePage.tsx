@@ -1,9 +1,11 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ExternalLink, Eye, EyeOff, FileText, Upload } from 'lucide-react';
+import { getResumeFileBlob } from '../../../api/candidate';
 import { useResume, useUploadResume } from '../queries';
 import { Banner } from '../../../components/ui/Banner';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
-import { Card } from '../../../components/ui/Card';
+import { Icon } from '../../../components/ui/Icon';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorCode, getApiErrorMessage } from '../../../lib/errors';
@@ -20,8 +22,47 @@ export function ResumePage() {
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   const noResume = isError && getApiErrorCode(error) === 'RESUME_NOT_FOUND';
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  async function ensurePreviewUrl(): Promise<string | null> {
+    if (previewUrl) return previewUrl;
+    setLoadingPreview(true);
+    try {
+      const blob = await getResumeFileBlob();
+      const url = URL.createObjectURL(blob);
+      setPreviewUrl(url);
+      return url;
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+      return null;
+    } finally {
+      setLoadingPreview(false);
+    }
+  }
+
+  async function togglePreview() {
+    if (previewOpen) {
+      setPreviewOpen(false);
+      return;
+    }
+    const url = await ensurePreviewUrl();
+    if (url) setPreviewOpen(true);
+  }
+
+  async function openInNewTab() {
+    const url = await ensurePreviewUrl();
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  }
 
   async function handleFile(file: File | undefined) {
     if (!file) return;
@@ -31,6 +72,10 @@ export function ResumePage() {
     }
     try {
       await upload.mutateAsync(file);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      const localUrl = URL.createObjectURL(file);
+      setPreviewUrl(localUrl);
+      setPreviewOpen(true);
       toast('Resume uploaded.', 'success');
     } catch (err) {
       toast(getApiErrorMessage(err), 'error');
@@ -39,9 +84,10 @@ export function ResumePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-[28px] font-bold leading-9">Resume</h1>
-        <p className="text-text-secondary">Upload your PDF resume (English resumes only).</p>
+      <div className="border-b border-border pb-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Candidate Workspace</p>
+        <h1 className="mt-1 text-[28px] font-bold leading-9">Resume</h1>
+        <p className="text-text-secondary">Upload and preview your PDF resume (English resumes only).</p>
       </div>
 
       {isLoading && <Skeleton className="h-40 w-full" />}
@@ -49,7 +95,7 @@ export function ResumePage() {
       {isError && !noResume && <Banner tone="error">Could not load your resume.</Banner>}
 
       {!isLoading && (
-        <Card>
+        <section className="border border-border bg-surface p-6">
           <button
             type="button"
             onDragOver={(e) => {
@@ -64,11 +110,14 @@ export function ResumePage() {
             }}
             onClick={() => inputRef.current?.click()}
             className={
-              'flex w-full flex-col items-center justify-center gap-3 border border-dashed px-6 py-10 text-center ' +
-              (dragging ? 'border-primary bg-raised' : 'border-border-strong bg-bg')
+              'flex w-full flex-col items-center justify-center gap-2.5 border border-dashed px-6 py-10 text-center ' +
+              (dragging ? 'border-primary-text bg-primary-subtle' : 'border-border-strong bg-bg hover:bg-raised')
             }
           >
-            <span className="text-sm text-text">Drag and drop a PDF here, or click to browse.</span>
+            <div className="flex h-10 w-10 items-center justify-center border border-border bg-surface text-primary-text">
+              <Icon icon={Upload} size={20} />
+            </div>
+            <span className="text-sm font-medium text-text">Drag and drop a PDF here, or click to browse</span>
             <span className="text-xs text-text-subtle">PDF only · max 10 MB · English resumes</span>
           </button>
           <input
@@ -81,30 +130,53 @@ export function ResumePage() {
               e.currentTarget.value = '';
             }}
           />
-        </Card>
+        </section>
       )}
 
-      {noResume && (
-        <Banner tone="info">No resume uploaded yet. Upload one to apply to jobs.</Banner>
-      )}
+      {noResume && <Banner tone="info">No resume uploaded yet. Upload one to apply to jobs.</Banner>}
 
       {resume && (
-        <Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="font-medium text-text">{resume.filename ?? 'Resume'}</span>
-                <Badge status={resume.status} />
+        <section className="border border-border bg-surface">
+          <div className="flex flex-col justify-between gap-4 border-b border-border bg-raised px-6 py-4 sm:flex-row sm:items-center">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-bg text-primary-text">
+                <Icon icon={FileText} size={20} />
               </div>
-              <p className="mt-1 text-sm text-text-secondary">
-                {formatSize(resume.sizeBytes)} · uploaded {formatDate(resume.uploadedAt)}
-              </p>
+              <div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <span className="font-semibold text-text">{resume.filename ?? 'Resume.pdf'}</span>
+                  <Badge status={resume.status} />
+                </div>
+                <p className="mt-0.5 text-xs text-text-secondary">
+                  {formatSize(resume.sizeBytes)} · uploaded {formatDate(resume.uploadedAt)}
+                </p>
+              </div>
             </div>
-            <Button variant="secondary" onClick={() => inputRef.current?.click()}>
-              Replace
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="secondary" loading={loadingPreview} onClick={togglePreview}>
+                <Icon icon={previewOpen ? EyeOff : Eye} size={16} />
+                {previewOpen ? 'Hide preview' : 'Preview resume'}
+              </Button>
+              <Button variant="secondary" onClick={openInNewTab}>
+                <Icon icon={ExternalLink} size={16} />
+                Open in new tab
+              </Button>
+              <Button variant="secondary" onClick={() => inputRef.current?.click()}>
+                Replace
+              </Button>
+            </div>
           </div>
-        </Card>
+
+          {previewOpen && previewUrl && (
+            <div className="p-4">
+              <iframe
+                src={previewUrl}
+                title={resume.filename ?? 'Resume preview'}
+                className="h-[720px] w-full border border-border bg-bg"
+              />
+            </div>
+          )}
+        </section>
       )}
     </div>
   );

@@ -7,11 +7,11 @@ package com.fairfold.common.storage;
  */
 public interface StorageService {
 
-    /**
-     * Persists the given bytes and returns a storage key used to retrieve or
-     * delete the file later. The key is opaque to callers.
-     */
+    /** Persists the given bytes and returns a storage key used to retrieve or delete the file later. */
     String save(byte[] content, String originalFilename);
+
+    /** Loads the stored bytes for the given key. */
+    byte[] load(String storageKey);
 
     /** Deletes the stored file, silently ignoring a missing file. */
     void delete(String storageKey);

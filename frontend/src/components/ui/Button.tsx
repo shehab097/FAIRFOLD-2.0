@@ -24,7 +24,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex h-10 items-center justify-center gap-2 px-4 text-sm font-semibold disabled:cursor-not-allowed',
+        'inline-flex h-10 items-center justify-center gap-2 rounded-sm px-4 text-sm font-semibold disabled:cursor-not-allowed',
         VARIANT_CLASSES[variant],
         className,
       )}

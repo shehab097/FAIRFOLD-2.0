@@ -1,5 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Building2, Check, Eye, EyeOff, Globe, Mail, MapPin, Pencil, Phone } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Building2, Check, Eye, EyeOff, Globe, KeyRound, LogOut, Mail, MapPin, Pencil, Phone } from 'lucide-react';
+import { useAuth } from '../../../app/auth/AuthContext';
 import { useCompany, useUpdateCompany } from '../queries';
 import { COMPANY_SIZES, type CompanyProfile } from '../../jobs/types';
 import { Badge } from '../../../components/ui/Badge';
@@ -73,7 +75,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
 
   return (
     <div className="space-y-6">
-      <section className="border border-border border-t-2 border-t-primary bg-surface">
+      <section className="border border-border bg-surface">
         <div className="flex flex-col justify-between gap-4 border-b border-border bg-raised p-6 sm:flex-row sm:items-center">
           <div className="flex items-start gap-4">
             {company.logoUrl ? (
@@ -128,18 +130,18 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
         </div>
 
         <dl className="grid gap-3 p-6 sm:grid-cols-2 lg:grid-cols-3">
-          <DetailTile label="1. Company name" value={company.name} />
-          <DetailTile label="2. Industry" value={company.industry} />
-          <DetailTile label="3. Company size" value={company.size ? `${company.size} employees` : null} />
-          <DetailTile label="4. Tagline" value={company.tagline} />
-          <DetailTile label="5. Founded year" value={company.foundedYear} />
-          <DetailTile label="6. Headquarters" value={company.headquarters} />
+          <DetailTile label="Company name" value={company.name} />
+          <DetailTile label="Industry" value={company.industry} />
+          <DetailTile label="Company size" value={company.size ? `${company.size} employees` : null} />
+          <DetailTile label="Tagline" value={company.tagline} />
+          <DetailTile label="Founded year" value={company.foundedYear} />
+          <DetailTile label="Headquarters" value={company.headquarters} />
           <DetailTile
-            label="7. Public visibility"
+            label="Public visibility"
             value={company.showNamePublicly ? 'Shown publicly on job posts' : 'Hidden (Confidential company)'}
           />
           <DetailTile
-            label="8. Website"
+            label="Website"
             value={
               company.website ? (
                 <a href={company.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary-text underline">
@@ -150,7 +152,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
             }
           />
           <DetailTile
-            label="9. LinkedIn"
+            label="LinkedIn"
             value={
               company.linkedinUrl ? (
                 <a href={company.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-primary-text underline">
@@ -160,7 +162,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
             }
           />
           <DetailTile
-            label="10. Contact email"
+            label="Contact email"
             value={
               company.contactEmail ? (
                 <a href={`mailto:${company.contactEmail}`} className="inline-flex items-center gap-1 text-primary-text underline">
@@ -171,7 +173,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
             }
           />
           <DetailTile
-            label="11. Phone"
+            label="Phone"
             value={
               company.phone ? (
                 <span className="inline-flex items-center gap-1">
@@ -182,7 +184,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
             }
           />
           <DetailTile
-            label="12. Logo URL"
+            label="Logo URL"
             value={
               company.logoUrl ? (
                 <a href={company.logoUrl} target="_blank" rel="noopener noreferrer" className="text-primary-text underline">
@@ -198,7 +200,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
         <section className="border border-border bg-surface">
           <div className="border-b border-border bg-raised px-6 py-3.5">
             <h3 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-              13. About the company
+              About the company
             </h3>
           </div>
           <div className="p-6">
@@ -213,7 +215,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
         <section className="border border-border bg-surface">
           <div className="border-b border-border bg-raised px-6 py-3.5">
             <h3 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-              14. Benefits and perks
+              Benefits and perks
             </h3>
           </div>
           <div className="p-6">
@@ -230,6 +232,7 @@ function CompanyProfileView({ company, onEdit }: { company: CompanyProfile; onEd
 }
 
 export function CompanyPage() {
+  const { signOut } = useAuth();
   const { data: company, isLoading } = useCompany();
   const update = useUpdateCompany();
   const { toast } = useToast();
@@ -299,8 +302,20 @@ export function CompanyPage() {
             )}
           </div>
           <p className="text-text-secondary">
-            Name, industry and size are required before you can activate a job. All 13 details are displayed below.
+            Name, industry and size are required before you can activate a job.
           </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/account/password">
+            <Button variant="secondary">
+              <Icon icon={KeyRound} size={16} />
+              Change password
+            </Button>
+          </Link>
+          <Button variant="danger" onClick={() => signOut()}>
+            <Icon icon={LogOut} size={16} />
+            Sign out
+          </Button>
         </div>
       </div>
 
@@ -320,7 +335,7 @@ export function CompanyPage() {
           {error && <Banner tone="error">{error}</Banner>}
 
           <form onSubmit={onSubmit} className="space-y-6">
-            <section className="border border-border border-t-2 border-t-primary bg-surface">
+            <section className="border border-border bg-surface">
               <div className="border-b border-border bg-raised px-6 py-3.5">
                 <h2 className="text-base font-semibold">Basics</h2>
               </div>

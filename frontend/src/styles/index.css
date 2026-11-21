@@ -16,3 +16,19 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
 }
+
+button,
+input,
+select,
+textarea {
+  border-radius: var(--radius-sm);
+}
+
+section.border,
+article.border,
+form.border,
+dl > div.border,
+.grid > div.border {
+  border-radius: var(--radius);
+}
+

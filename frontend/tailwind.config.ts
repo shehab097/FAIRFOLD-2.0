@@ -7,11 +7,11 @@ export default {
   theme: {
     borderRadius: {
       none: zero,
-      DEFAULT: zero,
-      sm: zero,
-      md: zero,
-      lg: zero,
-      xl: zero,
+      sm: '4px',
+      DEFAULT: '6px',
+      md: '6px',
+      lg: '8px',
+      xl: '8px',
       '2xl': zero,
       '3xl': zero,
       full: zero,

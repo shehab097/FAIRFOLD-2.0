@@ -8,9 +8,9 @@ if [ ! -d src ]; then
 fi
 cd src || exit 1
 
-bad=$(grep -rnE "rounded|gradient|shadow|border-radius|box-shadow" . \
+bad=$(grep -rnE "rounded-(full|2xl|3xl)|gradient|shadow|box-shadow" . \
         --include=*.ts --include=*.tsx --include=*.css \
-      | grep -vE "rounded-none|border-radius: *0|borderRadius *(=|:) *0" || true)
+      | grep -vE "shadow-none|box-shadow: *none" || true)
 
 hex=$(grep -rnE "#[0-9A-Fa-f]{6}\b" . --include=*.ts --include=*.tsx --include=*.css \
       | grep -vE "styles/tokens.css|charts/defaults.ts" || true)

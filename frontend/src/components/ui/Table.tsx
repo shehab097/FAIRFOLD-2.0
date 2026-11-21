@@ -22,7 +22,7 @@ export function Table<T>({
     return <>{empty}</>;
   }
   return (
-    <div className="overflow-x-auto border border-border bg-surface">
+    <div className="overflow-x-auto rounded border border-border bg-surface">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="bg-bg">

@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Check, MapPin, Phone, Plus, UserCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Check, FileText, KeyRound, LogOut, MapPin, Phone, Plus, UserCheck } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
-import { useProfile, useSkills, useAddSkill, useUpdateSkill, useDeleteSkill, useUpdateProfile } from '../queries';
+import { useProfile, useResume, useSkills, useAddSkill, useUpdateSkill, useDeleteSkill, useUpdateProfile } from '../queries';
 import { suggestSkills } from '../../../api/skills';
 import { SKILL_LEVELS, REMOTE_PREFERENCES, EDUCATION_LEVELS, type CandidateSkill } from '../types';
 import { Badge } from '../../../components/ui/Badge';
@@ -163,9 +164,10 @@ function SkillEditor({
 }
 
 export function ProfilePage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const { data: skills } = useSkills();
+  const { data: resume } = useResume();
   const updateProfile = useUpdateProfile();
   const deleteSkill = useDeleteSkill();
   const { toast } = useToast();
@@ -256,14 +258,28 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-border pb-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Candidate Workspace</p>
-        <h1 className="mt-1 text-[28px] font-bold leading-9">Profile</h1>
-        <p className="text-text-secondary">Your complete candidate profile, personal details and verified skills.</p>
+      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Candidate Workspace</p>
+          <h1 className="mt-1 text-[28px] font-bold leading-9">Profile</h1>
+          <p className="text-text-secondary">Your personal details, experience, skills and account actions.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/account/password">
+            <Button variant="secondary">
+              <Icon icon={KeyRound} size={16} />
+              Change password
+            </Button>
+          </Link>
+          <Button variant="danger" onClick={() => signOut()}>
+            <Icon icon={LogOut} size={16} />
+            Sign out
+          </Button>
+        </div>
       </div>
 
       {/* Complete Profile View Summary */}
-      <section className="border border-border border-t-2 border-t-primary bg-surface">
+      <section className="border border-border bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-raised px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border-strong bg-primary-subtle text-base font-bold text-primary-text">
@@ -320,6 +336,24 @@ export function ProfilePage() {
             />
             <SummaryTile label="Education" value={profile?.educationLevel?.replace('_', ' ')} />
           </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <SummaryTile
+              label="Resume"
+              value={
+                resume ? (
+                  <Link to="/candidate/resume" className="inline-flex items-center gap-1.5 text-primary-text underline">
+                    <Icon icon={FileText} size={14} />
+                    {resume.filename} — Preview resume
+                  </Link>
+                ) : (
+                  <Link to="/candidate/resume" className="text-primary-text underline">
+                    Upload resume
+                  </Link>
+                )
+              }
+            />
+            <SummaryTile label="Skills count" value={`${skills?.length ?? 0} skills listed`} />
+          </div>
           <div className="border border-border bg-bg p-4">
             <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">Bio</div>
             {profile?.bio ? <Markdown source={profile.bio} /> : <span className="text-sm text-text-subtle">No bio written yet.</span>}
@@ -330,7 +364,7 @@ export function ProfilePage() {
       {/* Edit Basics */}
       <section className="border border-border bg-surface">
         <div className="border-b border-border bg-raised px-6 py-3.5">
-          <h2 className="text-base font-semibold">Basics</h2>
+          <h2 className="text-base font-semibold">Edit profile details</h2>
         </div>
         <div className="p-6">
           <div className="grid gap-4 sm:grid-cols-2">

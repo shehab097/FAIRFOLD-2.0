@@ -17,7 +17,7 @@ export function Badge({ status, tone, icon, children }: BadgeProps) {
     return (
       <span
         className={cn(
-          'inline-flex h-6 items-center gap-1 px-2 text-xs font-semibold uppercase tracking-[0.06em]',
+          'inline-flex h-6 items-center gap-1 rounded-sm px-2 text-xs font-semibold uppercase tracking-[0.06em]',
           statusToneClasses(style.tone),
         )}
       >
@@ -31,7 +31,7 @@ export function Badge({ status, tone, icon, children }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex h-6 items-center gap-1 px-2 text-xs font-semibold uppercase tracking-[0.06em]',
+        'inline-flex h-6 items-center gap-1 rounded-sm px-2 text-xs font-semibold uppercase tracking-[0.06em]',
         statusToneClasses(resolvedTone),
       )}
     >

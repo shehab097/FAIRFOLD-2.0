@@ -40,4 +40,15 @@ public class ResumeController {
     public ResumeResponse getCurrent(@AuthenticationPrincipal CurrentUser user) {
         return resumeService.getCurrent(user.id());
     }
+
+    @GetMapping("/file")
+    @Operation(summary = "Preview or download the current PDF resume")
+    public ResponseEntity<byte[]> getCurrentFile(@AuthenticationPrincipal CurrentUser user) {
+        ResumeService.DownloadedResume file = resumeService.loadCurrentFile(user.id());
+        String safeName = file.filename().replaceAll("[^a-zA-Z0-9._-]", "_");
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, org.springframework.http.MediaType.APPLICATION_PDF_VALUE)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + safeName + "\"")
+                .body(file.bytes());
+    }
 }

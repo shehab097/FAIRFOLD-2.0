@@ -41,6 +41,23 @@ public class LocalDiskStorageService implements StorageService {
     }
 
     @Override
+    public byte[] load(String storageKey) {
+        if (storageKey == null || storageKey.isBlank()) {
+            throw ApiException.notFound("RESUME_NOT_FOUND", "Resume file not found.");
+        }
+        try {
+            Path target = root.resolve(storageKey).normalize();
+            if (!target.startsWith(root) || !Files.exists(target)) {
+                throw ApiException.notFound("RESUME_NOT_FOUND", "Resume file not found.");
+            }
+            return Files.readAllBytes(target);
+        } catch (IOException e) {
+            throw new ApiException(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR,
+                    "STORAGE_ERROR", "Could not read the stored file.");
+        }
+    }
+
+    @Override
     public void delete(String storageKey) {
         if (storageKey == null || storageKey.isBlank()) {
             return;

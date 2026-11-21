@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Check, KeyRound, Mail, Shield, UserCheck } from 'lucide-react';
+import { Building2, Check, FileText, KeyRound, LogOut, Mail, Shield, UserCheck } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { useProfile, useResume, useSkills } from '../../candidate/queries';
 import { useCompany } from '../../employer/queries';
@@ -31,13 +31,21 @@ function CandidateSnapshot() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-raised px-6 py-3.5">
         <div className="flex items-center gap-2">
           <Icon icon={UserCheck} size={18} className="text-primary-text" />
-          <h2 className="text-base font-semibold">Candidate profile details</h2>
+          <h2 className="text-base font-semibold">Candidate profile</h2>
         </div>
-        <Link to="/candidate/profile">
-          <Button variant="secondary" className="h-9 px-3 text-xs">
-            Edit candidate profile
-          </Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/candidate/resume">
+            <Button variant="secondary" className="h-9 px-3 text-xs">
+              <Icon icon={FileText} size={14} />
+              Resume & preview
+            </Button>
+          </Link>
+          <Link to="/candidate/profile">
+            <Button variant="secondary" className="h-9 px-3 text-xs">
+              Edit profile
+            </Button>
+          </Link>
+        </div>
       </div>
       <div className="space-y-6 p-6">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -50,7 +58,16 @@ function CandidateSnapshot() {
             value={profile?.totalExperienceYears !== null && profile?.totalExperienceYears !== undefined ? `${profile.totalExperienceYears} years` : null}
           />
           <FieldTile label="Education level" value={profile?.educationLevel?.replace('_', ' ')} />
-          <FieldTile label="Current resume" value={resume ? `${resume.filename} (${resume.status})` : null} />
+          <FieldTile
+            label="Current resume"
+            value={
+              resume ? (
+                <Link to="/candidate/resume" className="text-primary-text underline">
+                  {resume.filename} ({resume.status})
+                </Link>
+              ) : null
+            }
+          />
           <FieldTile label="Skills recorded" value={skills ? `${skills.length} skills` : '0 skills'} />
         </div>
         <div>
@@ -90,7 +107,7 @@ function EmployerCompanySnapshot() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-raised px-6 py-3.5">
         <div className="flex items-center gap-2">
           <Icon icon={Building2} size={18} className="text-primary-text" />
-          <h2 className="text-base font-semibold">Company profile details (all 13 fields)</h2>
+          <h2 className="text-base font-semibold">Company profile</h2>
         </div>
         <Link to="/employer/company">
           <Button variant="secondary" className="h-9 px-3 text-xs">
@@ -150,26 +167,32 @@ function EmployerCompanySnapshot() {
 }
 
 export function AccountPage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase() || 'U';
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Account & Identity</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Account & Security</p>
           <h1 className="mt-1 text-[28px] font-bold leading-9">Account profile</h1>
-          <p className="text-text-secondary">Complete overview of your signed-in account and role profile data.</p>
+          <p className="text-text-secondary">Your signed-in account details, role information and session controls.</p>
         </div>
-        <Link to="/account/password">
-          <Button variant="secondary">
-            <Icon icon={KeyRound} size={16} />
-            Change password
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/account/password">
+            <Button variant="secondary">
+              <Icon icon={KeyRound} size={16} />
+              Change password
+            </Button>
+          </Link>
+          <Button variant="danger" onClick={() => signOut()}>
+            <Icon icon={LogOut} size={16} />
+            Sign out
           </Button>
-        </Link>
+        </div>
       </div>
 
-      <section className="border border-border border-t-2 border-t-primary bg-surface">
+      <section className="border border-border bg-surface">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-raised px-6 py-4">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border-strong bg-primary-subtle text-base font-bold text-primary-text">
@@ -197,7 +220,7 @@ export function AccountPage() {
           <FieldTile label="First name" value={user?.firstName} />
           <FieldTile label="Last name" value={user?.lastName} />
           <FieldTile label="Email address" value={user?.email} />
-          <FieldTile label="Role" value={user?.role} />
+          <FieldTile label="Role" value={user?.role.replace('_', ' ')} />
           <FieldTile label="Account ID" value={user?.id} />
           {user?.companyId && <FieldTile label="Company ID" value={user.companyId} />}
         </div>
@@ -208,17 +231,23 @@ export function AccountPage() {
 
       <section className="flex flex-col justify-between gap-4 border border-border bg-surface p-6 sm:flex-row sm:items-center">
         <div>
-          <div className="flex items-center gap-2">
-            <Icon icon={KeyRound} size={18} className="text-primary-text" />
-            <h2 className="text-base font-semibold">Password & security</h2>
-          </div>
+          <h2 className="text-base font-semibold">Session & security</h2>
           <p className="mt-1 text-sm text-text-secondary">
-            Manage your password on a dedicated security page.
+            Update your password or sign out of your current session on this device.
           </p>
         </div>
-        <Link to="/account/password">
-          <Button variant="secondary">Go to change password →</Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/account/password">
+            <Button variant="secondary">
+              <Icon icon={KeyRound} size={16} />
+              Change password
+            </Button>
+          </Link>
+          <Button variant="danger" onClick={() => signOut()}>
+            <Icon icon={LogOut} size={16} />
+            Sign out
+          </Button>
+        </div>
       </section>
     </div>
   );

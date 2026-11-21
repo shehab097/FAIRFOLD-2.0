@@ -11,7 +11,7 @@ A modern, calm, dark interface for a product where trust matters. It should feel
 | Rule | What it means |
 |---|---|
 | **Dark mode only** | One theme, on a dark gray background. No light theme and no theme switcher. |
-| **No rounded corners** | Every radius is `0`: buttons, inputs, cards, dialogs, badges, tags, switches, avatars, tooltips, progress bars, chart bars. |
+| **Slightly rounded corners** | Subtle 4 px (`rounded-sm`) radius on buttons, inputs, badges and tags; 6 px (`rounded`) on cards, panels, tables and dialogs. No pill (`rounded-full`) or large (`rounded-2xl`+) rounding. |
 | **No gradients** | Solid colours only: no gradient backgrounds, borders, text, charts, skeleton shimmers or image overlays. |
 | **No shadows** | Depth comes from surface colour steps and 1 px borders, not blur. |
 | **Palette only** | The five palette colours, dark neutrals, and tints derived from them (section 2). No other hues. |
