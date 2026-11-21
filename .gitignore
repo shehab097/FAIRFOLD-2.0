@@ -13,6 +13,7 @@ frontend/.vite/
 
 # Data (resume files and local storage)
 data/
+dummy-data/
 
 # IDE / OS
 .idea/

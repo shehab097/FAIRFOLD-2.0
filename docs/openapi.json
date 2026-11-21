@@ -1,1 +1,2344 @@
-{"openapi":"3.1.0","info":{"title":"FairFold API","description":"FairFold recruitment platform","version":"v1"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"security":[{"bearerAuth":[]}],"tags":[{"name":"Candidate Resume","description":"Resume upload for candidates"},{"name":"Candidate","description":"Candidate profile, skills and dashboard"},{"name":"Jobs","description":"Public job board"},{"name":"Health","description":"Liveness check"},{"name":"Employer Applicants","description":"Applicant list for an employer's job"},{"name":"Company","description":"Employer company profile"},{"name":"Employer Jobs","description":"Job management for employers"},{"name":"Account","description":"Signed-in account management"},{"name":"Applications","description":"Applying to jobs and tracking application status"},{"name":"Skills","description":"Skill lookup and suggestions"},{"name":"Notifications","description":"In-app notifications for the signed-in user"},{"name":"Authentication","description":"Registration, login, tokens and password recovery"}],"paths":{"/api/employer/jobs/{id}":{"get":{"tags":["Employer Jobs"],"summary":"Get a job (scoped to the caller's company)","operationId":"get","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}},"put":{"tags":["Employer Jobs"],"summary":"Update a draft job","operationId":"update","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JobRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}},"delete":{"tags":["Employer Jobs"],"summary":"Delete a draft job","operationId":"delete","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK"}}}},"/api/employer/company":{"get":{"tags":["Company"],"summary":"Get the caller's company profile","operationId":"get_1","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CompanyProfileResponse"}}}}}},"put":{"tags":["Company"],"summary":"Update the caller's company profile","operationId":"update_1","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CompanyProfileRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CompanyProfileResponse"}}}}}}},"/api/candidate/skills/{id}":{"put":{"tags":["Candidate"],"summary":"Update a skill","operationId":"updateSkill","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UpdateSkillRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CandidateSkillResponse"}}}}}},"delete":{"tags":["Candidate"],"summary":"Delete a skill","operationId":"deleteSkill","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK"}}}},"/api/candidate/profile":{"get":{"tags":["Candidate"],"summary":"Get the candidate profile","operationId":"getProfile","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProfileResponse"}}}}}},"put":{"tags":["Candidate"],"summary":"Save the candidate profile","operationId":"updateProfile","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ProfileRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ProfileResponse"}}}}}}},"/api/notifications/{id}/read":{"post":{"tags":["Notifications"],"summary":"Mark one notification read","operationId":"markRead","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/NotificationResponse"}}}}}}},"/api/notifications/read-all":{"post":{"tags":["Notifications"],"summary":"Mark all notifications read","operationId":"markAllRead","responses":{"200":{"description":"OK"}}}},"/api/jobs/{id}/applications":{"post":{"tags":["Applications"],"summary":"Apply to an active job","operationId":"apply","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CandidateApplicationDetail"}}}}}}},"/api/employer/jobs":{"get":{"tags":["Employer Jobs"],"summary":"List the caller's company jobs","operationId":"list","parameters":[{"name":"status","in":"query","required":false,"schema":{"type":"string"}},{"name":"pageable","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Pageable"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PageResponseEmployerJobListItem"}}}}}},"post":{"tags":["Employer Jobs"],"summary":"Create a draft job","operationId":"create","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/JobRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}}},"/api/employer/jobs/{id}/resume":{"post":{"tags":["Employer Jobs"],"summary":"Resume a paused job","operationId":"resume","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}}},"/api/employer/jobs/{id}/pause":{"post":{"tags":["Employer Jobs"],"summary":"Pause an active job","operationId":"pause","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}}},"/api/employer/jobs/{id}/duplicate":{"post":{"tags":["Employer Jobs"],"summary":"Duplicate a job as a new draft","operationId":"duplicate","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}}},"/api/employer/jobs/{id}/close":{"post":{"tags":["Employer Jobs"],"summary":"Close a job (final)","operationId":"close","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}}},"/api/employer/jobs/{id}/activate":{"post":{"tags":["Employer Jobs"],"summary":"Activate a draft job","operationId":"activate","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/EmployerJobDetail"}}}}}}},"/api/candidate/skills":{"get":{"tags":["Candidate"],"summary":"List the candidate's skills","operationId":"listSkills","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/CandidateSkillResponse"}}}}}}},"post":{"tags":["Candidate"],"summary":"Add a skill","operationId":"addSkill","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/AddSkillRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CandidateSkillResponse"}}}}}}},"/api/candidate/resume":{"get":{"tags":["Candidate Resume"],"summary":"Get the current resume","operationId":"getCurrent","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ResumeResponse"}}}}}},"post":{"tags":["Candidate Resume"],"summary":"Upload a PDF resume (replaces the current one)","operationId":"upload","requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"file":{"type":"string","format":"binary"}},"required":["file"]}}}},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/ResumeResponse"}}}}}}},"/api/auth/reset-password":{"post":{"tags":["Authentication"],"summary":"Reset a password with a one-time token","operationId":"resetPassword","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ResetPasswordRequest"}}},"required":true},"responses":{"200":{"description":"OK"}}}},"/api/auth/register":{"post":{"tags":["Authentication"],"summary":"Register a new account","operationId":"register","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RegisterRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/AuthResponse"}}}}}}},"/api/auth/refresh":{"post":{"tags":["Authentication"],"summary":"Exchange a refresh cookie for a new access token","operationId":"refresh","parameters":[{"name":"refresh_token","in":"cookie","required":false,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/AuthResponse"}}}}}}},"/api/auth/logout":{"post":{"tags":["Authentication"],"summary":"Revoke the current refresh token","operationId":"logout","parameters":[{"name":"refresh_token","in":"cookie","required":false,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"}}}},"/api/auth/login":{"post":{"tags":["Authentication"],"summary":"Log in","operationId":"login","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LoginRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/AuthResponse"}}}}}}},"/api/auth/forgot-password":{"post":{"tags":["Authentication"],"summary":"Request a password reset link (always 202)","operationId":"forgotPassword","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ForgotPasswordRequest"}}},"required":true},"responses":{"200":{"description":"OK"}}}},"/api/account/change-password":{"post":{"tags":["Account"],"summary":"Change the current password","operationId":"changePassword","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/ChangePasswordRequest"}}},"required":true},"responses":{"200":{"description":"OK"}}}},"/api/skills/suggest":{"get":{"tags":["Skills"],"summary":"Suggest up to 10 skills by name","operationId":"suggest","parameters":[{"name":"q","in":"query","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/SkillDto"}}}}}}}},"/api/notifications":{"get":{"tags":["Notifications"],"summary":"List the current user's notifications","operationId":"list_1","parameters":[{"name":"pageable","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Pageable"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PageResponseNotificationResponse"}}}}}}},"/api/notifications/unread-count":{"get":{"tags":["Notifications"],"summary":"Number of unread notifications","operationId":"unreadCount","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UnreadCountResponse"}}}}}}},"/api/jobs":{"get":{"tags":["Jobs"],"summary":"List active jobs with search and filters","operationId":"list_2","parameters":[{"name":"q","in":"query","required":false,"schema":{"type":"string"}},{"name":"location","in":"query","required":false,"schema":{"type":"string"}},{"name":"remote","in":"query","required":false,"schema":{"type":"boolean"}},{"name":"level","in":"query","required":false,"schema":{"type":"string"}},{"name":"pageable","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Pageable"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PageResponsePublicJobListItem"}}}}}}},"/api/jobs/{id}":{"get":{"tags":["Jobs"],"summary":"Get an active job","operationId":"get_2","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PublicJobDetail"}}}}}}},"/api/health":{"get":{"tags":["Health"],"summary":"Health check","operationId":"health","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"object","additionalProperties":{}}}}}}}},"/api/employer/jobs/{jobId}/applications":{"get":{"tags":["Employer Applicants"],"summary":"List applicants (anonymised) for a job","operationId":"list_3","parameters":[{"name":"jobId","in":"path","required":true,"schema":{"type":"string","format":"uuid"}},{"name":"pageable","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Pageable"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PageResponseEmployerApplicantListItem"}}}}}}},"/api/candidate/dashboard":{"get":{"tags":["Candidate"],"summary":"Candidate dashboard","operationId":"dashboard","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/DashboardResponse"}}}}}}},"/api/candidate/applications":{"get":{"tags":["Applications"],"summary":"List the candidate's applications","operationId":"list_4","parameters":[{"name":"status","in":"query","required":false,"schema":{"type":"string"}},{"name":"pageable","in":"query","required":true,"schema":{"$ref":"#/components/schemas/Pageable"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/PageResponseCandidateApplicationListItem"}}}}}}},"/api/candidate/applications/{id}":{"get":{"tags":["Applications"],"summary":"Get one application with its status history","operationId":"get_3","parameters":[{"name":"id","in":"path","required":true,"schema":{"type":"string","format":"uuid"}}],"responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/CandidateApplicationDetail"}}}}}}},"/api/auth/me":{"get":{"tags":["Authentication"],"summary":"Current signed-in user","operationId":"me","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"$ref":"#/components/schemas/UserDto"}}}}}}}},"components":{"schemas":{"JobRequest":{"type":"object","properties":{"title":{"type":"string","maxLength":200,"minLength":0},"description":{"type":"string","minLength":1,"description":"Markdown"},"requirements":{"type":"string","description":"Markdown"},"experienceLevel":{"type":"string","minLength":1},"city":{"type":"string"},"country":{"type":"string","minLength":1},"remote":{"type":"boolean"},"requiredSkillIds":{"type":"array","items":{"type":"string","format":"uuid"}},"niceToHaveSkillIds":{"type":"array","items":{"type":"string","format":"uuid"}},"mustHaveSkillIds":{"type":"array","items":{"type":"string","format":"uuid"}},"hfMinYears":{"type":"integer","format":"int32"},"hfCountry":{"type":"string"},"cutoffScore":{"type":"integer","format":"int32","maximum":100,"minimum":0}},"required":["country","description","experienceLevel","title"]},"EmployerJobDetail":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"title":{"type":"string"},"description":{"type":"string","description":"Markdown"},"requirements":{"type":"string","description":"Markdown"},"experienceLevel":{"type":"string","enum":["entry","mid","senior","lead"]},"city":{"type":"string"},"country":{"type":"string"},"remote":{"type":"boolean"},"requiredSkills":{"type":"array","items":{"$ref":"#/components/schemas/SkillRef"}},"niceToHaveSkills":{"type":"array","items":{"$ref":"#/components/schemas/SkillRef"}},"hfMinYears":{"type":"integer","format":"int32"},"hfCountry":{"type":"string"},"cutoffScore":{"type":"integer","format":"int32"},"status":{"type":"string","enum":["draft","active","paused","closed"]},"publishedAt":{"type":"string","format":"date-time"}}},"SkillRef":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"name":{"type":"string"},"mustHave":{"type":"boolean"}}},"CompanyProfileRequest":{"type":"object","properties":{"name":{"type":"string","minLength":1},"industry":{"type":"string","minLength":1},"size":{"type":"string","minLength":1},"showNamePublicly":{"type":"boolean"},"tagline":{"type":"string","maxLength":160},"about":{"type":"string","description":"Markdown"},"website":{"type":"string","format":"uri"},"logoUrl":{"type":"string","format":"uri"},"linkedinUrl":{"type":"string","format":"uri"},"foundedYear":{"type":"integer","format":"int32","minimum":1800,"maximum":2100},"headquarters":{"type":"string"},"contactEmail":{"type":"string","format":"email"},"phone":{"type":"string","maxLength":40},"benefits":{"type":"string","description":"Markdown"}},"required":["industry","name","size"]},"CompanyProfileResponse":{"type":"object","properties":{"name":{"type":"string"},"industry":{"type":"string"},"size":{"type":"string"},"showNamePublicly":{"type":"boolean"},"tagline":{"type":"string","maxLength":160},"about":{"type":"string","description":"Markdown"},"website":{"type":"string","format":"uri"},"logoUrl":{"type":"string","format":"uri"},"linkedinUrl":{"type":"string","format":"uri"},"foundedYear":{"type":"integer","format":"int32","minimum":1800,"maximum":2100},"headquarters":{"type":"string"},"contactEmail":{"type":"string","format":"email"},"phone":{"type":"string","maxLength":40},"benefits":{"type":"string","description":"Markdown"}}},"UpdateSkillRequest":{"type":"object","properties":{"level":{"type":"string"},"years":{"type":"number"}}},"CandidateSkillResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"skillId":{"type":"string","format":"uuid"},"name":{"type":"string"},"level":{"type":"string"},"years":{"type":"number"},"verified":{"type":"boolean"}}},"ProfileRequest":{"type":"object","properties":{"phone":{"type":"string"},"title":{"type":"string"},"bio":{"type":"string"},"location":{"type":"string"},"remotePreference":{"type":"string"},"totalExperienceYears":{"type":"number"},"educationLevel":{"type":"string"}}},"ProfileResponse":{"type":"object","properties":{"phone":{"type":"string"},"title":{"type":"string"},"bio":{"type":"string"},"location":{"type":"string"},"remotePreference":{"type":"string"},"totalExperienceYears":{"type":"number"},"educationLevel":{"type":"string"}}},"NotificationResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"type":{"type":"string"},"title":{"type":"string"},"body":{"type":"string"},"link":{"type":"string"},"readAt":{"type":"string","format":"date-time"},"createdAt":{"type":"string","format":"date-time"}}},"CandidateApplicationDetail":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"jobId":{"type":"string","format":"uuid"},"jobTitle":{"type":"string"},"companyName":{"type":"string"},"city":{"type":"string"},"country":{"type":"string"},"status":{"type":"string"},"appliedAt":{"type":"string","format":"date-time"},"history":{"type":"array","items":{"$ref":"#/components/schemas/HistoryEntry"}}}},"HistoryEntry":{"type":"object","properties":{"status":{"type":"string"},"at":{"type":"string","format":"date-time"}}},"AddSkillRequest":{"type":"object","properties":{"skillId":{"type":"string","format":"uuid"},"level":{"type":"string"},"years":{"type":"number"}}},"ResumeResponse":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"filename":{"type":"string"},"sizeBytes":{"type":"integer","format":"int64"},"status":{"type":"string"},"failureReason":{"type":"string"},"uploadedAt":{"type":"string","format":"date-time"}}},"ResetPasswordRequest":{"type":"object","properties":{"token":{"type":"string","minLength":1},"newPassword":{"type":"string","maxLength":2147483647,"minLength":10}},"required":["newPassword","token"]},"RegisterRequest":{"type":"object","properties":{"email":{"type":"string","format":"email","minLength":1},"password":{"type":"string","maxLength":2147483647,"minLength":10},"firstName":{"type":"string","minLength":1},"lastName":{"type":"string","minLength":1},"role":{"type":"string","minLength":1},"consent":{"type":"boolean"}},"required":["consent","email","firstName","lastName","password","role"]},"AuthResponse":{"type":"object","properties":{"accessToken":{"type":"string"},"user":{"$ref":"#/components/schemas/UserDto"}}},"UserDto":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"email":{"type":"string"},"firstName":{"type":"string"},"lastName":{"type":"string"},"role":{"type":"string"},"companyId":{"type":"string","format":"uuid"}}},"LoginRequest":{"type":"object","properties":{"email":{"type":"string","format":"email","minLength":1},"password":{"type":"string","minLength":1}},"required":["email","password"]},"ForgotPasswordRequest":{"type":"object","properties":{"email":{"type":"string","format":"email","minLength":1}},"required":["email"]},"ChangePasswordRequest":{"type":"object","properties":{"currentPassword":{"type":"string","minLength":1},"newPassword":{"type":"string","maxLength":2147483647,"minLength":10}},"required":["currentPassword","newPassword"]},"SkillDto":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"name":{"type":"string"}}},"Pageable":{"type":"object","properties":{"page":{"type":"integer","format":"int32","minimum":0},"size":{"type":"integer","format":"int32","minimum":1},"sort":{"type":"array","items":{"type":"string"}}}},"PageResponseNotificationResponse":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/NotificationResponse"}},"page":{"type":"integer","format":"int32"},"size":{"type":"integer","format":"int32"},"totalItems":{"type":"integer","format":"int64"},"totalPages":{"type":"integer","format":"int32"}}},"UnreadCountResponse":{"type":"object","properties":{"count":{"type":"integer","format":"int64"}}},"PageResponsePublicJobListItem":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/PublicJobListItem"}},"page":{"type":"integer","format":"int32"},"size":{"type":"integer","format":"int32"},"totalItems":{"type":"integer","format":"int64"},"totalPages":{"type":"integer","format":"int32"}}},"PublicJobListItem":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"title":{"type":"string"},"city":{"type":"string"},"country":{"type":"string"},"remote":{"type":"boolean"},"experienceLevel":{"type":"string","enum":["entry","mid","senior","lead"]},"topSkills":{"type":"array","items":{"type":"string"}},"publishedAt":{"type":"string","format":"date-time"},"companyName":{"type":"string"}}},"PublicJobDetail":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"title":{"type":"string"},"description":{"type":"string","description":"Markdown"},"requirements":{"type":"string","description":"Markdown"},"city":{"type":"string"},"country":{"type":"string"},"remote":{"type":"boolean"},"experienceLevel":{"type":"string","enum":["entry","mid","senior","lead"]},"requiredSkills":{"type":"array","items":{"type":"string"}},"niceToHaveSkills":{"type":"array","items":{"type":"string"}},"publishedAt":{"type":"string","format":"date-time"},"companyName":{"type":"string"}}},"EmployerJobListItem":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"title":{"type":"string"},"status":{"type":"string","enum":["draft","active","paused","closed"]},"applicationsCount":{"type":"integer","format":"int64"},"awaitingScreeningCount":{"type":"integer","format":"int64"},"createdAt":{"type":"string","format":"date-time"}}},"PageResponseEmployerJobListItem":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/EmployerJobListItem"}},"page":{"type":"integer","format":"int32"},"size":{"type":"integer","format":"int32"},"totalItems":{"type":"integer","format":"int64"},"totalPages":{"type":"integer","format":"int32"}}},"EmployerApplicantListItem":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"label":{"type":"string"},"status":{"type":"string"},"appliedAt":{"type":"string","format":"date-time"}}},"PageResponseEmployerApplicantListItem":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/EmployerApplicantListItem"}},"page":{"type":"integer","format":"int32"},"size":{"type":"integer","format":"int32"},"totalItems":{"type":"integer","format":"int64"},"totalPages":{"type":"integer","format":"int32"}}},"Checklist":{"type":"object","properties":{"profileSaved":{"type":"boolean"},"resumeUploaded":{"type":"boolean"},"skillsAdded":{"type":"boolean"}}},"DashboardResponse":{"type":"object","properties":{"checklist":{"$ref":"#/components/schemas/Checklist"},"latestApplications":{"type":"array","items":{"$ref":"#/components/schemas/LatestApplication"}}}},"LatestApplication":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"jobId":{"type":"string","format":"uuid"},"jobTitle":{"type":"string"},"status":{"type":"string"},"appliedAt":{"type":"string"}}},"CandidateApplicationListItem":{"type":"object","properties":{"id":{"type":"string","format":"uuid"},"jobId":{"type":"string","format":"uuid"},"jobTitle":{"type":"string"},"companyName":{"type":"string"},"status":{"type":"string"},"appliedAt":{"type":"string","format":"date-time"}}},"PageResponseCandidateApplicationListItem":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/CandidateApplicationListItem"}},"page":{"type":"integer","format":"int32"},"size":{"type":"integer","format":"int32"},"totalItems":{"type":"integer","format":"int64"},"totalPages":{"type":"integer","format":"int32"}}}},"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT"}}}}
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "FairFold API",
+        "description": "FairFold recruitment platform",
+        "version": "v1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Candidate Resume",
+            "description": "Resume upload for candidates"
+        },
+        {
+            "name": "Candidate",
+            "description": "Candidate profile, skills and dashboard"
+        },
+        {
+            "name": "Jobs",
+            "description": "Public job board"
+        },
+        {
+            "name": "Health",
+            "description": "Liveness check"
+        },
+        {
+            "name": "Employer Applicants",
+            "description": "Applicant list for an employer's job"
+        },
+        {
+            "name": "Company",
+            "description": "Employer company profile"
+        },
+        {
+            "name": "Employer Jobs",
+            "description": "Job management for employers"
+        },
+        {
+            "name": "Account",
+            "description": "Signed-in account management"
+        },
+        {
+            "name": "Applications",
+            "description": "Applying to jobs and tracking application status"
+        },
+        {
+            "name": "Skills",
+            "description": "Skill lookup and suggestions"
+        },
+        {
+            "name": "Notifications",
+            "description": "In-app notifications for the signed-in user"
+        },
+        {
+            "name": "Authentication",
+            "description": "Registration, login, tokens and password recovery"
+        }
+    ],
+    "paths": {
+        "/api/employer/jobs/{id}": {
+            "get": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Get a job (scoped to the caller's company)",
+                "operationId": "get",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Update a draft job",
+                "operationId": "update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JobRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Delete a draft job",
+                "operationId": "delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/employer/company": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Get the caller's company profile",
+                "operationId": "get_1",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompanyProfileResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Update the caller's company profile",
+                "operationId": "update_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CompanyProfileRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompanyProfileResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/candidate/skills/{id}": {
+            "put": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "Update a skill",
+                "operationId": "updateSkill",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSkillRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CandidateSkillResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "Delete a skill",
+                "operationId": "deleteSkill",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/candidate/profile": {
+            "get": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "Get the candidate profile",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProfileResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "Save the candidate profile",
+                "operationId": "updateProfile",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProfileRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProfileResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/{id}/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark one notification read",
+                "operationId": "markRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/read-all": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all notifications read",
+                "operationId": "markAllRead",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/jobs/{id}/applications": {
+            "post": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Apply to an active job",
+                "operationId": "apply",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CandidateApplicationDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs": {
+            "get": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "List the caller's company jobs",
+                "operationId": "list",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseEmployerJobListItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Create a draft job",
+                "operationId": "create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/JobRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs/{id}/resume": {
+            "post": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Resume a paused job",
+                "operationId": "resume",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs/{id}/pause": {
+            "post": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Pause an active job",
+                "operationId": "pause",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs/{id}/duplicate": {
+            "post": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Duplicate a job as a new draft",
+                "operationId": "duplicate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs/{id}/close": {
+            "post": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Close a job (final)",
+                "operationId": "close",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs/{id}/activate": {
+            "post": {
+                "tags": [
+                    "Employer Jobs"
+                ],
+                "summary": "Activate a draft job",
+                "operationId": "activate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmployerJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/candidate/skills": {
+            "get": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "List the candidate's skills",
+                "operationId": "listSkills",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CandidateSkillResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "Add a skill",
+                "operationId": "addSkill",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddSkillRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CandidateSkillResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/candidate/resume": {
+            "get": {
+                "tags": [
+                    "Candidate Resume"
+                ],
+                "summary": "Get the current resume",
+                "operationId": "getCurrent",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResumeResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Candidate Resume"
+                ],
+                "summary": "Upload a PDF resume (replaces the current one)",
+                "operationId": "upload",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResumeResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset a password with a one-time token",
+                "operationId": "resetPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new account",
+                "operationId": "register",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/refresh": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Exchange a refresh cookie for a new access token",
+                "operationId": "refresh",
+                "parameters": [
+                    {
+                        "name": "refresh_token",
+                        "in": "cookie",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Revoke the current refresh token",
+                "operationId": "logout",
+                "parameters": [
+                    {
+                        "name": "refresh_token",
+                        "in": "cookie",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Log in",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Request a password reset link (always 202)",
+                "operationId": "forgotPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/account/change-password": {
+            "post": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Change the current password",
+                "operationId": "changePassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/skills/suggest": {
+            "get": {
+                "tags": [
+                    "Skills"
+                ],
+                "summary": "Suggest up to 10 skills by name",
+                "operationId": "suggest",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SkillDto"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List the current user's notifications",
+                "operationId": "list_1",
+                "parameters": [
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseNotificationResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notifications/unread-count": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Number of unread notifications",
+                "operationId": "unreadCount",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnreadCountResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jobs": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "List active jobs with search and filters",
+                "operationId": "list_2",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "remote",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponsePublicJobListItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jobs/{id}": {
+            "get": {
+                "tags": [
+                    "Jobs"
+                ],
+                "summary": "Get an active job",
+                "operationId": "get_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicJobDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "operationId": "health",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employer/jobs/{jobId}/applications": {
+            "get": {
+                "tags": [
+                    "Employer Applicants"
+                ],
+                "summary": "List applicants (anonymised) for a job",
+                "operationId": "list_3",
+                "parameters": [
+                    {
+                        "name": "jobId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseEmployerApplicantListItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/candidate/dashboard": {
+            "get": {
+                "tags": [
+                    "Candidate"
+                ],
+                "summary": "Candidate dashboard",
+                "operationId": "dashboard",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DashboardResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/candidate/applications": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "List the candidate's applications",
+                "operationId": "list_4",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseCandidateApplicationListItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/candidate/applications/{id}": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get one application with its status history",
+                "operationId": "get_3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CandidateApplicationDetail"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Current signed-in user",
+                "operationId": "me",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDto"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "JobRequest": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "minLength": 0
+                    },
+                    "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Markdown"
+                    },
+                    "requirements": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "experienceLevel": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "remote": {
+                        "type": "boolean"
+                    },
+                    "requiredSkillIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "niceToHaveSkillIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "mustHaveSkillIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    "hfMinYears": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "hfCountry": {
+                        "type": "string"
+                    },
+                    "cutoffScore": {
+                        "type": "integer",
+                        "format": "int32",
+                        "maximum": 100,
+                        "minimum": 0
+                    }
+                },
+                "required": [
+                    "country",
+                    "description",
+                    "experienceLevel",
+                    "title"
+                ]
+            },
+            "EmployerJobDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "requirements": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "experienceLevel": {
+                        "type": "string",
+                        "enum": [
+                            "entry",
+                            "mid",
+                            "senior",
+                            "lead"
+                        ]
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "remote": {
+                        "type": "boolean"
+                    },
+                    "requiredSkills": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SkillRef"
+                        }
+                    },
+                    "niceToHaveSkills": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SkillRef"
+                        }
+                    },
+                    "hfMinYears": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "hfCountry": {
+                        "type": "string"
+                    },
+                    "cutoffScore": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "draft",
+                            "active",
+                            "paused",
+                            "closed"
+                        ]
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "SkillRef": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "mustHave": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "CompanyProfileRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "industry": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "size": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "showNamePublicly": {
+                        "type": "boolean"
+                    },
+                    "tagline": {
+                        "type": "string",
+                        "maxLength": 160
+                    },
+                    "about": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "logoUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "linkedinUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "foundedYear": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1800,
+                        "maximum": 2100
+                    },
+                    "headquarters": {
+                        "type": "string"
+                    },
+                    "contactEmail": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 40
+                    },
+                    "benefits": {
+                        "type": "string",
+                        "description": "Markdown"
+                    }
+                },
+                "required": [
+                    "industry",
+                    "name",
+                    "size"
+                ]
+            },
+            "CompanyProfileResponse": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "industry": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "string"
+                    },
+                    "showNamePublicly": {
+                        "type": "boolean"
+                    },
+                    "tagline": {
+                        "type": "string",
+                        "maxLength": 160
+                    },
+                    "about": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "website": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "logoUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "linkedinUrl": {
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "foundedYear": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1800,
+                        "maximum": 2100
+                    },
+                    "headquarters": {
+                        "type": "string"
+                    },
+                    "contactEmail": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "maxLength": 40
+                    },
+                    "benefits": {
+                        "type": "string",
+                        "description": "Markdown"
+                    }
+                }
+            },
+            "UpdateSkillRequest": {
+                "type": "object",
+                "properties": {
+                    "level": {
+                        "type": "string"
+                    },
+                    "years": {
+                        "type": "number"
+                    }
+                }
+            },
+            "CandidateSkillResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "skillId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "level": {
+                        "type": "string"
+                    },
+                    "years": {
+                        "type": "number"
+                    },
+                    "verified": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ProfileRequest": {
+                "type": "object",
+                "properties": {
+                    "phone": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "remotePreference": {
+                        "type": "string"
+                    },
+                    "totalExperienceYears": {
+                        "type": "number"
+                    },
+                    "educationLevel": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ProfileResponse": {
+                "type": "object",
+                "properties": {
+                    "phone": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "bio": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "remotePreference": {
+                        "type": "string"
+                    },
+                    "totalExperienceYears": {
+                        "type": "number"
+                    },
+                    "educationLevel": {
+                        "type": "string"
+                    }
+                }
+            },
+            "NotificationResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "link": {
+                        "type": "string"
+                    },
+                    "readAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "CandidateApplicationDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "jobId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    },
+                    "companyName": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "appliedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "history": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/HistoryEntry"
+                        }
+                    }
+                }
+            },
+            "HistoryEntry": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "AddSkillRequest": {
+                "type": "object",
+                "properties": {
+                    "skillId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "level": {
+                        "type": "string"
+                    },
+                    "years": {
+                        "type": "number"
+                    }
+                }
+            },
+            "ResumeResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "filename": {
+                        "type": "string"
+                    },
+                    "sizeBytes": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "failureReason": {
+                        "type": "string"
+                    },
+                    "uploadedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ResetPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "maxLength": 2147483647,
+                        "minLength": 10
+                    }
+                },
+                "required": [
+                    "newPassword",
+                    "token"
+                ]
+            },
+            "RegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "password": {
+                        "type": "string",
+                        "maxLength": 2147483647,
+                        "minLength": 10
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "role": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "consent": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "consent",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "password",
+                    "role"
+                ]
+            },
+            "AuthResponse": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserDto"
+                    }
+                }
+            },
+            "UserDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                }
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "ForgotPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email"
+                ]
+            },
+            "ChangePasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "currentPassword": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "maxLength": 2147483647,
+                        "minLength": 10
+                    }
+                },
+                "required": [
+                    "currentPassword",
+                    "newPassword"
+                ]
+            },
+            "SkillDto": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Pageable": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "sort": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "PageResponseNotificationResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationResponse"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "UnreadCountResponse": {
+                "type": "object",
+                "properties": {
+                    "count": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "PageResponsePublicJobListItem": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PublicJobListItem"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "PublicJobListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "remote": {
+                        "type": "boolean"
+                    },
+                    "experienceLevel": {
+                        "type": "string",
+                        "enum": [
+                            "entry",
+                            "mid",
+                            "senior",
+                            "lead"
+                        ]
+                    },
+                    "topSkills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "companyName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PublicJobDetail": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "requirements": {
+                        "type": "string",
+                        "description": "Markdown"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "remote": {
+                        "type": "boolean"
+                    },
+                    "experienceLevel": {
+                        "type": "string",
+                        "enum": [
+                            "entry",
+                            "mid",
+                            "senior",
+                            "lead"
+                        ]
+                    },
+                    "requiredSkills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "niceToHaveSkills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "publishedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "companyName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "EmployerJobListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "draft",
+                            "active",
+                            "paused",
+                            "closed"
+                        ]
+                    },
+                    "applicationsCount": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "awaitingScreeningCount": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PageResponseEmployerJobListItem": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmployerJobListItem"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "EmployerApplicantListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "appliedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PageResponseEmployerApplicantListItem": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmployerApplicantListItem"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "Checklist": {
+                "type": "object",
+                "properties": {
+                    "profileSaved": {
+                        "type": "boolean"
+                    },
+                    "resumeUploaded": {
+                        "type": "boolean"
+                    },
+                    "skillsAdded": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "DashboardResponse": {
+                "type": "object",
+                "properties": {
+                    "checklist": {
+                        "$ref": "#/components/schemas/Checklist"
+                    },
+                    "latestApplications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LatestApplication"
+                        }
+                    }
+                }
+            },
+            "LatestApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "jobId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "appliedAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CandidateApplicationListItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "jobId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "jobTitle": {
+                        "type": "string"
+                    },
+                    "companyName": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "appliedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PageResponseCandidateApplicationListItem": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CandidateApplicationListItem"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
