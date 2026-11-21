@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../app/auth/AuthContext';
 import { cn } from '../../lib/cn';
@@ -5,7 +6,7 @@ import { Logo } from '../ui/Logo';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { PortalShell } from './PortalShell';
 
-export function PublicShell() {
+export function PublicShell({ children }: { children?: ReactNode }) {
   const { user } = useAuth();
 
   // Signed-in users keep the full PortalShell (left sidebar + top bar) on public routes like Browse jobs.
@@ -50,7 +51,7 @@ export function PublicShell() {
         </div>
       </header>
       <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-6 sm:px-6">
-        <Outlet />
+        {children ?? <Outlet />}
       </main>
       <footer className="border-t border-border bg-surface py-4 text-xs text-text-subtle">
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-2 px-4 sm:px-6">

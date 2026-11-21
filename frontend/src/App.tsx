@@ -2,7 +2,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { PublicShell } from './components/layout/PublicShell';
 import { AuthShell } from './components/layout/AuthShell';
 import { PortalShell } from './components/layout/PortalShell';
-import { GuestOnly, HomeRedirect, RequireAuth, RequireRole } from './app/guards';
+import { GuestOnly, RequireAuth, RequireRole } from './app/guards';
+import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './features/auth/pages/LoginPage';
@@ -28,7 +29,7 @@ import { ChangePasswordPage } from './features/account/pages/ChangePasswordPage'
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomeRedirect />} />
+      <Route path="/" element={<HomePage />} />
 
       <Route element={<PublicShell />}>
         <Route path="/jobs" element={<JobBoardPage />} />

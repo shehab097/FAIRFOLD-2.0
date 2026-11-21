@@ -126,7 +126,7 @@ Notes:
 
 | Shell | Structure |
 |---|---|
-| **PublicShell** | For guests: sticky top bar (56 px, `surface`, 1 px bottom border) with Logo, Browse jobs link, `ThemeToggle`, Log in, and Register buttons. **When a user is signed in, `PublicShell` delegates to `PortalShell`** so the left sidebar and top bar remain visible on public routes like Browse Jobs (`/jobs`). The `/` route is a role-aware landing redirect: candidates → `/candidate`, employer roles → `/employer`, guests → `/jobs`. |
+| **PublicShell** | For guests: sticky top bar (56 px, `surface`, 1 px bottom border) with Logo, Browse jobs link, `ThemeToggle`, Log in, and Register buttons. **When a user is signed in, `PublicShell` delegates to `PortalShell`** so the left sidebar and top bar remain visible on public routes like Browse Jobs (`/jobs`). `/` shows the guest landing page; signed-in users are redirected to their role dashboard (candidate `/candidate`, employer `/employer`, interviewer `/employer/interviews`, admin `/admin`). |
 | **PortalShell** | Sticky top bar (56 px) with `ThemeToggle`, notification bell (with rounded pill unread badge) and account profile chip (`UserAvatar`, which shows the uploaded profile photo or initials). Sticky left sidebar (`240 px`, `lg:sticky lg:top-0 lg:h-screen`, `surface`, 1 px right border) from 1024 px up so it never scrolls out of view; drawer below 1024 px. Sign-out and Change Password live inside the Account Profile page (`/account` and `/account/password`), keeping the navigation uncluttered. |
 | **FocusShell** | For the assessment attempt (P18): no sidebar, a slim top bar with the title, the countdown timer and the question navigator. |
 | **AuthShell** | Two columns from 768 px up: a left panel in `primary-subtle` with the wordmark and three rounded pillar cards (Anonymised screening, Explained scores, People decide), and a `rounded-2xl` form card on the right with a floating `ThemeToggle` in the top-right corner. |
@@ -152,10 +152,11 @@ Short description in text-secondary
 
 | Type | Pages | Pattern |
 |---|---|---|
+| Landing | P00 (`/`) | Guest-only marketing page: hero with a mock evidence/score card, three fairness pillars, an **Inside FairFold** product feature grid, the latest three jobs with a live open-role count, candidate/employer how-it-works steps and a final CTA. Reuses `PublicShell`; signed-in users are redirected to their role dashboard. |
 | Browse | P01 (`/jobs`) | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. Each job card shows salary (green `success` badge), experience level (blue `info` badge, with `entry` labelled **Junior**), work mode (amber `warning` badge) and **at most two** neutral `raised` skill chips. |
 | Public detail | P02 | Two columns: Markdown job description/requirements and skill chips on the left, sticky summary and Apply card on the right. Company name links to the public company page when `showNamePublicly` is enabled. |
 | Company profile | P02a (`/companies/:companyId`) | Public company header (logo, name, tagline), facts row (industry, size, HQ, founded year, website, LinkedIn), Markdown About/Benefits, and the company’s active jobs. Company names are primary-text links on job cards/details/applications; the job detail sidebar also has a **View company profile** button. Hidden companies return 404 and are never linked. |
-| Auth | P03 to P08 | AuthShell with `ThemeToggle`. |
+| Auth | P03 to P08 | AuthShell with `ThemeToggle`. Login (P03) adds a secure-sign-in badge, back-to-home link, password reveal, inline forgot-password link, register CTA and a privacy note. |
 | Dashboard | P12, P20, P31 | Row of stat blocks (4 across, 2 on tablet, 1 on mobile), each a rounded `surface` block with a big tabular number, a label and a link; below them lists. |
 | List | P09, P15, P17, P22, P26, P32, P33, P34 | Page header, filter bar, `rounded-xl` table, pagination. |
 | Form | P13, P21, P23, P35 | Overview tab + Edit tab on profile/company pages; MarkdownEditor with formatting toolbar and live preview for rich text fields. |

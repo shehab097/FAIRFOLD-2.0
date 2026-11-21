@@ -12,13 +12,6 @@ export function FullScreenLoader() {
   );
 }
 
-/** Role-aware landing: signed-in users go to their dashboard, guests to the job board. */
-export function HomeRedirect() {
-  const { user, initializing } = useAuth();
-  if (initializing) return <FullScreenLoader />;
-  return <Navigate to={user ? homePathForRole(user.role) : '/jobs'} replace />;
-}
-
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, initializing } = useAuth();
   const location = useLocation();
