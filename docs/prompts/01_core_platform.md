@@ -30,7 +30,8 @@ Message to start a part: `Build Part 1.1 from docs/prompts/01_core_platform.md. 
 | FR-026 Job editing | Only drafts can be edited or deleted; otherwise 409 `JOB_NOT_DRAFT`. Every edit is audited. "Duplicate as draft" copies a job. |
 | FR-027 Lifecycle | Activate (needs a complete company profile, else 409 `COMPANY_INCOMPLETE`), pause, resume, close per BR-01. Each action is audited. |
 | FR-042 Job board | Anyone sees active jobs newest first. Keyword search over title, description and skills. Filters: location, remote, level. Paging. Company name is hidden unless `show_name_publicly`. Every active job has a stable public URL `/jobs/:id`. |
-| FR-045 Company profile | Name, industry, size, "show name publicly" switch. Required (name, industry, size) before a job can be activated. |
+| FR-045 Company profile | Name, industry, size, "show name publicly" switch, tagline, about (Markdown), website, LinkedIn, logo URL, founded year, headquarters, contact email, phone, benefits (Markdown). Required (name, industry, size) before a job can be activated. |
+| FR-046 Markdown | Job description/requirements and company about/benefits are Markdown. Editor: toolbar (heading, bold, italic, code, link, lists, quote, hr) + live preview. Renderer builds React elements (no raw HTML), links only `http(s)`/`mailto`. |
 
 Business rule BR-01 (job lifecycle): `draft → active ↔ paused → closed`; only `active` accepts applications; `closed` is final.
 Business rule BR-03 (hard filters): stored on the job now (`hf_min_years`, `hf_country`, must-have skills); they are applied in chunk 2.
@@ -43,7 +44,7 @@ Create tables in this order. Follow the MariaDB type rules in 00_context section
 
 | Table | Columns |
 |---|---|
-| companies | name text NULL; industry text NULL; size text NULL CHECK (`1-10`,`11-50`,`51-200`,`201-1000`,`1000+`); show_name_publicly boolean NOT NULL DEFAULT false |
+| companies | name text NULL; industry text NULL; size text NULL CHECK (`1-10`,`11-50`,`51-200`,`201-1000`,`1000+`); show_name_publicly boolean NOT NULL DEFAULT false; *(V1_4_1)* tagline varchar(160); about TEXT (Markdown); website, logo_url, linkedin_url varchar(2048); founded_year smallint CHECK 1800–2100; headquarters varchar(255); contact_email varchar(254); phone varchar(40); benefits TEXT (Markdown) — all NULL |
 | users | email varchar(254) NOT NULL (store lower-case; `UNIQUE (email)`, case-insensitive through the collation); password_hash text NOT NULL; first_name text NOT NULL; last_name text NOT NULL; role text NOT NULL CHECK (`candidate`,`employer_hr`,`employer_manager`,`interviewer`,`admin`); company_id char(36) NULL → companies; email_verified boolean NOT NULL DEFAULT true; failed_login_count int NOT NULL DEFAULT 0; locked_until datetime(3) NULL; consent_at datetime(3) NOT NULL |
 | refresh_tokens | user_id char(36) NOT NULL → users CASCADE; token_hash text NOT NULL UNIQUE (SHA-256 of the token); expires_at datetime(3) NOT NULL; revoked_at datetime(3) NULL |
 | password_reset_tokens | user_id → users CASCADE; token_hash text UNIQUE; expires_at; used_at NULL |
@@ -96,7 +97,7 @@ Seed about 100 common skills (languages, frameworks, databases, cloud, tools, so
 | GET `/api/jobs?q&location&remote&level&page&size` | Public | active jobs only; item `{id, title, city, country, remote, experienceLevel, topSkills[≤5], publishedAt, companyName?}` |
 | GET `/api/jobs/{id}` | Public | active only (else 404); adds description, requirements, requiredSkills[], niceToHaveSkills[] |
 | GET `/api/employer/company` | HR | |
-| PUT `/api/employer/company` | HR | `{name, industry, size, showNamePublicly}` |
+| PUT `/api/employer/company` | HR | `{name, industry, size, showNamePublicly, tagline?, about?, website?, logoUrl?, linkedinUrl?, foundedYear?, headquarters?, contactEmail?, phone?, benefits?}` (URLs must be http/https) |
 | GET `/api/employer/jobs?status&page` | HR, Mgr | item `{id, title, status, applicationsCount, awaitingScreeningCount, createdAt}` |
 | POST `/api/employer/jobs` | HR | create draft |
 | GET `/api/employer/jobs/{id}` | HR, Mgr | full job incl. hard filters and cut-off |
@@ -136,10 +137,10 @@ Notification types now: `application_submitted` (to the candidate), `application
 | P11 Not found / No access | 1.1 | Large code, one sentence, button to the user's home |
 | P01 Jobs (home) | 1.2 | Search bar, filters (location, remote, level), job rows, paging; filters in the URL |
 | P02 Job detail | 1.2 | Title, company (if allowed), details, skills, copy link; Apply button (wired in 1.3) |
-| P21 Company profile | 1.2 | Name, industry, size, show-name switch; Save |
+| P21 Company profile | 1.2 | Sections Basics (name, industry, size, tagline, founded, HQ, show-name switch), Contact and links, About and benefits (Markdown editors); Save |
 | P22 Jobs | 1.2 | Table, status filter, New job, row menu (Open, Edit, Duplicate, Activate, Pause, Resume, Close, Delete), banner if the company profile is incomplete |
 | P23 Job editor | 1.2 | One form: basics, skills (required, nice-to-have, must-have via suggest), level and location, hard filters, cut-off score; "Leave without saving?" prompt; drafts only |
-| P24 Job workspace | 1.2, 1.3 | Header with status badge, lifecycle buttons (HR), copy public link; tabs **Applicants** (list from 1.3) and **Job details** (read-only) |
+| P24 Job workspace | 1.2, 1.3 | Back link, header with status badge, lifecycle buttons (HR), copy public link (active only); tabs **Overview** (default: rendered Markdown + "at a glance" sidebar with status, applicant count, level, location, skills, screening) and **Applicants (n)** |
 | P09 Notifications | 1.3 | List with unread dot, click marks read and opens the link; "Mark all read"; top-bar bell with count and last five |
 | P10 Account settings | 1.3 | Name and email read-only, change password form (export, delete, MFA come in chunk 5) |
 | P12 Candidate dashboard | 1.3 | Setup checklist, latest five applications |

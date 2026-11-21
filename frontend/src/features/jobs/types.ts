@@ -91,7 +91,21 @@ export interface CompanyProfile {
   industry: string | null;
   size: string | null;
   showNamePublicly: boolean;
-}export interface SkillDto {
+  tagline: string | null;
+  /** Markdown */
+  about: string | null;
+  website: string | null;
+  logoUrl: string | null;
+  linkedinUrl: string | null;
+  foundedYear: number | null;
+  headquarters: string | null;
+  contactEmail: string | null;
+  phone: string | null;
+  /** Markdown */
+  benefits: string | null;
+}
+
+export interface SkillDto {
   id: string;
   name: string;
 }

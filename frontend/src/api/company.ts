@@ -6,12 +6,7 @@ export async function getCompany(): Promise<CompanyProfile> {
   return data;
 }
 
-export interface CompanyInput {
-  name: string;
-  industry: string;
-  size: string;
-  showNamePublicly: boolean;
-}
+export type CompanyInput = CompanyProfile;
 
 export async function updateCompany(input: CompanyInput): Promise<CompanyProfile> {
   const { data } = await api.put<CompanyProfile>('/api/employer/company', input);

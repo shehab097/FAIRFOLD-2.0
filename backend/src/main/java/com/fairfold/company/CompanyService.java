@@ -35,6 +35,16 @@ public class CompanyService {
         company.setIndustry(request.industry().trim());
         company.setSize(request.size());
         company.setShowNamePublicly(request.showNamePublicly());
+        company.setTagline(clean(request.tagline()));
+        company.setAbout(clean(request.about()));
+        company.setWebsite(clean(request.website()));
+        company.setLogoUrl(clean(request.logoUrl()));
+        company.setLinkedinUrl(clean(request.linkedinUrl()));
+        company.setFoundedYear(request.foundedYear());
+        company.setHeadquarters(clean(request.headquarters()));
+        company.setContactEmail(clean(request.contactEmail()));
+        company.setPhone(clean(request.phone()));
+        company.setBenefits(clean(request.benefits()));
         return toResponse(company);
     }
 
@@ -48,7 +58,13 @@ public class CompanyService {
     }
 
     private CompanyProfileResponse toResponse(Company company) {
-        return new CompanyProfileResponse(company.getName(), company.getIndustry(), company.getSize(), company.isShowNamePublicly());
+        return new CompanyProfileResponse(company.getName(), company.getIndustry(), company.getSize(), company.isShowNamePublicly(),
+                company.getTagline(), company.getAbout(), company.getWebsite(), company.getLogoUrl(), company.getLinkedinUrl(),
+                company.getFoundedYear(), company.getHeadquarters(), company.getContactEmail(), company.getPhone(), company.getBenefits());
+    }
+
+    private String clean(String value) {
+        return notBlank(value) ? value.trim() : null;
     }
 
     private boolean notBlank(String value) {

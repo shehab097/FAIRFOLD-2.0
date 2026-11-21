@@ -32,7 +32,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
               AND (
                   :q = ''
-                  OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE)
+                  OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE) > 0
                   OR EXISTS (SELECT 1 FROM job_skills js2 JOIN skills s2 ON s2.id = js2.skill_id
                              WHERE js2.job_id = j.id AND LOWER(s2.name) = LOWER(:q))
                   OR (CHAR_LENGTH(:q) < 3 AND j.title LIKE CONCAT('%', :qEscaped, '%'))
@@ -49,7 +49,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
               AND (
                   :q = ''
-                  OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE)
+                  OR MATCH(j.title, j.description, j.requirements) AGAINST (:q IN NATURAL LANGUAGE MODE) > 0
                   OR EXISTS (SELECT 1 FROM job_skills js2 JOIN skills s2 ON s2.id = js2.skill_id
                              WHERE js2.job_id = j.id AND LOWER(s2.name) = LOWER(:q))
                   OR (CHAR_LENGTH(:q) < 3 AND j.title LIKE CONCAT('%', :qEscaped, '%'))

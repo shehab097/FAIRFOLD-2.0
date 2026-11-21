@@ -1,18 +1,34 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, type ReactNode } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useApplicants, useEmployerJob, useJobAction } from '../queries';
 import type { JobAction } from '../../../api/employerJobs';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { Markdown } from '../../../components/ui/Markdown';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { Table, type Column } from '../../../components/ui/Table';
 import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
-import type { EmployerApplicantListItem, JobStatus } from '../../jobs/types';
+import type { EmployerApplicantListItem, EmployerJobDetail, JobStatus } from '../../jobs/types';
+
+const LABEL = 'text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary';
+
+const ACTIONS: Record<JobStatus, { label: string; value: JobAction }[]> = {
+  draft: [{ label: 'Activate', value: 'activate' }],
+  active: [
+    { label: 'Pause', value: 'pause' },
+    { label: 'Close', value: 'close' },
+  ],
+  paused: [
+    { label: 'Resume', value: 'resume' },
+    { label: 'Close', value: 'close' },
+  ],
+  closed: [],
+};
 
 function ApplicantsTab({ applicants }: { applicants: EmployerApplicantListItem[] }) {
   const columns: Column<EmployerApplicantListItem>[] = [
@@ -20,34 +36,84 @@ function ApplicantsTab({ applicants }: { applicants: EmployerApplicantListItem[]
     { header: 'Status', render: (a) => <Badge status={a.status} /> },
     { header: 'Applied', render: (a) => formatDate(a.appliedAt) },
   ];
-
   if (applicants.length === 0) {
-    return (
-      <div className="border border-border bg-surface p-8 text-center text-text-secondary">
-        No applicants yet.
-      </div>
-    );
+    return <div className="border border-border bg-surface p-8 text-center text-text-secondary">No applicants yet.</div>;
   }
   return <Table columns={columns} rows={applicants} rowKey={(a) => a.id} />;
 }
 
-function actionsFor(status: JobStatus): { label: string; value: JobAction }[] {
-  switch (status) {
-    case 'draft':
-      return [{ label: 'Activate', value: 'activate' }];
-    case 'active':
-      return [
-        { label: 'Pause', value: 'pause' },
-        { label: 'Close', value: 'close' },
-      ];
-    case 'paused':
-      return [
-        { label: 'Resume', value: 'resume' },
-        { label: 'Close', value: 'close' },
-      ];
-    case 'closed':
-      return [];
-  }
+function Fact({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="flex justify-between gap-4 border-b border-border py-2 text-sm last:border-0">
+      <dt className="text-text-secondary">{label}</dt>
+      <dd className="text-right font-medium text-text">{children}</dd>
+    </div>
+  );
+}
+
+function Chips({ title, skills, muted }: { title: string; skills: EmployerJobDetail['requiredSkills']; muted?: boolean }) {
+  return (
+    <div>
+      <h3 className={`mb-2 ${LABEL}`}>{title}</h3>
+      <div className="flex flex-wrap gap-2">
+        {skills.length === 0 && <span className="text-sm text-text-subtle">None</span>}
+        {skills.map((s) => (
+          <span key={s.id} className={`border border-border bg-raised px-2 py-1 text-sm ${muted ? 'text-text-secondary' : 'text-text'}`}>
+            {s.name}
+            {s.mustHave && <span className="ml-1 text-xs text-accent">(must)</span>}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Overview({ job, applicantCount }: { job: EmployerJobDetail; applicantCount: number }) {
+  const hasFilters = job.hfMinYears !== null || job.hfCountry || job.cutoffScore !== null;
+  return (
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <article className="space-y-6 border border-border bg-surface p-6">
+        <section>
+          <h2 className="mb-3 text-xl font-semibold">Description</h2>
+          <Markdown source={job.description} />
+        </section>
+        {job.requirements && (
+          <section className="border-t border-border pt-6">
+            <h2 className="mb-3 text-xl font-semibold">Requirements</h2>
+            <Markdown source={job.requirements} />
+          </section>
+        )}
+      </article>
+
+      <aside className="space-y-6 lg:sticky lg:top-4 lg:self-start">
+        <section className="border border-border bg-surface p-4">
+          <h2 className={`mb-2 ${LABEL}`}>At a glance</h2>
+          <dl>
+            <Fact label="Status"><Badge status={job.status} /></Fact>
+            <Fact label="Applicants">{applicantCount}</Fact>
+            <Fact label="Level"><span className="capitalize">{job.experienceLevel}</span></Fact>
+            <Fact label="Location">{[job.city, job.country].filter(Boolean).join(', ')}</Fact>
+            <Fact label="Work mode">{job.remote ? 'Remote' : 'On-site'}</Fact>
+            <Fact label="Published">{job.publishedAt ? formatDate(job.publishedAt) : '—'}</Fact>
+          </dl>
+        </section>
+        <section className="space-y-4 border border-border bg-surface p-4">
+          <Chips title="Required skills" skills={job.requiredSkills} />
+          {job.niceToHaveSkills.length > 0 && <Chips title="Nice to have" skills={job.niceToHaveSkills} muted />}
+        </section>
+        {hasFilters && (
+          <section className="border border-border bg-surface p-4">
+            <h2 className={`mb-2 ${LABEL}`}>Screening</h2>
+            <dl>
+              {job.hfMinYears !== null && <Fact label="Minimum years">{job.hfMinYears}</Fact>}
+              {job.hfCountry && <Fact label="Required country">{job.hfCountry}</Fact>}
+              {job.cutoffScore !== null && <Fact label="Cut-off score">{job.cutoffScore}</Fact>}
+            </dl>
+          </section>
+        )}
+      </aside>
+    </div>
+  );
 }
 
 export function JobWorkspacePage() {
@@ -55,12 +121,14 @@ export function JobWorkspacePage() {
   const { data: job, isLoading, isError } = useEmployerJob(jobId);
   const { data: applicants } = useApplicants(jobId);
   const jobAction = useJobAction();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [tab, setTab] = useState('applicants');
+  const [tab, setTab] = useState('overview');
   const [busy, setBusy] = useState<string | null>(null);
 
   const isHr = user?.role === 'EMPLOYER_HR';
+  const applicantCount = applicants?.totalItems ?? 0;
 
   async function run(action: JobAction) {
     setBusy(action);
@@ -74,47 +142,48 @@ export function JobWorkspacePage() {
     }
   }
 
-  function copyLink() {
-    navigator.clipboard.writeText(`${window.location.origin}/jobs/${jobId}`);
+  async function copyLink() {
+    await navigator.clipboard.writeText(`${window.location.origin}/jobs/${jobId}`);
     toast('Public link copied.');
   }
 
-  if (isLoading) {
-    return <Skeleton className="h-64 w-full" />;
-  }
-  if (isError || !job) {
-    return <Banner tone="error">Job not found.</Banner>;
-  }
+  if (isLoading) return <Skeleton className="h-64 w-full" />;
+  if (isError || !job) return <Banner tone="error">Job not found.</Banner>;
 
   return (
     <div>
-      <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-[28px] font-bold leading-9">{job.title}</h1>
+      <Link to="/employer/jobs" className="text-sm text-text-secondary hover:text-primary-text">
+        ← All jobs
+      </Link>
+      <div className="mb-4 mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="break-words text-[28px] font-bold leading-9">{job.title}</h1>
             <Badge status={job.status} />
           </div>
           <p className="text-text-secondary">
-            {job.city ? `${job.city}, ` : ''}
-            {job.country} · {job.remote ? 'Remote' : 'On-site'} · {job.experienceLevel}
+            {[job.city, job.country].filter(Boolean).join(', ')} · {job.remote ? 'Remote' : 'On-site'} ·{' '}
+            <span className="capitalize">{job.experienceLevel}</span>
           </p>
-          {job.publishedAt && <p className="text-xs text-text-subtle">Published {formatDate(job.publishedAt)}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" onClick={copyLink}>
-            Copy public link
-          </Button>
+          {job.status === 'active' && (
+            <Button variant="secondary" onClick={copyLink}>
+              Copy public link
+            </Button>
+          )}
           {isHr && job.status === 'draft' && (
-            <Button variant="secondary" onClick={() => window.location.assign(`/employer/jobs/${job.id}/edit`)}>
+            <Button variant="secondary" onClick={() => navigate(`/employer/jobs/${job.id}/edit`)}>
               Edit
             </Button>
           )}
           {isHr &&
-            actionsFor(job.status).map((a) => (
+            ACTIONS[job.status].map((a) => (
               <Button
                 key={a.value}
                 variant={a.value === 'close' ? 'danger' : 'secondary'}
                 loading={busy === a.value}
+                disabled={busy !== null}
                 onClick={() => run(a.value)}
               >
                 {a.label}
@@ -125,70 +194,20 @@ export function JobWorkspacePage() {
 
       <Tabs
         tabs={[
-          { key: 'applicants', label: 'Applicants' },
-          { key: 'details', label: 'Job details' },
+          { key: 'overview', label: 'Overview' },
+          { key: 'applicants', label: `Applicants (${applicantCount})` },
         ]}
         active={tab}
         onChange={setTab}
       />
 
-      {tab === 'applicants' && (
-        <div className="mt-4">
+      <div className="mt-4">
+        {tab === 'overview' ? (
+          <Overview job={job} applicantCount={applicantCount} />
+        ) : (
           <ApplicantsTab applicants={applicants?.items ?? []} />
-        </div>
-      )}
-
-      {tab === 'details' && (
-        <div className="mt-4 space-y-6 border border-border bg-surface p-6">
-          <section>
-            <h2 className="mb-2 text-xl font-semibold">Description</h2>
-            <p className="whitespace-pre-line text-text">{job.description}</p>
-          </section>
-          {job.requirements && (
-            <section>
-              <h2 className="mb-2 text-xl font-semibold">Requirements</h2>
-              <p className="whitespace-pre-line text-text">{job.requirements}</p>
-            </section>
-          )}
-          <section>
-            <h2 className="mb-2 text-xl font-semibold">Skills</h2>
-            <div className="mb-3">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">Required</h3>
-              <div className="flex flex-wrap gap-2">
-                {job.requiredSkills.length === 0 && <span className="text-sm text-text-subtle">None</span>}
-                {job.requiredSkills.map((s) => (
-                  <span key={s.id} className="border border-border bg-raised px-2 py-1 text-sm text-text">
-                    {s.name}
-                    {s.mustHave && <span className="ml-1 text-xs text-accent">(must)</span>}
-                  </span>
-                ))}
-              </div>
-            </div>
-            {job.niceToHaveSkills.length > 0 && (
-              <div>
-                <h3 className="mb-1 text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">Nice to have</h3>
-                <div className="flex flex-wrap gap-2">
-                  {job.niceToHaveSkills.map((s) => (
-                    <span key={s.id} className="border border-border bg-raised px-2 py-1 text-sm text-text-secondary">
-                      {s.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-          {(job.hfMinYears !== null || job.hfCountry || job.cutoffScore !== null) && (
-            <section>
-              <h2 className="mb-2 text-xl font-semibold">Hard filters and cut-off</h2>
-              <div className="flex flex-wrap gap-4 text-sm text-text">
-                {job.hfMinYears !== null && <span>Minimum years: {job.hfMinYears}</span>}
-                {job.hfCountry && <span>Required country: {job.hfCountry}</span>}
-                {job.cutoffScore !== null && <span>Cut-off score: {job.cutoffScore}</span>}
-              </div>
-            </section>
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

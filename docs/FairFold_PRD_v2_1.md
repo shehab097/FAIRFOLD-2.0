@@ -156,7 +156,8 @@ Priority: Must, Should, Could. Phase: P1 to P4 (section 7). Each acceptance crit
 | REQ-FR-032 | Interview scheduling | Should | P3 | Employer sets date, duration, a pasted meeting link and one or more interviewers from the team. The candidate and interviewers get an in-app notification and an email with the details. |
 | REQ-FR-033 | Interview feedback | Should | P3 | Interviewer submits scores per rubric item, comments and a recommendation (`strong_yes`, `yes`, `no`, `strong_no`). Afterwards HR or a manager marks the candidate `hired` or `rejected`. |
 | REQ-FR-035 | Analytics | Should | P4 | Pipeline funnel, time-to-hire, a table of overrides with reasons, and the count of `not_matched` candidates pulled back. Each chart has a table view. |
-| REQ-FR-045 | Company profile | Must | P1 | Company name, industry and size. Required before a job can be activated. |
+| REQ-FR-045 | Company profile | Must | P1 | Name, industry and size (required before a job can be activated) plus optional tagline, about (Markdown), website, LinkedIn, logo URL, founded year, headquarters, contact email, phone and benefits (Markdown). |
+| REQ-FR-046 | Markdown content | Must | P1 | Job description/requirements and company about/benefits are Markdown, written in an editor with a quick-format toolbar (heading, bold, italic, code, link, lists, quote, rule) and live preview. Rendered without raw HTML; only `http(s)`/`mailto` links. |
 | REQ-FR-046 | Employer dashboard | Should | P2 | Open jobs, new applications, awaiting screening, interviews this week, quota meter and bias flags. Each links to its list. |
 | REQ-FR-047 | Team | Should | P3 | HR invites staff by email as manager, HR or interviewer, changes roles and removes members. The last HR cannot be removed or demoted (409). |
 | REQ-FR-048 | Billing | Must | P4 | The employer sees plan, usage and payment history and buys a 30-day plan through bKash (FR-056). |

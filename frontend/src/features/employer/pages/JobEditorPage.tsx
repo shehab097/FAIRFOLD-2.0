@@ -9,7 +9,7 @@ import { Checkbox } from '../../../components/ui/Checkbox';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
-import { Textarea } from '../../../components/ui/Textarea';
+import { MarkdownEditor } from '../../../components/ui/MarkdownEditor';
 import { getApiErrorMessage, getFieldErrors } from '../../../lib/errors';
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
@@ -122,11 +122,11 @@ export function JobEditorPage() {
           <Field label="Title" error={fieldErrors.title}>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} required />
           </Field>
-          <Field label="Description" error={fieldErrors.description}>
-            <Textarea rows={5} value={description} onChange={(e) => setDescription(e.target.value)} required />
+          <Field label="Description (Markdown)" error={fieldErrors.description}>
+            <MarkdownEditor rows={12} value={description} onChange={setDescription} required error={Boolean(fieldErrors.description)} />
           </Field>
-          <Field label="Requirements" error={fieldErrors.requirements}>
-            <Textarea rows={4} value={requirements} onChange={(e) => setRequirements(e.target.value)} />
+          <Field label="Requirements (Markdown)" error={fieldErrors.requirements}>
+            <MarkdownEditor rows={8} value={requirements} onChange={setRequirements} error={Boolean(fieldErrors.requirements)} />
           </Field>
         </section>
 

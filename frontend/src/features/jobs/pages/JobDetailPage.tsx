@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useJob } from '../queries';
 import { useApply } from '../../candidate/queries';
 import { useAuth } from '../../../app/auth/AuthContext';
+import { Markdown } from '../../../components/ui/Markdown';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
@@ -74,13 +75,13 @@ export function JobDetailPage() {
 
         <section className="mt-6">
           <h2 className="text-xl font-semibold">Description</h2>
-          <p className="mt-2 whitespace-pre-line text-text">{job.description}</p>
+          <Markdown source={job.description} className="mt-2" />
         </section>
 
         {job.requirements && (
           <section className="mt-6">
             <h2 className="text-xl font-semibold">Requirements</h2>
-            <p className="mt-2 whitespace-pre-line text-text">{job.requirements}</p>
+            <Markdown source={job.requirements} className="mt-2" />
           </section>
         )}
 

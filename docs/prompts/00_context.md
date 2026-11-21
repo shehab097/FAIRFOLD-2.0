@@ -277,7 +277,7 @@ Full column definitions are in the chunk prompt that creates each table. This ma
 
 | Table | Chunk | Key columns and foreign keys |
 |---|---|---|
-| companies | 1 | name, industry, size, show_name_publicly |
+| companies | 1 | name, industry, size, show_name_publicly, tagline, about, website, logo_url, linkedin_url, founded_year, headquarters, contact_email, phone, benefits |
 | users | 1 (+4, +5) | email, password_hash, first_name, last_name, role, company_id→companies, email_verified, failed_login_count, locked_until, consent_at; +disabled_at (4); +mfa_enabled, mfa_secret_enc, mfa_pending_secret_enc (5) |
 | refresh_tokens | 1 | user_id→users, token_hash, expires_at, revoked_at |
 | password_reset_tokens | 1 | user_id→users, token_hash, expires_at, used_at |
