@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, FileText, KeyRound, LogOut, MapPin, Phone, Plus, UserCheck } from 'lucide-react';
+import { Check, FileText, KeyRound, LogOut, MapPin, Pencil, Phone, Plus, UserCheck } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { useProfile, useResume, useSkills, useAddSkill, useUpdateSkill, useDeleteSkill, useUpdateProfile } from '../queries';
 import { suggestSkills } from '../../../api/skills';
@@ -14,17 +14,18 @@ import { Markdown } from '../../../components/ui/Markdown';
 import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { Table, type Column } from '../../../components/ui/Table';
+import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 
-function SummaryTile({ label, value }: { label: string; value: ReactNode }) {
+function DetailItem({ label, value }: { label: string; value: ReactNode }) {
   const empty = value === null || value === undefined || value === '';
   return (
-    <div className="border border-border bg-bg p-3.5">
-      <div className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">{label}</div>
-      <div className="mt-1 break-words text-sm font-medium text-text">
+    <div>
+      <dt className="text-xs text-text-secondary">{label}</dt>
+      <dd className="mt-0.5 break-words text-sm font-medium text-text">
         {empty ? <span className="font-normal text-text-subtle">Not specified</span> : value}
-      </div>
+      </dd>
     </div>
   );
 }
@@ -117,7 +118,7 @@ function SkillEditor({
               aria-label="Search skills"
             />
             {options.length > 0 && (
-              <div className="absolute z-10 mt-1 w-full border border-border bg-raised">
+              <div className="absolute z-10 mt-1 w-full rounded-sm border border-border bg-raised">
                 {options.map((o) => (
                   <button
                     key={o.id}
@@ -172,6 +173,7 @@ export function ProfilePage() {
   const deleteSkill = useDeleteSkill();
   const { toast } = useToast();
 
+  const [tab, setTab] = useState<'overview' | 'edit'>('overview');
   const [phone, setPhone] = useState('');
   const [title, setTitle] = useState('');
   const [bio, setBio] = useState('');
@@ -208,6 +210,7 @@ export function ProfilePage() {
         educationLevel: educationLevel || null,
       });
       toast('Profile saved.', 'success');
+      setTab('overview');
     } catch (err) {
       toast(getApiErrorMessage(err), 'error');
     }
@@ -230,12 +233,7 @@ export function ProfilePage() {
     { header: 'Years', render: (s) => (s.years === null ? '—' : String(s.years)) },
     {
       header: 'Status',
-      render: (s) =>
-        s.verified ? (
-          <Badge status="verified" />
-        ) : (
-          <Badge tone="neutral">Self-reported</Badge>
-        ),
+      render: (s) => (s.verified ? <Badge status="verified" /> : <Badge tone="neutral">Self-reported</Badge>),
     },
     {
       header: '',
@@ -258,11 +256,10 @@ export function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Candidate Workspace</p>
-          <h1 className="mt-1 text-[28px] font-bold leading-9">Profile</h1>
-          <p className="text-text-secondary">Your personal details, experience, skills and account actions.</p>
+          <h1 className="text-[28px] font-bold leading-9">Profile</h1>
+          <p className="text-sm text-text-secondary">Your personal details, experience, skills and account actions.</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link to="/account/password">
@@ -271,62 +268,69 @@ export function ProfilePage() {
               Change password
             </Button>
           </Link>
-          <Button variant="danger" onClick={() => signOut()}>
+          <Button variant="secondary" onClick={() => signOut()}>
             <Icon icon={LogOut} size={16} />
             Sign out
           </Button>
         </div>
       </div>
 
-      {/* Complete Profile View Summary */}
-      <section className="border border-border bg-surface">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-raised px-6 py-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-border-strong bg-primary-subtle text-base font-bold text-primary-text">
-              {initials}
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2.5">
-                <h2 className="text-xl font-bold text-text">
-                  {user?.firstName} {user?.lastName}
-                </h2>
-                {profile?.title && (
-                  <span className="border border-border bg-surface px-2 py-0.5 text-xs font-medium text-primary-text">
-                    {profile.title}
-                  </span>
-                )}
-              </div>
-              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
-                {user?.email && <span>{user.email}</span>}
-                {profile?.location && (
-                  <span className="inline-flex items-center gap-1">
-                    <Icon icon={MapPin} size={13} />
-                    {profile.location}
-                  </span>
-                )}
-                {profile?.phone && (
-                  <span className="inline-flex items-center gap-1">
-                    <Icon icon={Phone} size={13} />
-                    {profile.phone}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          <Badge tone={profile?.title && profile?.location ? 'success' : 'neutral'} icon={profile?.title && profile?.location ? Check : UserCheck}>
-            {profile?.title && profile?.location ? 'Profile saved' : 'Incomplete'}
-          </Badge>
-        </div>
+      <Tabs
+        tabs={[
+          { key: 'overview', label: 'Overview' },
+          { key: 'edit', label: 'Edit details' },
+        ]}
+        active={tab}
+        onChange={(k) => setTab(k as 'overview' | 'edit')}
+      />
 
-        <div className="space-y-4 p-6">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <SummaryTile label="Full name" value={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()} />
-            <SummaryTile label="Email" value={user?.email} />
-            <SummaryTile label="Title" value={profile?.title} />
-            <SummaryTile label="Location" value={profile?.location} />
-            <SummaryTile label="Phone" value={profile?.phone} />
-            <SummaryTile label="Remote preference" value={profile?.remotePreference} />
-            <SummaryTile
+      {tab === 'overview' && (
+        <div className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-base font-bold text-primary-text">
+                {initials}
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h2 className="text-xl font-bold text-text">
+                    {user?.firstName} {user?.lastName}
+                  </h2>
+                  <Badge tone={profile?.title && profile?.location ? 'success' : 'neutral'} icon={profile?.title && profile?.location ? Check : UserCheck}>
+                    {profile?.title && profile?.location ? 'Complete' : 'Incomplete'}
+                  </Badge>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+                  {profile?.title && <span>{profile.title}</span>}
+                  {profile?.location && (
+                    <span className="inline-flex items-center gap-1">
+                      · <Icon icon={MapPin} size={13} />
+                      {profile.location}
+                    </span>
+                  )}
+                  {profile?.phone && (
+                    <span className="inline-flex items-center gap-1">
+                      · <Icon icon={Phone} size={13} />
+                      {profile.phone}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <Button variant="secondary" onClick={() => setTab('edit')}>
+              <Icon icon={Pencil} size={15} />
+              Edit details
+            </Button>
+          </div>
+
+          <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-4">
+            <DetailItem label="Full name" value={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()} />
+            <DetailItem label="Email" value={user?.email} />
+            <DetailItem label="Title" value={profile?.title} />
+            <DetailItem label="Location" value={profile?.location} />
+            <DetailItem label="Phone" value={profile?.phone} />
+            <DetailItem label="Remote preference" value={profile?.remotePreference} />
+            <DetailItem
               label="Experience"
               value={
                 profile?.totalExperienceYears !== null && profile?.totalExperienceYears !== undefined
@@ -334,62 +338,49 @@ export function ProfilePage() {
                   : null
               }
             />
-            <SummaryTile label="Education" value={profile?.educationLevel?.replace('_', ' ')} />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <SummaryTile
-              label="Resume"
+            <DetailItem label="Education" value={profile?.educationLevel?.replace('_', ' ')} />
+            <DetailItem
+              label="Current resume"
               value={
                 resume ? (
-                  <Link to="/candidate/resume" className="inline-flex items-center gap-1.5 text-primary-text underline">
+                  <Link to="/candidate/resume" className="inline-flex items-center gap-1 text-primary-text hover:underline">
                     <Icon icon={FileText} size={14} />
-                    {resume.filename} — Preview resume
+                    {resume.filename} (Preview)
                   </Link>
                 ) : (
-                  <Link to="/candidate/resume" className="text-primary-text underline">
+                  <Link to="/candidate/resume" className="text-primary-text hover:underline">
                     Upload resume
                   </Link>
                 )
               }
             />
-            <SummaryTile label="Skills count" value={`${skills?.length ?? 0} skills listed`} />
-          </div>
-          <div className="border border-border bg-bg p-4">
-            <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">Bio</div>
+          </dl>
+
+          <div className="pt-6">
+            <div className="mb-1.5 text-xs text-text-secondary">Bio</div>
             {profile?.bio ? <Markdown source={profile.bio} /> : <span className="text-sm text-text-subtle">No bio written yet.</span>}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* Edit Basics */}
-      <section className="border border-border bg-surface">
-        <div className="border-b border-border bg-raised px-6 py-3.5">
-          <h2 className="text-base font-semibold">Edit profile details</h2>
-        </div>
-        <div className="p-6">
+      {tab === 'edit' && (
+        <div className="rounded border border-border bg-surface p-6 sm:p-8">
+          <h2 className="mb-4 text-base font-semibold">Edit profile details</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                Title
-              </label>
+              <label className="mb-1 block text-xs text-text-secondary">Title</label>
               <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Backend Engineer" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                Location
-              </label>
+              <label className="mb-1 block text-xs text-text-secondary">Location</label>
               <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                Phone
-              </label>
+              <label className="mb-1 block text-xs text-text-secondary">Phone</label>
               <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+880…" />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                Remote preference
-              </label>
+              <label className="mb-1 block text-xs text-text-secondary">Remote preference</label>
               <Select value={remotePreference} onChange={(e) => setRemotePreference(e.target.value)}>
                 {REMOTE_PREFERENCES.map((r) => (
                   <option key={r} value={r}>
@@ -399,9 +390,7 @@ export function ProfilePage() {
               </Select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                Experience (years)
-              </label>
+              <label className="mb-1 block text-xs text-text-secondary">Experience (years)</label>
               <Input
                 type="number"
                 min={0}
@@ -412,9 +401,7 @@ export function ProfilePage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                Education
-              </label>
+              <label className="mb-1 block text-xs text-text-secondary">Education</label>
               <Select value={educationLevel} onChange={(e) => setEducationLevel(e.target.value)}>
                 <option value="">—</option>
                 {EDUCATION_LEVELS.map((l) => (
@@ -426,43 +413,42 @@ export function ProfilePage() {
             </div>
           </div>
           <div className="mt-4">
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-              Bio
-            </label>
+            <label className="mb-1 block text-xs text-text-secondary">Bio</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="min-h-[96px] w-full border border-border-strong bg-bg px-3 py-2 text-sm text-text placeholder:text-text-subtle"
+              className="min-h-[96px] w-full rounded-sm border border-border bg-bg px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none"
               placeholder="A short summary"
             />
           </div>
-          <div className="mt-4 flex justify-end">
+          <div className="mt-5 flex items-center gap-3">
             <Button loading={updateProfile.isPending} onClick={saveBasics}>
-              Save
+              Save changes
+            </Button>
+            <Button variant="secondary" onClick={() => setTab('overview')}>
+              Cancel
             </Button>
           </div>
         </div>
-      </section>
+      )}
 
       {/* Skills */}
-      <section className="border border-border bg-surface">
-        <div className="flex items-center justify-between border-b border-border bg-raised px-6 py-3.5">
-          <h2 className="text-base font-semibold">Skills ({skills?.length ?? 0})</h2>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Skills ({skills?.length ?? 0})</h2>
           <Button onClick={() => setEditor({ open: true, skill: null })}>
             <Icon icon={Plus} size={16} />
             Add skill
           </Button>
         </div>
-        <div className="p-6">
-          {skills && skills.length === 0 ? (
-            <div className="border border-border bg-bg p-6 text-center text-sm text-text-subtle">
-              No skills yet. Add your first skill.
-            </div>
-          ) : (
-            <Table columns={columns} rows={skills ?? []} rowKey={(s) => s.id} />
-          )}
-        </div>
-      </section>
+        {skills && skills.length === 0 ? (
+          <div className="rounded border border-border bg-surface p-8 text-center text-sm text-text-subtle">
+            No skills yet. Add your first skill.
+          </div>
+        ) : (
+          <Table columns={columns} rows={skills ?? []} rowKey={(s) => s.id} />
+        )}
+      </div>
 
       <SkillEditor open={editor.open} initial={editor.skill} onClose={() => setEditor({ open: false, skill: null })} />
 

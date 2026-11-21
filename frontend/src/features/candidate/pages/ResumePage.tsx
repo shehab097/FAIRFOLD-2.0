@@ -84,10 +84,9 @@ export function ResumePage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-border pb-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Candidate Workspace</p>
-        <h1 className="mt-1 text-[28px] font-bold leading-9">Resume</h1>
-        <p className="text-text-secondary">Upload and preview your PDF resume (English resumes only).</p>
+      <div>
+        <h1 className="text-[28px] font-bold leading-9">Resume</h1>
+        <p className="text-sm text-text-secondary">Upload and preview your PDF resume (English resumes only).</p>
       </div>
 
       {isLoading && <Skeleton className="h-40 w-full" />}
@@ -95,51 +94,47 @@ export function ResumePage() {
       {isError && !noResume && <Banner tone="error">Could not load your resume.</Banner>}
 
       {!isLoading && (
-        <section className="border border-border bg-surface p-6">
-          <button
-            type="button"
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              handleFile(e.dataTransfer.files[0]);
-            }}
-            onClick={() => inputRef.current?.click()}
-            className={
-              'flex w-full flex-col items-center justify-center gap-2.5 border border-dashed px-6 py-10 text-center ' +
-              (dragging ? 'border-primary-text bg-primary-subtle' : 'border-border-strong bg-bg hover:bg-raised')
-            }
-          >
-            <div className="flex h-10 w-10 items-center justify-center border border-border bg-surface text-primary-text">
-              <Icon icon={Upload} size={20} />
-            </div>
-            <span className="text-sm font-medium text-text">Drag and drop a PDF here, or click to browse</span>
-            <span className="text-xs text-text-subtle">PDF only · max 10 MB · English resumes</span>
-          </button>
-          <input
-            ref={inputRef}
-            type="file"
-            accept="application/pdf"
-            className="hidden"
-            onChange={(e) => {
-              handleFile(e.target.files?.[0]);
-              e.currentTarget.value = '';
-            }}
-          />
-        </section>
+        <button
+          type="button"
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            handleFile(e.dataTransfer.files[0]);
+          }}
+          onClick={() => inputRef.current?.click()}
+          className={
+            'flex w-full flex-col items-center justify-center gap-2 rounded border border-dashed px-6 py-10 text-center ' +
+            (dragging ? 'border-primary-text bg-primary-subtle' : 'border-border bg-surface hover:bg-raised')
+          }
+        >
+          <Icon icon={Upload} size={22} className="text-primary-text" />
+          <span className="text-sm font-medium text-text">Drag and drop a PDF here, or click to browse</span>
+          <span className="text-xs text-text-subtle">PDF only · max 10 MB · English resumes</span>
+        </button>
       )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={(e) => {
+          handleFile(e.target.files?.[0]);
+          e.currentTarget.value = '';
+        }}
+      />
 
       {noResume && <Banner tone="info">No resume uploaded yet. Upload one to apply to jobs.</Banner>}
 
       {resume && (
-        <section className="border border-border bg-surface">
-          <div className="flex flex-col justify-between gap-4 border-b border-border bg-raised px-6 py-4 sm:flex-row sm:items-center">
+        <div className="divide-y divide-border rounded border border-border bg-surface">
+          <div className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-bg text-primary-text">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-primary-subtle text-primary-text">
                 <Icon icon={FileText} size={20} />
               </div>
               <div>
@@ -155,11 +150,11 @@ export function ResumePage() {
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="secondary" loading={loadingPreview} onClick={togglePreview}>
                 <Icon icon={previewOpen ? EyeOff : Eye} size={16} />
-                {previewOpen ? 'Hide preview' : 'Preview resume'}
+                {previewOpen ? 'Hide preview' : 'Preview'}
               </Button>
               <Button variant="secondary" onClick={openInNewTab}>
                 <Icon icon={ExternalLink} size={16} />
-                Open in new tab
+                New tab
               </Button>
               <Button variant="secondary" onClick={() => inputRef.current?.click()}>
                 Replace
@@ -172,11 +167,11 @@ export function ResumePage() {
               <iframe
                 src={previewUrl}
                 title={resume.filename ?? 'Resume preview'}
-                className="h-[720px] w-full border border-border bg-bg"
+                className="h-[720px] w-full rounded-sm border border-border bg-bg"
               />
             </div>
           )}
-        </section>
+        </div>
       )}
     </div>
   );

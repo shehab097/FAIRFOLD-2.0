@@ -1,21 +1,22 @@
 import { Link } from 'react-router-dom';
 
 /**
- * FairFold brand mark per design.md §4:
- * A solid purple square with one corner cut off diagonally in coral (a straight fold).
+ * Clean FairFold brand mark & wordmark:
+ * Rounded purple square with a folded coral corner and crisp 'F' monogram.
  */
 export function Logo({ to = '/', subtitle }: { to?: string; subtitle?: string }) {
   return (
     <Link to={to} className="inline-flex items-center gap-2.5 text-text hover:text-primary-text">
-      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" className="shrink-0">
-        <polygon points="0,0 18,0 26,8 26,26 0,26" className="fill-primary" />
-        <polygon points="18,0 26,0 26,8" className="fill-accent" />
-        <polygon points="18,0 18,8 26,8" className="fill-primary-pressed" />
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true" className="shrink-0">
+        <rect width="32" height="32" rx="7" className="fill-primary" />
+        <path d="M22 0H25C28.866 0 32 3.13401 32 7V10L22 0Z" className="fill-accent" />
+        <path d="M22 0V7C22 8.65685 23.3431 10 25 10H32L22 0Z" className="fill-primary-pressed" />
+        <path d="M9 8H20V11.5H12.5V14.8H18.5V18.2H12.5V24H9V8Z" className="fill-text" />
       </svg>
-      <span className="flex items-baseline gap-2">
-        <span className="text-xl font-bold leading-6 tracking-tight text-text">FairFold</span>
+      <span className="flex items-center gap-2">
+        <span className="text-lg font-bold tracking-tight text-text">FairFold</span>
         {subtitle && (
-          <span className="border border-border bg-raised px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-text">
+          <span className="rounded-sm bg-primary-subtle px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-primary-text">
             {subtitle}
           </span>
         )}
@@ -23,4 +24,3 @@ export function Logo({ to = '/', subtitle }: { to?: string; subtitle?: string })
     </Link>
   );
 }
-

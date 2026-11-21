@@ -64,8 +64,8 @@ export function MarkdownEditor({ id, value, onChange, rows = 10, required, error
   }
 
   return (
-    <div className={error ? 'border border-accent' : 'border border-border-strong'}>
-      <div className="flex flex-wrap gap-1 border-b border-border bg-raised p-1" role="toolbar" aria-label="Formatting">
+    <div className={error ? 'rounded border border-accent overflow-hidden' : 'rounded border border-border overflow-hidden'}>
+      <div className="flex flex-wrap gap-1 border-b border-border bg-bg px-2 py-1" role="toolbar" aria-label="Formatting">
         {TOOLS.map((t) => (
           <button
             key={t.label}

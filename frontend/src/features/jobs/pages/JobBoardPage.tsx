@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Briefcase, Building2, MapPin, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
+import { Briefcase, Building2, MapPin, RotateCcw, Search } from 'lucide-react';
 import { useJobs } from '../queries';
 import { EXPERIENCE_LEVELS, type ExperienceLevel } from '../types';
 import { Banner } from '../../../components/ui/Banner';
@@ -67,43 +67,42 @@ export function JobBoardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-2 border-b border-border pb-4 sm:flex-row sm:items-end">
+      <div className="flex flex-col justify-between gap-1 sm:flex-row sm:items-end">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">Job Board</p>
-          <h1 className="mt-1 text-[28px] font-bold leading-9">Browse jobs</h1>
-          <p className="text-text-secondary">Explore open roles with transparent, evidence-based evaluation.</p>
+          <h1 className="text-[28px] font-bold leading-9">Browse jobs</h1>
+          <p className="text-sm text-text-secondary">Explore open roles with transparent, evidence-based evaluation.</p>
         </div>
         {data && (
-          <div className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-            {data.totalItems} {data.totalItems === 1 ? 'role' : 'roles'} found
+          <div className="text-sm text-text-secondary">
+            {data.totalItems} {data.totalItems === 1 ? 'role' : 'roles'} available
           </div>
         )}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
         {/* Left column: Job results */}
         <div className="order-2 space-y-4 lg:order-1">
           {hasFilters && (
-            <div className="flex flex-wrap items-center justify-between gap-2 border border-border bg-surface px-4 py-2.5 text-xs">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-semibold uppercase tracking-[0.06em] text-text-secondary">Active filters:</span>
-                {qParam && <span className="border border-border bg-raised px-2 py-0.5 text-text">Keyword: “{qParam}”</span>}
-                {locationParam && <span className="border border-border bg-raised px-2 py-0.5 text-text">Location: {locationParam}</span>}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-secondary">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span>Filtered by:</span>
+                {qParam && <span className="rounded-sm bg-surface px-2 py-1 text-text">“{qParam}”</span>}
+                {locationParam && <span className="rounded-sm bg-surface px-2 py-1 text-text">{locationParam}</span>}
                 {remoteParam && (
-                  <span className="border border-border bg-raised px-2 py-0.5 text-text">
+                  <span className="rounded-sm bg-surface px-2 py-1 text-text">
                     {remoteParam === 'true' ? 'Remote' : 'On-site'}
                   </span>
                 )}
                 {levelParam && (
-                  <span className="border border-border bg-raised px-2 py-0.5 capitalize text-text">Level: {levelParam}</span>
+                  <span className="rounded-sm bg-surface px-2 py-1 capitalize text-text">{levelParam}</span>
                 )}
               </div>
               <button
                 type="button"
                 onClick={resetFilters}
-                className="font-semibold text-primary-text hover:underline"
+                className="font-medium text-primary-text hover:underline"
               >
-                Clear all
+                Clear filters
               </button>
             </div>
           )}
@@ -111,7 +110,7 @@ export function JobBoardPage() {
           {isLoading && (
             <div className="space-y-3">
               {[0, 1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-28 w-full" />
+                <Skeleton key={i} className="h-24 w-full" />
               ))}
             </div>
           )}
@@ -126,10 +125,8 @@ export function JobBoardPage() {
           )}
 
           {!isLoading && !isError && data && data.items.length === 0 && (
-            <div className="border border-border bg-surface p-10 text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center border border-border bg-raised text-text-secondary">
-                <Icon icon={Briefcase} size={22} />
-              </div>
+            <div className="rounded bg-surface p-10 text-center">
+              <Icon icon={Briefcase} size={24} className="mx-auto mb-2 text-text-subtle" />
               <p className="text-sm font-medium text-text">No jobs match your search.</p>
               <p className="mt-1 text-xs text-text-secondary">Try broadening your keywords or clearing active filters.</p>
               {hasFilters && (
@@ -143,12 +140,12 @@ export function JobBoardPage() {
           )}
 
           {!isLoading && !isError && data && data.items.length > 0 && (
-            <div className="divide-y divide-border border border-border bg-surface">
+            <div className="divide-y divide-border overflow-hidden rounded border border-border bg-surface">
               {data.items.map((job) => (
                 <Link
                   key={job.id}
                   to={`/jobs/${job.id}`}
-                  className="block border-l-[3px] border-l-transparent p-5 hover:border-l-primary hover:bg-raised"
+                  className="block p-5 hover:bg-raised"
                 >
                   <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
                     <div className="min-w-0">
@@ -165,17 +162,17 @@ export function JobBoardPage() {
                         </span>
                       </div>
                     </div>
-                    <span className="shrink-0 text-xs text-text-subtle">Posted {formatDate(job.publishedAt)}</span>
+                    <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="border border-border bg-primary-subtle px-2 py-0.5 text-xs font-semibold uppercase tracking-[0.06em] text-primary-text">
+                    <span className="rounded-sm bg-primary-subtle px-2 py-0.5 text-xs font-medium capitalize text-primary-text">
                       {job.experienceLevel}
                     </span>
-                    <span className="border border-border bg-bg px-2 py-0.5 text-xs text-text-secondary">
+                    <span className="rounded-sm bg-bg px-2 py-0.5 text-xs text-text-secondary">
                       {job.remote ? 'Remote' : 'On-site'}
                     </span>
                     {job.topSkills.map((s) => (
-                      <span key={s} className="border border-border bg-raised px-2 py-0.5 text-xs text-text">
+                      <span key={s} className="rounded-sm bg-bg px-2 py-0.5 text-xs text-text-secondary">
                         {s}
                       </span>
                     ))}
@@ -186,7 +183,7 @@ export function JobBoardPage() {
           )}
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between border border-border bg-surface px-4 py-3">
+            <div className="flex items-center justify-between pt-2">
               <Button variant="secondary" disabled={page === 0} onClick={() => applyParams({ page: page - 1 })}>
                 Previous
               </Button>
@@ -202,12 +199,9 @@ export function JobBoardPage() {
 
         {/* Right column: Sticky Search & Filter Sidebar */}
         <aside className="order-1 lg:order-2 lg:sticky lg:top-20 lg:self-start">
-          <form onSubmit={onSubmit} className="border border-border bg-surface">
-            <div className="flex items-center justify-between border-b border-border bg-raised px-5 py-3.5">
-              <div className="flex items-center gap-2">
-                <Icon icon={SlidersHorizontal} size={16} className="text-primary-text" />
-                <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text">Search & Filters</h2>
-              </div>
+          <form onSubmit={onSubmit} className="space-y-4 rounded border border-border bg-surface p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-text">Filter roles</h2>
               {hasFilters && (
                 <button
                   type="button"
@@ -220,73 +214,69 @@ export function JobBoardPage() {
               )}
             </div>
 
-            <div className="space-y-4 p-5">
-              <div>
-                <label htmlFor="job-search-q" className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                  Keywords
-                </label>
-                <Input
-                  id="job-search-q"
-                  name="q"
-                  value={qInput}
-                  onChange={(e) => setQInput(e.target.value)}
-                  placeholder="Title, skill or keyword"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="job-search-loc" className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                  Location
-                </label>
-                <Input
-                  id="job-search-loc"
-                  name="location"
-                  value={locationInput}
-                  onChange={(e) => setLocationInput(e.target.value)}
-                  placeholder="City or country"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="job-search-remote" className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                  Work type
-                </label>
-                <Select
-                  id="job-search-remote"
-                  value={remoteParam}
-                  onChange={(e) => applyParams({ remote: e.target.value, page: 0 })}
-                >
-                  <option value="">Any work type</option>
-                  <option value="true">Remote only</option>
-                  <option value="false">On-site / Hybrid</option>
-                </Select>
-              </div>
-
-              <div>
-                <label htmlFor="job-search-level" className="mb-1 block text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-                  Experience level
-                </label>
-                <Select
-                  id="job-search-level"
-                  value={levelParam}
-                  onChange={(e) => applyParams({ level: e.target.value, page: 0 })}
-                >
-                  <option value="">Any experience level</option>
-                  {EXPERIENCE_LEVELS.map((l) => (
-                    <option key={l} value={l}>
-                      {l}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-
-              <div className="pt-1">
-                <Button type="submit" className="w-full">
-                  <Icon icon={Search} size={16} />
-                  Search jobs
-                </Button>
-              </div>
+            <div>
+              <label htmlFor="job-search-q" className="mb-1 block text-xs text-text-secondary">
+                Keywords
+              </label>
+              <Input
+                id="job-search-q"
+                name="q"
+                value={qInput}
+                onChange={(e) => setQInput(e.target.value)}
+                placeholder="Title, skill or keyword"
+              />
             </div>
+
+            <div>
+              <label htmlFor="job-search-loc" className="mb-1 block text-xs text-text-secondary">
+                Location
+              </label>
+              <Input
+                id="job-search-loc"
+                name="location"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                placeholder="City or country"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="job-search-remote" className="mb-1 block text-xs text-text-secondary">
+                Work type
+              </label>
+              <Select
+                id="job-search-remote"
+                value={remoteParam}
+                onChange={(e) => applyParams({ remote: e.target.value, page: 0 })}
+              >
+                <option value="">Any work type</option>
+                <option value="true">Remote only</option>
+                <option value="false">On-site / Hybrid</option>
+              </Select>
+            </div>
+
+            <div>
+              <label htmlFor="job-search-level" className="mb-1 block text-xs text-text-secondary">
+                Experience level
+              </label>
+              <Select
+                id="job-search-level"
+                value={levelParam}
+                onChange={(e) => applyParams({ level: e.target.value, page: 0 })}
+              >
+                <option value="">Any experience level</option>
+                {EXPERIENCE_LEVELS.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <Button type="submit" className="w-full">
+              <Icon icon={Search} size={16} />
+              Search
+            </Button>
           </form>
         </aside>
       </div>
