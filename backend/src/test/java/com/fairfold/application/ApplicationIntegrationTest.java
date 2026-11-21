@@ -10,6 +10,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,6 +53,33 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
 
         assertEquals(1, notificationsOfType(candidate.userId(), "application_submitted"));
         assertEquals(1, notificationsOfType(employerUserId(employer.companyId()), "application_received"));
+    }
+
+    @Test
+    void Fr023_candidate_application_includes_public_company_id() throws Exception {
+        TestEmployer employer = registerEmployer("hr@acme.com");
+        mockMvc.perform(put("/api/employer/company")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Acme Corp","industry":"Software","size":"11-50","showNamePublicly":true}
+                                """))
+                .andExpect(status().isOk());
+        UUID jobId = createActiveJob(employer.token());
+        TestUser candidate = registerUser("cand@example.com", "candidate");
+        insertResume(candidate.userId());
+
+        mockMvc.perform(post("/api/jobs/" + jobId + "/applications")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(candidate.token())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.companyName").value("Acme Corp"))
+                .andExpect(jsonPath("$.companyId").value(employer.companyId().toString()));
+
+        mockMvc.perform(get("/api/candidate/applications")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(candidate.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].companyName").value("Acme Corp"))
+                .andExpect(jsonPath("$.items[0].companyId").value(employer.companyId().toString()));
     }
 
     @Test

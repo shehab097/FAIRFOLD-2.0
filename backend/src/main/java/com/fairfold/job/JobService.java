@@ -50,16 +50,22 @@ public class JobService {
 
     @Transactional(readOnly = true)
     public PageResponse<PublicJobListItem> searchPublic(String q, String location, String country,
-                                                         BigDecimal salaryMin, BigDecimal salaryMax,
+                                                         UUID companyId, BigDecimal salaryMin, BigDecimal salaryMax,
                                                          Boolean remote, String level, Pageable pageable) {
         String query = q == null ? "" : q.trim();
         String qEscaped = escapeLike(query);
         String levelParam = normalize(level);
         String locationParam = normalize(location);
         String countryParam = normalize(country);
+        String companyParam = companyId == null ? null : companyId.toString();
+
+        if (companyId != null && companyRepository.findById(companyId)
+                .filter(Company::isShowNamePublicly).isEmpty()) {
+            return PageResponse.of(List.of(), pageable.getPageNumber(), pageable.getPageSize(), 0);
+        }
 
         Page<Job> page = jobRepository.searchActive(
-                query, qEscaped, locationParam, countryParam, salaryMin, salaryMax,
+                query, qEscaped, locationParam, countryParam, companyParam, salaryMin, salaryMax,
                 remote, levelParam, pageable);
         return PageResponse.of(
                 page.getContent().stream().map(this::toPublicListItem).toList(),
@@ -380,6 +386,7 @@ public class JobService {
                 job.getId(), job.getTitle(), job.getCity(), job.getCountry(), job.isRemote(),
                 job.getExperienceLevel(), topSkills, job.getPublishedAt(),
                 company == null ? null : company.getName(),
+                company == null ? null : company.getId(),
                 company == null ? null : company.getLogoUrl(),
                 job.getSalaryType(), job.getSalaryMin(), job.getSalaryMax(),
                 job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable());
@@ -401,6 +408,7 @@ public class JobService {
                 job.getCity(), job.getAddress(), job.getCountry(), job.isRemote(), job.getExperienceLevel(),
                 required, niceToHave, job.getPublishedAt(),
                 company == null ? null : company.getName(),
+                company == null ? null : company.getId(),
                 company == null ? null : company.getLogoUrl(),
                 job.getSalaryType(), job.getSalaryMin(), job.getSalaryMax(),
                 job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable());

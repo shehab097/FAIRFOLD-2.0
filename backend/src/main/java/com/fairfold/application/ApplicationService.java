@@ -141,10 +141,12 @@ public class ApplicationService {
     // --- helpers -----------------------------------------------------------
 
     private CandidateApplicationListItem toListItem(Application application, Job job) {
-        String companyName = job == null ? null : resolveCompanyName(job.getCompanyId());
+        Company company = job == null ? null : resolvePublicCompany(job.getCompanyId());
         return new CandidateApplicationListItem(
                 application.getId(), application.getJobId(),
-                job == null ? null : job.getTitle(), companyName,
+                job == null ? null : job.getTitle(),
+                company == null ? null : company.getName(),
+                company == null ? null : company.getId(),
                 application.getStatus().name(), application.getCreatedAt());
     }
 
@@ -154,9 +156,12 @@ public class ApplicationService {
                 .map(h -> new CandidateApplicationDetail.HistoryEntry(
                         h.getToStatus().name(), h.getCreatedAt()))
                 .toList();
+        Company company = resolvePublicCompany(job.getCompanyId());
         return new CandidateApplicationDetail(
                 application.getId(), application.getJobId(), job.getTitle(),
-                resolveCompanyName(job.getCompanyId()), job.getCity(), job.getCountry(),
+                company == null ? null : company.getName(),
+                company == null ? null : company.getId(),
+                job.getCity(), job.getCountry(),
                 application.getStatus().name(), application.getCreatedAt(), history);
     }
 
@@ -169,10 +174,9 @@ public class ApplicationService {
                 .collect(Collectors.toMap(Job::getId, Function.identity()));
     }
 
-    private String resolveCompanyName(UUID companyId) {
+    private Company resolvePublicCompany(UUID companyId) {
         return companyRepository.findById(companyId)
                 .filter(Company::isShowNamePublicly)
-                .map(Company::getName)
                 .orElse(null);
     }
 

@@ -32,6 +32,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
                    OR LOWER(j.city) LIKE CONCAT('%', LOWER(:location), '%')
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
               AND (:country IS NULL OR LOWER(j.country) = LOWER(:country))
+              AND (:companyId IS NULL OR j.company_id = :companyId)
               AND (:salaryMin IS NULL OR (
                   j.salary_type <> 'negotiable'
                   AND COALESCE(j.salary_max, j.salary_min) >= :salaryMin
@@ -58,6 +59,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
                    OR LOWER(j.city) LIKE CONCAT('%', LOWER(:location), '%')
                    OR LOWER(j.country) LIKE CONCAT('%', LOWER(:location), '%'))
               AND (:country IS NULL OR LOWER(j.country) = LOWER(:country))
+              AND (:companyId IS NULL OR j.company_id = :companyId)
               AND (:salaryMin IS NULL OR (
                   j.salary_type <> 'negotiable'
                   AND COALESCE(j.salary_max, j.salary_min) >= :salaryMin
@@ -80,6 +82,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
             @Param("qEscaped") String qEscaped,
             @Param("location") String location,
             @Param("country") String country,
+            @Param("companyId") String companyId,
             @Param("salaryMin") BigDecimal salaryMin,
             @Param("salaryMax") BigDecimal salaryMax,
             @Param("remote") Boolean remote,

@@ -234,6 +234,7 @@ Application transitions (anything else returns 409; every change writes `applica
 |---|---|---|---|---|
 | P01 | Jobs (browse) | `/jobs` | Everyone | 1 |
 | P02 | Job detail | `/jobs/:jobId` | Everyone | 1 |
+| P02a | Public company profile | `/companies/:companyId` | Everyone | 1 |
 
 `/` is a role-aware landing route: signed-in users are redirected to their dashboard (candidate `/candidate`, employer `/employer`, interviewer `/employer/interviews`, admin `/admin`); guests are redirected to `/jobs`.
 | P03 | Login (+ MFA code step) | `/login` | Guest | 1, 5 |

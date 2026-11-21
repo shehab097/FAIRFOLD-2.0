@@ -5,6 +5,7 @@ import com.fairfold.common.storage.ImageTypeDetector;
 import com.fairfold.common.storage.StorageService;
 import com.fairfold.company.dto.CompanyProfileRequest;
 import com.fairfold.company.dto.CompanyProfileResponse;
+import com.fairfold.company.dto.PublicCompanyProfile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,18 @@ public class CompanyService {
     @Transactional(readOnly = true)
     public CompanyProfileResponse get(UUID companyId) {
         return toResponse(load(companyId));
+    }
+
+    @Transactional(readOnly = true)
+    public PublicCompanyProfile getPublic(UUID companyId) {
+        Company company = companyRepository.findById(companyId)
+                .filter(Company::isShowNamePublicly)
+                .orElseThrow(() -> ApiException.notFound("COMPANY_NOT_FOUND", "Company not found."));
+        return new PublicCompanyProfile(
+                company.getId(), company.getName(), company.getIndustry(), company.getSize(),
+                company.getTagline(), company.getAbout(), company.getWebsite(), company.getLogoUrl(),
+                company.getLinkedinUrl(), company.getFoundedYear(), company.getHeadquarters(),
+                company.getBenefits());
     }
 
     @Transactional

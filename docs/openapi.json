@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8090",
+            "url": "http://localhost:8080",
             "description": "Generated server url"
         }
     ],
@@ -1208,6 +1208,15 @@
                         }
                     },
                     {
+                        "name": "companyId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
                         "name": "salaryMin",
                         "in": "query",
                         "required": false,
@@ -1356,6 +1365,38 @@
                 }
             }
         },
+        "/api/companies/{id}": {
+            "get": {
+                "tags": [
+                    "Companies"
+                ],
+                "summary": "Get a public company profile",
+                "operationId": "get_3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicCompanyProfile"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/companies/logo/{storageKey}": {
             "get": {
                 "tags": [
@@ -1476,7 +1517,7 @@
                     "Applications"
                 ],
                 "summary": "Get one application with its status history",
-                "operationId": "get_3",
+                "operationId": "get_4",
                 "parameters": [
                     {
                         "name": "id",
@@ -1998,6 +2039,10 @@
                     "companyName": {
                         "type": "string"
                     },
+                    "companyId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
                     "city": {
                         "type": "string"
                     },
@@ -2353,6 +2398,10 @@
                     "companyName": {
                         "type": "string"
                     },
+                    "companyId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
                     "companyLogoUrl": {
                         "type": "string"
                     },
@@ -2441,6 +2490,10 @@
                     },
                     "companyName": {
                         "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "companyLogoUrl": {
                         "type": "string"
@@ -2581,6 +2634,49 @@
                     }
                 }
             },
+            "PublicCompanyProfile": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "industry": {
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "string"
+                    },
+                    "tagline": {
+                        "type": "string"
+                    },
+                    "about": {
+                        "type": "string"
+                    },
+                    "website": {
+                        "type": "string"
+                    },
+                    "logoUrl": {
+                        "type": "string"
+                    },
+                    "linkedinUrl": {
+                        "type": "string"
+                    },
+                    "foundedYear": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "headquarters": {
+                        "type": "string"
+                    },
+                    "benefits": {
+                        "type": "string"
+                    }
+                }
+            },
             "Checklist": {
                 "type": "object",
                 "properties": {
@@ -2647,6 +2743,10 @@
                     },
                     "companyName": {
                         "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string",
+                        "format": "uuid"
                     },
                     "status": {
                         "type": "string"

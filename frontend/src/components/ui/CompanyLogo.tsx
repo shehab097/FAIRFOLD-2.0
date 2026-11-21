@@ -5,6 +5,7 @@ const SIZES = {
   sm: 'h-8 w-8 rounded-lg text-[11px]',
   md: 'h-10 w-10 rounded-lg text-sm',
   lg: 'h-14 w-14 rounded-xl text-base',
+  xl: 'h-20 w-20 rounded-2xl text-xl',
 } as const;
 
 interface CompanyLogoProps {

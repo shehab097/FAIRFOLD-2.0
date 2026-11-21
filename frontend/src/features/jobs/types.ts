@@ -22,6 +22,7 @@ export interface PublicJobListItem extends SalaryFields {
   topSkills: string[];
   publishedAt: string;
   companyName: string | null;
+  companyId: string | null;
   companyLogoUrl: string | null;
 }
 
@@ -39,7 +40,25 @@ export interface PublicJobDetail extends SalaryFields {
   niceToHaveSkills: string[];
   publishedAt: string;
   companyName: string | null;
+  companyId: string | null;
   companyLogoUrl: string | null;
+}
+
+export interface PublicCompanyProfile {
+  id: string;
+  name: string | null;
+  industry: string | null;
+  size: string | null;
+  tagline: string | null;
+  /** Markdown */
+  about: string | null;
+  website: string | null;
+  logoUrl: string | null;
+  linkedinUrl: string | null;
+  foundedYear: number | null;
+  headquarters: string | null;
+  /** Markdown */
+  benefits: string | null;
 }
 
 export interface EmployerJobListItem {
@@ -97,6 +116,7 @@ export interface JobFilters {
   q?: string;
   location?: string;
   country?: string;
+  companyId?: string;
   salaryMin?: number;
   salaryMax?: number;
   remote?: boolean;

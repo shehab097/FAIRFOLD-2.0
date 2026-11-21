@@ -167,6 +167,7 @@ Priority: Must, Should, Could. Phase: P1 to P4 (section 7). Each acceptance crit
 | ID | Requirement | Priority | Phase | Acceptance criteria |
 |---|---|---|---|---|
 | REQ-FR-042 | Job browse, search and public link | Must | P1 | Anyone, including guests, sees active jobs newest first. Keyword search over title, description and skills. Filters for location, remote and experience level. Pagination. The company name is hidden unless the employer opted in. Every active job has a stable public URL that the employer can copy. |
+| REQ-FR-064 | Public company profile | Must | P1 | When an employer enables “show name publicly”, candidates and guests can open a public company page from the company name on job cards, job details and application rows. The page shows the company logo, name, tagline, industry, size, headquarters, founded year, website, LinkedIn, about and benefits, plus the company's active jobs. Companies that hide their name have no public page (404), are not linked, and cannot be used as a `companyId` job filter. |
 | REQ-FR-043 | Messaging | Should | P3 | After shortlist (BR-14), candidate and employer can message inside the application thread. Messages are never sent to AI. When a user is deleted, their messages are blanked, not removed, for the other side. |
 
 ### 4.5 Administration and compliance

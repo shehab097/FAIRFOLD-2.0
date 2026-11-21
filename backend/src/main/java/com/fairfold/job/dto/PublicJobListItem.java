@@ -19,6 +19,7 @@ public record PublicJobListItem(
         List<String> topSkills,
         Instant publishedAt,
         String companyName,
+        UUID companyId,
         String companyLogoUrl,
         SalaryType salaryType,
         BigDecimal salaryMin,

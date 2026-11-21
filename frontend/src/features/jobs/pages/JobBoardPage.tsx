@@ -180,48 +180,61 @@ export function JobBoardPage() {
           {!isLoading && !isError && data && data.items.length > 0 && (
             <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
               {data.items.map((job) => (
-                <Link
-                  key={job.id}
-                  to={`/jobs/${job.id}`}
-                  className="block p-5 transition-colors hover:bg-raised"
-                >
-                  <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
-                    <div className="flex min-w-0 items-start gap-3">
-                      <CompanyLogo name={job.companyName} logoUrl={job.companyLogoUrl} size="md" />
-                      <div className="min-w-0">
-                        <h2 className="text-base font-semibold text-text">{job.title}</h2>
-                        <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
-                          <span className="inline-flex items-center gap-1.5">
-                            <Icon icon={Building2} size={14} />
-                            {job.companyName ?? 'Confidential company'}
-                          </span>
-                          <span className="inline-flex items-center gap-1.5">
-                            <Icon icon={MapPin} size={14} />
-                            {job.city ? `${job.city}, ` : ''}
-                            {job.country}
-                          </span>
+                <div key={job.id} className="relative p-5 transition-colors hover:bg-raised">
+                  <Link
+                    to={`/jobs/${job.id}`}
+                    className="absolute inset-0 z-0"
+                    aria-label={`View ${job.title}`}
+                  />
+                  <div className="pointer-events-none relative z-10">
+                    <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <CompanyLogo name={job.companyName} logoUrl={job.companyLogoUrl} size="md" />
+                        <div className="min-w-0">
+                          <h2 className="text-base font-semibold text-text">{job.title}</h2>
+                          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
+                            {job.companyId ? (
+                              <Link
+                                to={`/companies/${job.companyId}`}
+                                className="pointer-events-auto inline-flex items-center gap-1.5 text-primary-text hover:underline"
+                              >
+                                <Icon icon={Building2} size={14} />
+                                {job.companyName ?? 'Company'}
+                              </Link>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5">
+                                <Icon icon={Building2} size={14} />
+                                {job.companyName ?? 'Confidential company'}
+                              </span>
+                            )}
+                            <span className="inline-flex items-center gap-1.5">
+                              <Icon icon={MapPin} size={14} />
+                              {job.city ? `${job.city}, ` : ''}
+                              {job.country}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
                     </div>
-                    <span className="shrink-0 text-xs text-text-subtle">{formatDate(job.publishedAt)}</span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2 pl-[52px]">
-                    <span className="rounded-md bg-success-subtle px-2.5 py-0.5 text-xs font-medium text-success">
-                      {formatSalary(job)}
-                    </span>
-                    <span className="rounded-md bg-info-subtle px-2.5 py-0.5 text-xs font-medium text-info">
-                      {EXPERIENCE_LABELS[job.experienceLevel]}
-                    </span>
-                    <span className="rounded-md bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">
-                      {job.remote ? 'Remote' : 'On-site'}
-                    </span>
-                    {job.topSkills.slice(0, 2).map((s) => (
-                      <span key={s} className="rounded-md bg-raised px-2.5 py-0.5 text-xs text-text-secondary">
-                        {s}
+                    <div className="mt-3 flex flex-wrap items-center gap-2 pl-[52px]">
+                      <span className="rounded-md bg-success-subtle px-2.5 py-0.5 text-xs font-medium text-success">
+                        {formatSalary(job)}
                       </span>
-                    ))}
+                      <span className="rounded-md bg-info-subtle px-2.5 py-0.5 text-xs font-medium text-info">
+                        {EXPERIENCE_LABELS[job.experienceLevel]}
+                      </span>
+                      <span className="rounded-md bg-warning-subtle px-2.5 py-0.5 text-xs font-medium text-warning">
+                        {job.remote ? 'Remote' : 'On-site'}
+                      </span>
+                      {job.topSkills.slice(0, 2).map((s) => (
+                        <span key={s} className="rounded-md bg-raised px-2.5 py-0.5 text-xs text-text-secondary">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}

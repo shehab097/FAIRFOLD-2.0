@@ -1,5 +1,6 @@
 package com.fairfold.company;
 
+import com.fairfold.company.dto.PublicCompanyProfile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.CacheControl;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -21,6 +23,12 @@ public class PublicCompanyController {
 
     public PublicCompanyController(CompanyService companyService) {
         this.companyService = companyService;
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a public company profile")
+    public PublicCompanyProfile get(@PathVariable("id") UUID id) {
+        return companyService.getPublic(id);
     }
 
     @GetMapping("/logo/{storageKey}")

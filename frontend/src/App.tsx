@@ -11,6 +11,7 @@ import { ForgotPasswordPage } from './features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './features/auth/pages/ResetPasswordPage';
 import { JobBoardPage } from './features/jobs/pages/JobBoardPage';
 import { JobDetailPage } from './features/jobs/pages/JobDetailPage';
+import { CompanyProfilePage } from './features/companies/pages/CompanyProfilePage';
 import { CompanyPage } from './features/employer/pages/CompanyPage';
 import { JobsPage } from './features/employer/pages/JobsPage';
 import { JobEditorPage } from './features/employer/pages/JobEditorPage';
@@ -32,6 +33,7 @@ export default function App() {
       <Route element={<PublicShell />}>
         <Route path="/jobs" element={<JobBoardPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailPage />} />
+        <Route path="/companies/:companyId" element={<CompanyProfilePage />} />
       </Route>
 
       <Route

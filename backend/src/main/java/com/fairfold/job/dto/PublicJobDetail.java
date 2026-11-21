@@ -23,6 +23,7 @@ public record PublicJobDetail(
         List<String> niceToHaveSkills,
         Instant publishedAt,
         String companyName,
+        UUID companyId,
         String companyLogoUrl,
         SalaryType salaryType,
         BigDecimal salaryMin,

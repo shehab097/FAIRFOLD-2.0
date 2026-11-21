@@ -33,12 +33,13 @@ public class JobController {
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String country,
+            @RequestParam(required = false) UUID companyId,
             @RequestParam(required = false) BigDecimal salaryMin,
             @RequestParam(required = false) BigDecimal salaryMax,
             @RequestParam(required = false) Boolean remote,
             @RequestParam(required = false) String level,
             @PageableDefault(size = 20) Pageable pageable) {
-        return jobService.searchPublic(q, location, country, salaryMin, salaryMax, remote, level, pageable);
+        return jobService.searchPublic(q, location, country, companyId, salaryMin, salaryMax, remote, level, pageable);
     }
 
     @GetMapping("/{id}")

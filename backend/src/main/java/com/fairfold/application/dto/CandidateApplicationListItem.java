@@ -8,6 +8,7 @@ public record CandidateApplicationListItem(
         UUID jobId,
         String jobTitle,
         String companyName,
+        UUID companyId,
         String status,
         Instant appliedAt
 ) {

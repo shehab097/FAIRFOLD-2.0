@@ -153,7 +153,8 @@ Short description in text-secondary
 | Type | Pages | Pattern |
 |---|---|---|
 | Browse | P01 (`/jobs`) | Two-column layout (`lg:grid-cols-[minmax(0,1fr)_280px]`): job results list on the left inside a `rounded-xl` `divide-y` card, and a sticky search & filter sidebar (`lg:sticky lg:top-20`) on the right. Active filter chips appear above results with a quick "Clear filters" action. Each job card shows salary (green `success` badge), experience level (blue `info` badge, with `entry` labelled **Junior**), work mode (amber `warning` badge) and **at most two** neutral `raised` skill chips. |
-| Public detail | P02 | Two columns: Markdown job description/requirements and skill chips on the left, sticky summary and Apply card on the right. |
+| Public detail | P02 | Two columns: Markdown job description/requirements and skill chips on the left, sticky summary and Apply card on the right. Company name links to the public company page when `showNamePublicly` is enabled. |
+| Company profile | P02a (`/companies/:companyId`) | Public company header (logo, name, tagline), facts row (industry, size, HQ, founded year, website, LinkedIn), Markdown About/Benefits, and the company’s active jobs. Company names are primary-text links on job cards/details/applications; the job detail sidebar also has a **View company profile** button. Hidden companies return 404 and are never linked. |
 | Auth | P03 to P08 | AuthShell with `ThemeToggle`. |
 | Dashboard | P12, P20, P31 | Row of stat blocks (4 across, 2 on tablet, 1 on mobile), each a rounded `surface` block with a big tabular number, a label and a link; below them lists. |
 | List | P09, P15, P17, P22, P26, P32, P33, P34 | Page header, filter bar, `rounded-xl` table, pagination. |
@@ -251,6 +252,7 @@ export const SERIES = ['#845EC2', '#FF8066', '#B0A8B9', '#C34A36'];
 - Icons are `text-secondary` by default and take the text colour of their context.
 - No stock photos or illustrations. Candidates and EMPLOYER_HR users may upload an optional profile photo (`UserAvatar`/`ProfilePhotoCard`). Uploads are normalized server-side to a **480×480 WebP** image (center-cropped 1:1) before storage. The photo is private to the signed-in user: it appears in their own portal avatar and account page, and is never included in employer-facing application/job DTOs, preserving the anonymised-screening fairness rule.
 - Company logos show in a square frame (`CompanyLogo`) beside the job title on Browse Jobs and the job detail page, and in the company profile header. When a company hides its name (`showNamePublicly = false`) the logo is hidden too; the component falls back to company initials or a `Building2` icon.
+- Public company names are primary-text links to `/companies/{companyId}` on job cards, job details, applications and application detail. The job detail sidebar also has a **View company profile** button.
 
 ## 11. Fairness patterns
 

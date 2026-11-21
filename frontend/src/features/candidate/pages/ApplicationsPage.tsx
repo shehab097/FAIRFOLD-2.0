@@ -50,9 +50,27 @@ export function ApplicationsPage() {
         </Link>
       ),
     },
-    { header: 'Company', render: (a) => a.companyName ?? 'Confidential' },
+    {
+      header: 'Company',
+      render: (a) =>
+        a.companyId ? (
+          <Link to={`/companies/${a.companyId}`} className="text-primary-text hover:underline">
+            {a.companyName ?? 'Company'}
+          </Link>
+        ) : (
+          a.companyName ?? 'Confidential'
+        ),
+    },
     { header: 'Status', render: (a) => <Badge status={a.status} /> },
     { header: 'Applied', render: (a) => formatDate(a.appliedAt) },
+    {
+      header: 'Job details',
+      render: (a) => (
+        <Link to={`/jobs/${a.jobId}`} className="text-primary-text hover:underline">
+          View job details
+        </Link>
+      ),
+    },
   ];
 
   const totalPages = data?.totalPages ?? 0;

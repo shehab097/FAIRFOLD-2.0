@@ -82,7 +82,44 @@ class PublicJobBoardIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/jobs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].companyName").value("Acme Corp"))
+                .andExpect(jsonPath("$.items[0].companyId").value(employer.companyId().toString()))
                 .andExpect(jsonPath("$.items[0].companyLogoUrl").value("https://example.com/logo.png"));
+    }
+
+    @Test
+    void Fr042_public_company_profile_and_company_job_filter() throws Exception {
+        TestEmployer employer = setupEmployer("hr@acme.com", true);
+        createActiveJob(employer, "Acme Job", "desc", "Bangladesh", false, "mid", List.of());
+
+        mockMvc.perform(get("/api/companies/" + employer.companyId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(employer.companyId().toString()))
+                .andExpect(jsonPath("$.name").value("Acme Corp"))
+                .andExpect(jsonPath("$.industry").value("Software"));
+
+        mockMvc.perform(get("/api/jobs").param("companyId", employer.companyId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(1))
+                .andExpect(jsonPath("$.items[0].title").value("Acme Job"))
+                .andExpect(jsonPath("$.items[0].companyId").value(employer.companyId().toString()));
+    }
+
+    @Test
+    void Fr042_hidden_company_has_no_public_profile_or_company_jobs() throws Exception {
+        TestEmployer employer = setupEmployer("hr@acme.com", false);
+        createActiveJob(employer, "Hidden Job", "desc", "Bangladesh", false, "mid", List.of());
+
+        mockMvc.perform(get("/api/companies/" + employer.companyId()))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/api/jobs").param("companyId", employer.companyId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(0));
+
+        mockMvc.perform(get("/api/jobs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].companyName").isEmpty())
+                .andExpect(jsonPath("$.items[0].companyId").isEmpty());
     }
 
     @Test

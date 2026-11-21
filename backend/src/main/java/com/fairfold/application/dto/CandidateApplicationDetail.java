@@ -9,6 +9,7 @@ public record CandidateApplicationDetail(
         UUID jobId,
         String jobTitle,
         String companyName,
+        UUID companyId,
         String city,
         String country,
         String status,

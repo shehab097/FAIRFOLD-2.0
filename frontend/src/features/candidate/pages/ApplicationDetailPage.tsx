@@ -1,8 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
+import { ExternalLink } from 'lucide-react';
 import { useApplication } from '../queries';
 import { Banner } from '../../../components/ui/Banner';
 import { Badge } from '../../../components/ui/Badge';
+import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
+import { Icon } from '../../../components/ui/Icon';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { formatDate } from '../../../lib/format';
 
@@ -21,7 +24,14 @@ export function ApplicationDetailPage() {
           <Badge status={application.status} />
         </div>
         <p className="text-text-secondary">
-          {application.companyName ?? 'Confidential company'} · {application.city ? `${application.city}, ` : ''}
+          {application.companyId ? (
+            <Link to={`/companies/${application.companyId}`} className="text-primary-text hover:underline">
+              {application.companyName ?? 'Company'}
+            </Link>
+          ) : (
+            application.companyName ?? 'Confidential company'
+          )}{' '}
+          · {application.city ? `${application.city}, ` : ''}
           {application.country}
         </p>
       </div>
@@ -44,9 +54,15 @@ export function ApplicationDetailPage() {
         </ol>
       </Card>
 
-      <div className="text-sm">
-        <Link to="/jobs" className="text-primary-text hover:underline">
-          Back to jobs
+      <div className="flex flex-wrap items-center gap-4 text-sm">
+        <Link to={`/jobs/${application.jobId}`}>
+          <Button variant="secondary">
+            <Icon icon={ExternalLink} size={16} />
+            View job details
+          </Button>
+        </Link>
+        <Link to="/candidate/applications" className="text-primary-text hover:underline">
+          Back to applications
         </Link>
       </div>
     </div>

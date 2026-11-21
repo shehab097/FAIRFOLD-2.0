@@ -79,10 +79,20 @@ export function JobDetailPage() {
           <div className="min-w-0">
             <h1 className="text-[28px] font-bold leading-9">{job.title}</h1>
             <div className="mt-1.5 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
-              <span className="inline-flex items-center gap-1.5">
-                <Icon icon={Building2} size={15} />
-                {job.companyName ?? 'Confidential company'}
-              </span>
+              {job.companyId ? (
+                <Link
+                  to={`/companies/${job.companyId}`}
+                  className="inline-flex items-center gap-1.5 text-primary-text hover:underline"
+                >
+                  <Icon icon={Building2} size={15} />
+                  {job.companyName ?? 'Company'}
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon icon={Building2} size={15} />
+                  {job.companyName ?? 'Confidential company'}
+                </span>
+              )}
               <span>·</span>
               <span className="inline-flex items-center gap-1.5">
                 <Icon icon={MapPin} size={15} />
@@ -148,7 +158,15 @@ export function JobDetailPage() {
             <dl className="space-y-2.5 text-sm">
               <div className="flex justify-between">
                 <dt className="text-text-secondary">Company</dt>
-                <dd className="font-medium text-text">{job.companyName ?? 'Confidential'}</dd>
+                <dd className="text-right font-medium">
+                  {job.companyId ? (
+                    <Link to={`/companies/${job.companyId}`} className="text-primary-text hover:underline">
+                      {job.companyName ?? 'Company'}
+                    </Link>
+                  ) : (
+                    <span className="text-text">{job.companyName ?? 'Confidential'}</span>
+                  )}
+                </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-text-secondary">Location</dt>
@@ -177,6 +195,14 @@ export function JobDetailPage() {
             </dl>
 
             <div className="space-y-2 border-t border-border pt-4">
+              {job.companyId && (
+                <Link to={`/companies/${job.companyId}`}>
+                  <Button variant="secondary" className="w-full">
+                    <Icon icon={Building2} size={16} />
+                    View company profile
+                  </Button>
+                </Link>
+              )}
               {user?.role === 'CANDIDATE' ? (
                 <Button className="w-full" onClick={() => setConfirming(true)}>
                   Apply now

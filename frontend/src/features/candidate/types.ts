@@ -53,6 +53,7 @@ export interface CandidateApplicationListItem {
   jobId: string;
   jobTitle: string | null;
   companyName: string | null;
+  companyId: string | null;
   status: ApplicationStatus;
   appliedAt: string;
 }
@@ -67,6 +68,7 @@ export interface CandidateApplicationDetail {
   jobId: string;
   jobTitle: string;
   companyName: string | null;
+  companyId: string | null;
   city: string | null;
   country: string;
   status: ApplicationStatus;

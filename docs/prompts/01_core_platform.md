@@ -94,8 +94,9 @@ Seed about 100 common skills (languages, frameworks, databases, cloud, tools, so
 | Method and path | Who | Notes |
 |---|---|---|
 | GET `/api/skills/suggest?q=` | Signed in | up to 10 skills `{id, name}` by prefix or contains |
-| GET `/api/jobs?q&location&remote&level&page&size` | Public | active jobs only; item `{id, title, city, country, remote, experienceLevel, topSkills[≤5], publishedAt, companyName?}` |
+| GET `/api/jobs?q&location&country&companyId&salaryMin&salaryMax&remote&level&page&size` | Public | active jobs only; item `{id, title, city, country, remote, experienceLevel, topSkills[≤5], publishedAt, companyName?, companyId?, companyLogoUrl?}`; hidden companies cannot be used as a `companyId` filter |
 | GET `/api/jobs/{id}` | Public | active only (else 404); adds description, requirements, requiredSkills[], niceToHaveSkills[] |
+| GET `/api/companies/{id}` | Public | public company profile only when `show_name_publicly`; 404 otherwise |
 | GET `/api/employer/company` | HR | |
 | PUT `/api/employer/company` | HR | `{name, industry, size, showNamePublicly, tagline?, about?, website?, logoUrl?, linkedinUrl?, foundedYear?, headquarters?, contactEmail?, phone?, benefits?}` (URLs must be http/https) |
 | GET `/api/employer/jobs?status&page` | HR, Mgr | item `{id, title, status, applicationsCount, awaitingScreeningCount, createdAt}` |
