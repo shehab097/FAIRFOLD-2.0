@@ -1,6 +1,7 @@
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, LogOut, User } from 'lucide-react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../app/auth/AuthContext';
+import { useUnreadCount } from '../../features/notifications/queries';
 import { cn } from '../../lib/cn';
 import { SIDEBAR_ITEMS } from '../../lib/nav';
 import { Icon } from '../ui/Icon';
@@ -8,6 +9,10 @@ import { Icon } from '../ui/Icon';
 export function PortalShell() {
   const { user, signOut } = useAuth();
   const items = user ? SIDEBAR_ITEMS[user.role].filter((i) => i.enabled) : [];
+  const { data: unread } = useUnreadCount({
+    refetchInterval: 60_000,
+    enabled: Boolean(user),
+  });
 
   return (
     <div className="flex min-h-screen">
@@ -41,9 +46,21 @@ export function PortalShell() {
             FairFold
           </Link>
           <div className="ml-auto flex items-center gap-4">
-            <button aria-label="Notifications" className="text-text-secondary hover:text-text">
+            <Link
+              to="/notifications"
+              aria-label="Notifications"
+              className="relative text-text-secondary hover:text-text"
+            >
               <Icon icon={Bell} size={20} />
-            </button>
+              {Boolean(unread?.count) && (
+                <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center bg-primary px-1 text-[10px] font-bold text-white">
+                  {unread?.count}
+                </span>
+              )}
+            </Link>
+            <Link to="/account" aria-label="Account settings" className="text-text-secondary hover:text-text">
+              <Icon icon={User} size={20} />
+            </Link>
             <button
               onClick={() => signOut()}
               className="flex items-center gap-1 text-sm text-text-secondary hover:text-text"

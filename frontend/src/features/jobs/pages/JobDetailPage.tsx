@@ -1,10 +1,14 @@
-import { Link, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useJob } from '../queries';
+import { useApply } from '../../candidate/queries';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { Dialog } from '../../../components/ui/Dialog';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { useToast } from '../../../components/ui/Toast';
+import { getApiErrorCode, getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
 
 export function JobDetailPage() {
@@ -12,10 +16,36 @@ export function JobDetailPage() {
   const { data: job, isLoading, isError } = useJob(jobId);
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const apply = useApply(jobId as string);
+  const [confirming, setConfirming] = useState(false);
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.href);
     toast('Link copied.');
+  }
+
+  async function confirmApply() {
+    try {
+      const application = await apply.mutateAsync();
+      setConfirming(false);
+      toast('Application submitted.', 'success');
+      navigate(`/candidate/applications/${application.id}`);
+    } catch (err) {
+      setConfirming(false);
+      const code = getApiErrorCode(err);
+      if (code === 'RESUME_REQUIRED') {
+        toast('Upload a resume before applying.', 'error');
+        navigate('/candidate/resume');
+      } else if (code === 'ALREADY_APPLIED') {
+        toast('You have already applied to this job.', 'info');
+        navigate('/candidate/applications');
+      } else if (code === 'JOB_NOT_ACTIVE') {
+        toast('This job is no longer accepting applications.', 'error');
+      } else {
+        toast(getApiErrorMessage(err), 'error');
+      }
+    }
   }
 
   if (isLoading) {
@@ -88,7 +118,7 @@ export function JobDetailPage() {
               Copy link
             </Button>
             {user?.role === 'CANDIDATE' ? (
-              <Button className="w-full" onClick={() => toast('Applying opens in Part 1.3.')}>
+              <Button className="w-full" onClick={() => setConfirming(true)}>
                 Apply
               </Button>
             ) : !user ? (
@@ -99,6 +129,20 @@ export function JobDetailPage() {
           </div>
         </div>
       </aside>
+
+      <Dialog open={confirming} title="Apply to this job" onClose={() => setConfirming(false)}>
+        <p className="text-text">
+          Apply to <span className="font-semibold">{job.title}</span> with your current resume?
+        </p>
+        <div className="mt-6 flex justify-end gap-3">
+          <Button variant="secondary" onClick={() => setConfirming(false)}>
+            Cancel
+          </Button>
+          <Button loading={apply.isPending} onClick={confirmApply}>
+            Confirm
+          </Button>
+        </div>
+      </Dialog>
     </div>
   );
 }

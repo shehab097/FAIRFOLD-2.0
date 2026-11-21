@@ -97,4 +97,54 @@ public abstract class AbstractIntegrationTest {
     protected UUID skillId(String name) {
         return jdbcTemplate.queryForObject("SELECT id FROM skills WHERE name = ?", UUID.class, name);
     }
+
+    /** Inserts a current, uploaded resume row directly (no file I/O) and returns its id. */
+    protected UUID insertResume(UUID userId) {
+        UUID id = UUID.randomUUID();
+        jdbcTemplate.update(
+                "INSERT INTO resumes (id, user_id, original_filename, storage_key, size_bytes, status, is_current, current_user_key) "
+                        + "VALUES (?, ?, 'cv.pdf', ?, 1234, 'uploaded', true, ?)",
+                id.toString(), userId.toString(), UUID.randomUUID().toString(), userId.toString());
+        return id;
+    }
+
+    /** Completes the employer's company profile so jobs can be activated. */
+    protected void completeCompany(String token) throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .put("/api/employer/company")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Acme Corp","industry":"Software","size":"11-50","showNamePublicly":false}
+                                """))
+                .andExpect(status().isOk());
+    }
+
+    /** Creates a draft job and returns its id. */
+    protected UUID createJob(String token) throws Exception {
+        String body = """
+                {"title":"Java Developer","description":"Build backend services.","requirements":"",
+                 "experienceLevel":"senior","city":"Dhaka","country":"Bangladesh","remote":false,
+                 "requiredSkillIds":[],"niceToHaveSkillIds":[],"mustHaveSkillIds":[]}
+                """;
+        var result = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/api/employer/jobs")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andReturn();
+        JsonNode node = objectMapper.readTree(result.getResponse().getContentAsString());
+        return UUID.fromString(node.get("id").asText());
+    }
+
+    /** Creates and activates a job, returning its id. */
+    protected UUID createActiveJob(String token) throws Exception {
+        UUID jobId = createJob(token);
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                        .post("/api/employer/jobs/" + jobId + "/activate")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+        return jobId;
+    }
 }

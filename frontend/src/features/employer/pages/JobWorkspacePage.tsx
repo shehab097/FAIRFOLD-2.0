@@ -1,17 +1,35 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useEmployerJob, useJobAction } from '../queries';
+import { useApplicants, useEmployerJob, useJobAction } from '../queries';
 import type { JobAction } from '../../../api/employerJobs';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { Table, type Column } from '../../../components/ui/Table';
 import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
-import type { JobStatus } from '../../jobs/types';
+import type { EmployerApplicantListItem, JobStatus } from '../../jobs/types';
+
+function ApplicantsTab({ applicants }: { applicants: EmployerApplicantListItem[] }) {
+  const columns: Column<EmployerApplicantListItem>[] = [
+    { header: 'Applicant', render: (a) => <span className="font-medium">{a.label}</span> },
+    { header: 'Status', render: (a) => <Badge status={a.status} /> },
+    { header: 'Applied', render: (a) => formatDate(a.appliedAt) },
+  ];
+
+  if (applicants.length === 0) {
+    return (
+      <div className="border border-border bg-surface p-8 text-center text-text-secondary">
+        No applicants yet.
+      </div>
+    );
+  }
+  return <Table columns={columns} rows={applicants} rowKey={(a) => a.id} />;
+}
 
 function actionsFor(status: JobStatus): { label: string; value: JobAction }[] {
   switch (status) {
@@ -35,6 +53,7 @@ function actionsFor(status: JobStatus): { label: string; value: JobAction }[] {
 export function JobWorkspacePage() {
   const { jobId } = useParams<{ jobId: string }>();
   const { data: job, isLoading, isError } = useEmployerJob(jobId);
+  const { data: applicants } = useApplicants(jobId);
   const jobAction = useJobAction();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -114,8 +133,8 @@ export function JobWorkspacePage() {
       />
 
       {tab === 'applicants' && (
-        <div className="mt-4 border border-border bg-surface p-8 text-center text-text-secondary">
-          No applicants yet.
+        <div className="mt-4">
+          <ApplicantsTab applicants={applicants?.items ?? []} />
         </div>
       )}
 

@@ -13,10 +13,10 @@ export interface NavItem {
 export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
   CANDIDATE: [
     { label: 'Dashboard', to: '/candidate', enabled: true },
-    { label: 'Profile', to: '/candidate/profile', enabled: false },
+    { label: 'Profile', to: '/candidate/profile', enabled: true },
     { label: 'Journey', to: '/candidate/journey', enabled: false },
-    { label: 'Resume', to: '/candidate/resume', enabled: false },
-    { label: 'Applications', to: '/candidate/applications', enabled: false },
+    { label: 'Resume', to: '/candidate/resume', enabled: true },
+    { label: 'Applications', to: '/candidate/applications', enabled: true },
     { label: 'Assessments', to: '/candidate/assessments', enabled: false },
     { label: 'Practice', to: '/candidate/practice', enabled: false },
     { label: 'Jobs', to: '/', enabled: true },

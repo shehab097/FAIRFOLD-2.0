@@ -91,12 +91,17 @@ export interface CompanyProfile {
   industry: string | null;
   size: string | null;
   showNamePublicly: boolean;
-}
-
-export interface SkillDto {
+}export interface SkillDto {
   id: string;
   name: string;
 }
 
 export const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+'] as const;
 export const EXPERIENCE_LEVELS: ExperienceLevel[] = ['entry', 'mid', 'senior', 'lead'];
+
+export interface EmployerApplicantListItem {
+  id: string;
+  label: string;
+  status: string;
+  appliedAt: string;
+}

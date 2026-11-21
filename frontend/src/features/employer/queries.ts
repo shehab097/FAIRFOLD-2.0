@@ -5,6 +5,7 @@ import {
   deleteJob,
   getEmployerJob,
   jobAction,
+  listApplicants,
   listEmployerJobs,
   updateJob,
   type JobAction,
@@ -79,5 +80,13 @@ export function useJobAction() {
       invalidateJobs(qc);
       qc.invalidateQueries({ queryKey: ['employer', 'job', vars.id] });
     },
+  });
+}
+
+export function useApplicants(jobId: string | undefined) {
+  return useQuery({
+    queryKey: ['employer', 'job', jobId, 'applications'],
+    queryFn: () => listApplicants(jobId as string),
+    enabled: Boolean(jobId),
   });
 }

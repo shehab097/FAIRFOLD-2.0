@@ -15,6 +15,13 @@ import { CompanyPage } from './features/employer/pages/CompanyPage';
 import { JobsPage } from './features/employer/pages/JobsPage';
 import { JobEditorPage } from './features/employer/pages/JobEditorPage';
 import { JobWorkspacePage } from './features/employer/pages/JobWorkspacePage';
+import { DashboardPage } from './features/candidate/pages/DashboardPage';
+import { ProfilePage } from './features/candidate/pages/ProfilePage';
+import { ResumePage } from './features/candidate/pages/ResumePage';
+import { ApplicationsPage } from './features/candidate/pages/ApplicationsPage';
+import { ApplicationDetailPage } from './features/candidate/pages/ApplicationDetailPage';
+import { NotificationsPage } from './features/notifications/pages/NotificationsPage';
+import { AccountPage } from './features/account/pages/AccountPage';
 
 export default function App() {
   return (
@@ -48,10 +55,44 @@ export default function App() {
           path="/candidate"
           element={
             <RequireRole roles={['CANDIDATE']}>
-              <WelcomePage />
+              <DashboardPage />
             </RequireRole>
           }
         />
+        <Route
+          path="/candidate/profile"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <ProfilePage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/candidate/resume"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <ResumePage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/candidate/applications"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <ApplicationsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/candidate/applications/:applicationId"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <ApplicationDetailPage />
+            </RequireRole>
+          }
+        />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route
           path="/employer"
           element={

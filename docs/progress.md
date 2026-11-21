@@ -12,7 +12,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 |---|---|---|---|---|---|
 | 1.1 | 01_core_platform.md | Foundation and authentication | [x] | | 21 Nov 2026 |
 | 1.2 | 01_core_platform.md | Company, jobs, public job board | [x] | | 21 Nov 2026 |
-| 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [ ] | | |
+| 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [x] | | 21 Nov 2026 |
 | 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [ ] | | |
 | 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [ ] | | |
 | 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 1.2 done. Next: build Part 1.3 (candidate profile, resume upload, applying, status, notifications) from `docs/prompts/01_core_platform.md`.
+**Current focus:** Part 1.3 done. Next: build Part 2.1 (resume processing, stripping, AI gateway) from `docs/prompts/02_ai_screening.md`.
 
-**Next session start message:** `Build Part 1.3 from docs/prompts/01_core_platform.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 2.1 from docs/prompts/02_ai_screening.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -53,7 +53,7 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-03 | 21 Nov 2026 | all | Times are `datetime(3)` in UTC (`Instant`, JDBC `connectionTimeZone=UTC`). | MariaDB `datetime` has no zone; one rule avoids bugs. |
 | D-04 | 21 Nov 2026 | all | Arrays (`text[]`) become `json` string arrays; `jsonb` becomes `json`. | MariaDB has neither type. |
 | D-05 | 21 Nov 2026 | 1.2 | Job search uses an InnoDB `FULLTEXT` index plus exact skill match plus a `LIKE` fallback for queries under 3 characters. | Replaces the original PostgreSQL `tsvector` design; InnoDB ignores words under 3 characters by default. |
-| D-06 | 21 Nov 2026 | 1.3 | "One current resume per user" uses a VIRTUAL generated column with a UNIQUE index. | MariaDB has no partial indexes. |
+| D-06 | 21 Nov 2026 | 1.3 | "One current resume per user" uses a nullable `current_user_key char(36)` column that holds the user id only while the resume is current, under a UNIQUE index (NULLs never collide). | MariaDB has no partial indexes and no CASE/IF in generated columns, so the MySQL VIRTUAL-column trick is not available. |
 | D-07 | 21 Nov 2026 | all | Case-insensitive uniqueness (email, skill name, alias, strip term) comes from the collation instead of `lower()` indexes. | Simpler and portable in MariaDB. |
 | D-08 | 21 Nov 2026 | tests | Tests clean tables with `FOREIGN_KEY_CHECKS=0` + `TRUNCATE`; no rolled-back transactions around full-text tests. | InnoDB full-text sees rows only after commit. |
 | D-09 | 21 Nov 2026 | 5, 6 | Chunk prompts 05 and 06 were **written from references in chunks 0 to 4**, without the PRD. Their rules marked *(Decision)* are proposals. | PRD was not available to the author. **Owner to review 05 and 06 before Part 5.1.** |
@@ -67,6 +67,7 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-17 | 21 Nov 2026 | all | Maven 3.9.16 installed to `~/.local/maven` (no system Maven, no sudo); project uses the Maven wrapper `./mvnw` (script-only). | Reproducible builds without root. |
 | D-18 | 21 Nov 2026 | all | `spring.jpa.hibernate.ddl-auto` is `none` (not `validate`). MariaDB's JDBC driver reports `json` columns as `longtext`, which fails Hibernate's JSON type check under `validate`. Flyway owns the schema. JSON columns stay `json` (MariaDB adds a `json_valid` CHECK). Flyway also warns "MariaDB 13.0 is newer than tested (11.2)" but migrations apply cleanly. | MariaDB `json` ≈ `longtext`; `validate` cannot match `@JdbcTypeCode(SqlTypes.JSON)`. |
 | D-19 | 21 Nov 2026 | all | All documentation now describes **MariaDB** only. Removed the remaining MySQL/PostgreSQL setup, JDBC, Testcontainers, Docker and backup instructions from the PRD, plan, roadmap, prompts and README. | The project runs on MariaDB; stale MySQL instructions caused wrong commands and driver choices. |
+| D-20 | 21 Nov 2026 | 1.3 | Resumes enforce "one current per user" with an explicit nullable `current_user_key` column + UNIQUE index instead of the prompt's `GENERATED ALWAYS AS (CASE …) VIRTUAL` column. The service sets `current_user_key = user_id` (current) or `NULL` (not current) and flushes before inserting the replacement. | MariaDB rejects `CASE`/`IF` expressions in generated columns (`ERROR 1901`); the nullable-unique-key pattern gives the same guarantee. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -89,12 +90,14 @@ Update after every part.
 |---|---|---|---|---|---|
 | 1.1 | 13 passed | 9 passed | passed | yes | Auth flow verified end-to-end via curl (register, login, lockout 423, reset, refresh rotation, logout). |
 | 1.2 | 18 passed (31 total) | 9 passed | passed | yes | Company profile, job CRUD + lifecycle (BR-01), FULLTEXT/skill/LIKE search, filters, company scope. |
+| 1.3 | 49 passed | 9 passed | passed | yes | Candidate profile + skills (FR-009/FR-014), resume upload (FR-010, signature/10MB/replace), apply + status history + notifications (FR-022/FR-023), dashboard, anonymised employer applicant list (`NoIdentityLeakTest`). Decision D-20. |
 
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
 | 21 Nov 2026 | **Docs database pass**: converted the PRD, `plan.md`, `roadmap.md`, `00_context.md`, `01_core_platform.md`, `06_hardening_release.md` and `README.md` from MySQL/PostgreSQL to MariaDB (driver, JDBC URL, Testcontainers image/module, Docker service, dump command, setup SQL). Decision D-19. |
+| 21 Nov 2026 | **Part 1.3 done**: migration `V1_3_1` (candidate_profiles, candidate_skills, resumes, applications, application_status_history, notifications); candidate profile + skills endpoints; `StorageService` + resume upload (PDF signature, 10 MB, replaces current); apply flow with `ApplicationStatusService.changeStatus` helper; notifications; candidate dashboard; anonymised employer applicant list. Frontend: candidate dashboard/profile/resume/applications/detail, notifications, account, top-bar bell + unread count, Apply button wired, Applicants tab filled. 49 backend tests green, design check + frontend build pass, `docs/openapi.json` exported. Decisions D-20. |
 | 21 Nov 2026 | **Part 1.2 done**: skills/jobs/job_skills migrations + 100-skill seed, Job/Skill/JobSkill entities, company profile (GET/PUT + completeness), job CRUD + lifecycle (BR-01 + activation requires company + duplicate), public board with FULLTEXT/exact-skill/LIKE search + filters + hidden company name, company scoping. 18 new backend tests (31 total). Frontend: types/API/queries, Table/Tabs/Dialog/Toast/Textarea components, pages P01/P02/P21/P22/P23/P24, employer nav enabled. `docs/openapi.json` exported (20 paths). |
 | 21 Nov 2026 | **Part 1.1 done**: auth tables migration, User/Company/token/audit entities, JWT stateless security, register/login/lockout/refresh(rotation)/logout/forgot/reset endpoints, rate limiting, admin seed, 13 backend tests + 9 frontend tests green, `check-design.sh` passes, `docs/openapi.json` exported. Frontend: base UI components, PublicShell/AuthShell/PortalShell, auth context + guards + refresh interceptor, pages P03/P04/P06/P07/P11 + welcome. Decisions D-18. |
 | 21 Nov 2026 | Environment setup: scaffolded backend (Spring Boot 3.5.16, MariaDB driver, Flyway `flyway-mysql`, springdoc 2.8.17, spring-dotenv) and frontend (Vite + React 18 + TS + Tailwind + design tokens). Both run; health + OpenAPI + Vite proxy verified; `check-design.sh` passes. Decisions D-15–D-17. |

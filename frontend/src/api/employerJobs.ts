@@ -1,6 +1,7 @@
 import { api } from './client';
 import type { PageResponse } from './types';
 import type {
+  EmployerApplicantListItem,
   EmployerJobDetail,
   EmployerJobListItem,
   JobInput,
@@ -39,5 +40,16 @@ export async function deleteJob(id: string): Promise<void> {
 
 export async function jobAction(id: string, action: JobAction): Promise<EmployerJobDetail> {
   const { data } = await api.post<EmployerJobDetail>(`/api/employer/jobs/${id}/${action}`);
+  return data;
+}
+
+export async function listApplicants(
+  jobId: string,
+  page = 0,
+): Promise<PageResponse<EmployerApplicantListItem>> {
+  const { data } = await api.get<PageResponse<EmployerApplicantListItem>>(
+    `/api/employer/jobs/${jobId}/applications`,
+    { params: { page, size: 20 } },
+  );
   return data;
 }
