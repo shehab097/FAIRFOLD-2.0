@@ -71,6 +71,7 @@ export function useEmployerJob(id: string | undefined) {
 
 function invalidateJobs(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries({ queryKey: ['employer', 'jobs'] });
+  qc.invalidateQueries({ queryKey: ['employer', 'dashboard'] });
   qc.invalidateQueries({ queryKey: ['jobs'] });
 }
 
@@ -187,6 +188,7 @@ export function useStartScreening() {
     onSuccess: (_data, jobId) => {
       qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'screening'] });
       qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'applications'] });
+      qc.invalidateQueries({ queryKey: ['employer', 'dashboard'] });
     },
   });
 }
@@ -198,6 +200,7 @@ export function useRetryScreening() {
     onSuccess: (_data, jobId) => {
       qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'screening'] });
       qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'applications'] });
+      qc.invalidateQueries({ queryKey: ['employer', 'dashboard'] });
     },
   });
 }
@@ -206,6 +209,7 @@ export function useEmployerDashboard() {
   return useQuery({
     queryKey: ['employer', 'dashboard'],
     queryFn: getEmployerDashboard,
+    refetchInterval: 15_000,
   });
 }
 

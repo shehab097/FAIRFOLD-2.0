@@ -2,11 +2,12 @@ import { Link } from 'react-router-dom';
 import { Briefcase, Inbox, ShieldAlert, Timer, Users } from 'lucide-react';
 import { useEmployerDashboard } from '../queries';
 import { Banner } from '../../../components/ui/Banner';
+import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { Skeleton } from '../../../components/ui/Skeleton';
 
 export function EmployerDashboardPage() {
-  const { data, isLoading, isError } = useEmployerDashboard();
+  const { data, isLoading, isError, isFetching, refetch } = useEmployerDashboard();
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (isError || !data) return <Banner tone="error">Could not load the dashboard.</Banner>;
@@ -51,11 +52,16 @@ export function EmployerDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-[28px] font-bold leading-9">Dashboard</h1>
-        <p className="text-sm text-text-secondary">
-          Hiring activity for your company. Scores are advisory — you decide.
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-[28px] font-bold leading-9">Dashboard</h1>
+          <p className="text-sm text-text-secondary">
+            Hiring activity for your company. Refreshes every 15 seconds. Scores are advisory — you decide.
+          </p>
+        </div>
+        <Button variant="secondary" loading={isFetching} onClick={() => refetch()}>
+          Refresh
+        </Button>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
