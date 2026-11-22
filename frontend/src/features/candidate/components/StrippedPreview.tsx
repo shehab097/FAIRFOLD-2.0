@@ -9,6 +9,8 @@ const LABELS: Record<string, string> = {
   URL: 'Link',
   YEAR: 'Year',
   DATE: 'Date',
+  EMPLOYER: 'Employer',
+  INSTITUTION: 'Institution',
 };
 
 export function StrippedPreview({
@@ -36,10 +38,10 @@ export function StrippedPreview({
         return (
           <span
             key={index}
-            title={placeholder ? `Replaced: ${placeholder.originalValue}` : 'Personal detail removed'}
-            className="mx-0.5 inline-flex items-center rounded-full border border-border bg-primary-subtle px-2 py-0.5 text-xs font-semibold text-primary-text"
+            title={placeholder ? `Removed: ${placeholder.originalValue}` : 'Personal detail removed'}
+            className="inline rounded-sm bg-raised px-1 py-0.5 align-baseline text-[11px] font-medium text-text-secondary"
           >
-            {label}
+            [{label}]
           </span>
         );
       })}

@@ -105,6 +105,7 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-51 | 22 Nov 2026 | UI | Replaced Inter with **Lato** loaded from Google Fonts (preconnect + `css2?family=Lato` stylesheet in `index.html`; `--font-sans` and chart defaults updated). Removed the `@fontsource-variable/inter` dependency and import. | Owner requested Lato using the official Google Fonts link. The app now makes an external font request; the preconnect hints and `display=swap` keep first paint fast. |
 | D-52 | 22 Nov 2026 | UI | Candidate profile, employer company profile, and both account snapshots now use grouped two-column detail sections (Personal / Professional, Company facts / Contact and links) via a shared `DetailList` component, replacing the 3–4 column grids. Candidate header no longer repeats the phone number. | Four columns made labels and long values cramped; two-column groups are easier to scan on laptop and mobile. |
 | D-53 | 22 Nov 2026 | UI | The review page renders the stripped resume as a structured document: header with contact chips, uppercase section headings, bold employer/institution entries, bullet lists, skill chips, and neutral chips for stripped placeholders. Claim quotes are still highlighted with exact-substring matching. | The raw extracted text was a wall of line-broken text and hard to scan; a document layout keeps the same data and quote highlighting but is readable. |
+| D-54 | 22 Nov 2026 | UI | Removed the bordered, padded chip styling from stripped-resume placeholders. Both previews now show subtle inline bracketed tokens (`[Name]`, `[Employer]`, `[Institution]`, `[Email]`, …); the candidate preview keeps the original value in the tooltip. | The pill borders and margins looked like buttons scattered through the resume and made the text harder to read. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -142,6 +143,7 @@ Update after every part.
 
 | Date | Event |
 |---|---|
+| 22 Nov 2026 | **Placeholder token styling**: stripped resume/preview placeholders are now subtle inline bracketed tokens instead of bordered chips with spacing. Candidate tooltip still shows the original removed value. Decision D-54. |
 | 22 Nov 2026 | **Readable stripped resume**: replaced the plain pre-wrapped resume in P25 with a structured viewer (header/contact chips, section headings, job entries, bullets, skill chips, placeholder chips) while keeping clickable quote highlights. Decision D-53. |
 | 22 Nov 2026 | **Profile view layout**: replaced the candidate profile 4-column grid and the 3-column company/account grids with grouped, two-column `DetailSection` blocks (shared `DetailList`); previous job titles render as chips and the candidate header no longer repeats the phone. Design doc updated. Decision D-52. |
 | 22 Nov 2026 | **Lato font**: added Google Fonts preconnect + Lato stylesheet in `index.html`, switched `--font-sans` to `Lato`, updated design docs/chart font and removed the self-hosted Inter package. Decision D-51. |

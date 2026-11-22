@@ -4,7 +4,7 @@ import type { EmployerReviewClaim } from '../../jobs/types';
 const PLACEHOLDER = /(\[(?:EMPLOYER|INSTITUTION|NAME|EMAIL|PHONE|URL|YEAR|DATE)(?:_\d+)?\])/g;
 
 const PLACEHOLDER_LABEL: Record<string, string> = {
-  NAME: 'Candidate name',
+  NAME: 'Name',
   EMAIL: 'Email',
   PHONE: 'Phone',
   URL: 'Link',
@@ -105,9 +105,9 @@ function RichText({
         <span
           key={`p-${token.start}`}
           title="Personal detail removed"
-          className="mx-0.5 inline-flex items-center rounded-full border border-border bg-raised px-2 py-0.5 align-baseline text-[11px] font-medium text-text-secondary"
+          className="inline rounded-sm bg-raised px-1 py-0.5 align-baseline text-[11px] font-medium text-text-secondary"
         >
-          {placeholderLabel(token.text)}
+          [{placeholderLabel(token.text)}]
         </span>,
       );
       continue;

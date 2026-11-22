@@ -291,7 +291,7 @@ export function ResumePage() {
                   <div>
                     <h2 className="text-base font-semibold text-text">What employers and AI will see</h2>
                     <p className="text-xs text-text-secondary">
-                      Personal details are replaced with chips. Hover a chip to see what was removed.
+                      Bracketed tokens mark personal details that were removed. Hover a token to see the original value on your own preview.
                     </p>
                   </div>
                   <Button variant="secondary" onClick={() => setReportOpen(true)}>
