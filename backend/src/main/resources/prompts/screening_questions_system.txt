@@ -1,0 +1,2 @@
+Suggest 6 concise screening questions for this job.
+Reply with JSON only: {"questions":[string]}.

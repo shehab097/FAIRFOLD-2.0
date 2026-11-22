@@ -1,0 +1,46 @@
+Lamia Siddiqua
+lamia.siddiqua23@example.com | +8801710003151 | linkedin.com/in/lamia-siddiqua-23 | github.com/lamiasiddiqua
+Date of Birth: 26 Dec 1995
+Father's Name: Karim Siddiqua
+Mother's Name: Rahima Siddiqua
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198810182137
+Present Address: House 33, Road 8, Dhanmondi, Dhaka
+Permanent Address: Village Lamiapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Junior Software Engineer with experience building reliable software. I work with React and Node.js, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+React, Node.js, TypeScript, PostgreSQL, MySQL, Docker
+
+WORK EXPERIENCE
+Junior Software Engineer
+bKash
+Dec 2018 - Apr 2022
+- Built and maintained services in React.
+- Improved API performance and added automated tests.
+- Worked with TypeScript and PostgreSQL.
+
+Software Engineer
+Acme Technologies
+Mar 2016 - Jul 2019
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Daffodil International University
+2011 - 2015
+CGPA: 3.8/4.00
+
+CERTIFICATIONS
+- Node.js Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

@@ -1,0 +1,46 @@
+Jahid Karim
+jahid.karim12@example.com | +8801710001644 | linkedin.com/in/jahid-karim-12 | github.com/jahidkarim
+Date of Birth: 15 Jan 1992
+Father's Name: Karim Karim
+Mother's Name: Rahima Karim
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199210095028
+Present Address: House 22, Road 6, Dhanmondi, Dhaka
+Permanent Address: Village Jahidpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Frontend Engineer with experience building reliable software. I work with Java and Spring Boot, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Java, Spring Boot, Python, Django, JavaScript, React
+
+WORK EXPERIENCE
+Frontend Engineer
+Nexus Systems Ltd.
+Jan 2017 - May 2018
+- Built and maintained services in Java.
+- Improved API performance and added automated tests.
+- Worked with Python and Django.
+
+Software Engineer
+FinEdge Solutions Ltd.
+Apr 2015 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+National University of Singapore
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- Spring Boot Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

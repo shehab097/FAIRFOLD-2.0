@@ -9,3 +9,8 @@ spring:
       ddl-auto: none
   flyway:
     clean-disabled: false
+app:
+  storage-dir: ${java.io.tmpdir}/fairfold-test-resumes
+  ai:
+    provider: fallback
+    api-key:

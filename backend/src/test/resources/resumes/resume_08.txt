@@ -1,0 +1,46 @@
+Tasnim Chowdhury
+tasnim.chowdhury7@example.com | +8801710000959 | linkedin.com/in/tasnim-chowdhury-7 | github.com/tasnimchowdhury
+Date of Birth: 10 Aug 1995
+Father's Name: Karim Chowdhury
+Mother's Name: Rahima Chowdhury
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198710055433
+Present Address: House 17, Road 10, Dhanmondi, Dhaka
+Permanent Address: Village Tasnimpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Junior Software Engineer with experience building reliable software. I work with Spring Boot and Python, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Spring Boot, Python, Django, JavaScript, React, Node.js
+
+WORK EXPERIENCE
+Junior Software Engineer
+ShopUp
+Aug 2017 - Dec 2021
+- Built and maintained services in Spring Boot.
+- Improved API performance and added automated tests.
+- Worked with Django and JavaScript.
+
+Software Engineer
+Nexus Systems Ltd.
+Nov 2015 - Mar 2018
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Daffodil International University
+2011 - 2015
+CGPA: 3.8/4.00
+
+CERTIFICATIONS
+- Python Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

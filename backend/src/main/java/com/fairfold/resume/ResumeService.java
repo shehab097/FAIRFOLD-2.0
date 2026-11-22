@@ -5,6 +5,8 @@ import com.fairfold.common.storage.StorageService;
 import com.fairfold.resume.dto.ResumeResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,11 +20,21 @@ public class ResumeService {
     private static final byte[] PDF_SIGNATURE = "%PDF-".getBytes(java.nio.charset.StandardCharsets.US_ASCII);
 
     private final ResumeRepository resumeRepository;
+    private final ResumePlaceholderRepository placeholderRepository;
     private final StorageService storageService;
+    private final ResumeProcessingService processingService;
+    private final ResumeTextExtractor extractor;
 
-    public ResumeService(ResumeRepository resumeRepository, StorageService storageService) {
+    public ResumeService(ResumeRepository resumeRepository,
+                         ResumePlaceholderRepository placeholderRepository,
+                         StorageService storageService,
+                         ResumeProcessingService processingService,
+                         ResumeTextExtractor extractor) {
         this.resumeRepository = resumeRepository;
+        this.placeholderRepository = placeholderRepository;
         this.storageService = storageService;
+        this.processingService = processingService;
+        this.extractor = extractor;
     }
 
     @Transactional
@@ -55,10 +67,13 @@ public class ResumeService {
         resume.setOriginalFilename(file.getOriginalFilename());
         resume.setStorageKey(storageKey);
         resume.setSizeBytes(content.length);
-        resume.setStatus(ResumeStatus.uploaded);
+        resume.setStatus(ResumeStatus.processing);
         resume.setCurrent(true);
         resume.setCurrentUserKey(userId);
         resumeRepository.save(resume);
+
+        UUID resumeId = resume.getId();
+        afterCommit(() -> processingService.process(resumeId));
         return toResponse(resume);
     }
 
@@ -79,6 +94,19 @@ public class ResumeService {
     }
 
     public record DownloadedResume(String filename, byte[] bytes) {}
+
+    private void afterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+        } else {
+            action.run();
+        }
+    }
 
     private boolean isPdf(byte[] content) {
         if (content.length < PDF_SIGNATURE.length) {
@@ -101,8 +129,16 @@ public class ResumeService {
     }
 
     private ResumeResponse toResponse(Resume resume) {
+        String failureCode = resume.getFailureReason();
+        List<ResumeResponse.DroppedPlaceholder> placeholders =
+                placeholderRepository.findByResumeIdOrderByPlaceholderAsc(resume.getId()).stream()
+                        .map(row -> new ResumeResponse.DroppedPlaceholder(
+                                row.getPlaceholder(), row.getKind(), row.getOriginalValue()))
+                        .toList();
         return new ResumeResponse(
                 resume.getId(), resume.getOriginalFilename(), resume.getSizeBytes(),
-                resume.getStatus().name(), resume.getFailureReason(), resume.getCreatedAt());
+                resume.getStatus().name(), failureCode,
+                failureCode == null ? null : extractor.messageFor(failureCode),
+                resume.getStrippedText(), placeholders, resume.getCreatedAt());
     }
 }

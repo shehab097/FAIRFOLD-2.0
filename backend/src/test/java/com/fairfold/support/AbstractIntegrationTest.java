@@ -53,7 +53,8 @@ public abstract class AbstractIntegrationTest {
         // Reference data (skills) is seeded by Flyway and preserved between tests.
         List<String> tables = jdbcTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables "
-                        + "WHERE table_schema = DATABASE() AND table_name NOT IN ('flyway_schema_history', 'skills')",
+                        + "WHERE table_schema = DATABASE() AND table_name NOT IN "
+                        + "('flyway_schema_history', 'skills', 'skill_aliases', 'strip_terms')",
                 String.class);
         for (String table : tables) {
             jdbcTemplate.execute("TRUNCATE TABLE `" + table + "`");

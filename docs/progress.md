@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 21 November 2026 · Updated by: implementation session (location dropdowns, country filter, logos, checklist)
+Last updated: 22 November 2026 · Updated by: implementation session (Part 2.1 resume processing, stripping, AI gateway)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -13,7 +13,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 1.1 | 01_core_platform.md | Foundation and authentication | [x] | | 21 Nov 2026 |
 | 1.2 | 01_core_platform.md | Company, jobs, public job board | [x] | | 21 Nov 2026 |
 | 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [x] | | 21 Nov 2026 |
-| 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [ ] | | |
+| 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [x] | | 22 Nov 2026 |
 | 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [ ] | | |
 | 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [ ] | | |
 | 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 1.3 done. Next: build Part 2.1 (resume processing, stripping, AI gateway) from `docs/prompts/02_ai_screening.md`.
+**Current focus:** Part 2.1 done. Next: build Part 2.2 (screening engine, scoring, bias check) from `docs/prompts/02_ai_screening.md`.
 
-**Next session start message:** `Build Part 2.1 from docs/prompts/02_ai_screening.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 2.2 from docs/prompts/02_ai_screening.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -39,7 +39,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 - [x] Node 20+ and npm (Node 26.13.1, npm 12.2.3)
 - [x] MariaDB 13.0.2 running; databases `fairfold` and `fairfold_test` created (`utf8mb4` / `utf8mb4_0900_as_ci`); user `shehab` granted (see D-15)
 - [x] `.env` created from `.env.example` (`DB_PASSWORD`, `JWT_SECRET` ≥ 32 bytes, `ADMIN_EMAIL`, `ADMIN_PASSWORD`)
-- [x] `AI_PROVIDER=fallback` works with no key; DeepSeek key added later (optional)
+- [x] `AI_PROVIDER=fallback` works with no key; `AI_PROVIDER=deepseek` + `DEEPSEEK_MODEL=deepseek-flash` verified against the official DeepSeek API (`/chat/completions`, real PDF upload)
 - [ ] Docker: **not yet** (owner sets it up after chunk 6; see `docs/deployment.md` once written)
 
 ## 3. Decisions
@@ -86,6 +86,9 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-29 | 21 Nov 2026 | 1.2+ | Added salary to jobs: `salary_type` (`fixed` / `range` / `negotiable`), `salary_min`, `salary_max`, `salary_currency` (ISO-4217, default `USD`), `salary_period` (`year` / `month` / `hour`) and `salary_negotiable` (fixed/range only; negotiable-type jobs are always negotiable). Migrations `V1_6_1` and `V1_6_2`. The public board exposes `salaryMin` / `salaryMax` filters using range-overlap semantics (negotiable jobs are excluded when a salary filter is active). Fixed/range amounts are validated server-side (`min >= 0`, `max >= min`). Dummy-data salaries are all **USD** and the frontend formats them with the `en-US` locale (`$150,000`), independent of the browser locale. | Owner requested fixed salary, salary range, negotiable/not-negotiable, salary filtering, and USD salary formatting. |
 | D-28 | 21 Nov 2026 | 1.2+ | Public job responses now include `companyLogoUrl` (only when the company chooses `showNamePublicly`, to avoid revealing confidential employers) and the browse/detail pages render the logo next to the title. The job board gained a `country` filter (exact, case-insensitive) backed by a new `country` query parameter. The candidate dashboard hides the setup checklist once all three steps are complete. | Owner requested company logos on job cards/details, a country filter, and hiding the completed checklist. |
 
+| D-38 | 22 Nov 2026 | 2.1 | New skills created from resume suggestions may contain spaces (`Spring Security`), in addition to letters, digits, `+ # . -`, at most 40 characters. | The prompt allowed no spaces, but real suggested skills (and the seeded canonical list) contain spaces; rejecting them made “Save to profile” fail on the strongest suggestions. |
+| D-39 | 22 Nov 2026 | 2.1 | Default AI model is **`deepseek-flash`** on the official `https://api.deepseek.com` endpoint. Requests set `thinking: {type: disabled}`, `temperature: 0`, `response_format: json_object` and `max_tokens` (default 4000). Token prices default to $0.30 input / $1.20 output per million (peak rates). | Owner chose DeepSeek Flash. Thinking mode is enabled by default and consumed ~2,000 completion tokens for an 899-character resume, sometimes exhausting the token budget before the JSON answer; disabling it is faster, cheaper and deterministic for extraction. Prices checked on the official pricing page (22 Nov 2026). |
+| D-40 | 22 Nov 2026 | 2.1 | Integration tests keep `skills`, `skill_aliases` and `strip_terms` between tests (like the existing skills seed); the test profile stores files under `${java.io.tmpdir}/fairfold-test-resumes` and forces `app.ai.provider=fallback`. | These tables are reference data seeded by Flyway, not test-owned rows; truncating them broke alias resolution and stripping. Async processing is still exercised by polling the resume status. |
 ## 4. Open questions (ask the owner, then move to Decisions)
 
 - [ ] Real plan names, prices and quotas for chunk 5.
@@ -97,7 +100,8 @@ Record every choice that is not already in the prompts, and every deviation. For
 
 ## 5. Deviations from prompts
 
-None yet. Format: `Part · what differed · why · date`.
+- 2.1 · New skills created from suggestions may contain spaces (D-38), not only letters/digits/`+ # . -` · real skills such as “Spring Security” otherwise made “Save to profile” fail · 22 Nov 2026.
+- 2.1 · DeepSeek requests disable thinking mode and default to `deepseek-flash` (D-39) · thinking consumed the token budget before the JSON answer · 22 Nov 2026.
 
 ## 6. Test and quality log
 
@@ -110,10 +114,12 @@ Update after every part.
 | 1.3 | 50 passed | 11 passed | passed | yes | Candidate profile + skills (FR-009/FR-014), resume upload & preview (`GET /api/candidate/resume/file`, FR-010, signature/10MB/replace), apply + status history + notifications (FR-022/FR-023), dashboard, anonymised employer applicant list (`NoIdentityLeakTest`). Decisions D-20–D-24. |
 | 1.3+ | 61 passed | 11 passed | passed | yes | Location dropdowns (country/city/address), `jobs.address`, `country` job filter, company logo on public job cards/details, checklist auto-hide, job salary (fixed/range/negotiable + currency/period/negotiable flag), salary-range filter, compact job cards (salary + level + work mode + max 2 skills, each in a distinct semantic color; `entry` labelled Junior), USD salary formatting, role-aware `/` and `/jobs` routing, and profile photos for candidates/employer HR normalized to 480×480 WebP (center-cropped, +3 integration tests), plus “View job details” links from candidate applications and public company profiles (`/companies/:companyId`) with company job lists, company links on job cards/details and a job-detail **View company profile** button, plus a guest landing page at `/` with latest jobs, product feature grid, how-it-works steps and CTAs, and a redesigned login page. Full backend suite green; frontend typecheck/build/tests green. Decisions D-27–D-37. |
 
+| 2.1 | 92 passed | 11 passed | passed | yes | Resume upload → async PDFBox extraction → BR-05 stripping → AI gateway/fallback → `ready`/`failed`, suggestions + placeholder map, apply to profile/skills/work history, strip reports, work-history CRUD, skill aliases, golden test (30 fixtures, ≥95% removed). Live verified with `deepseek-flash`: real CV uploaded, stripped, suggestions returned (`provider=ai`), applied to Alice’s profile; `ai_calls` recorded 424 prompt / 264 completion tokens at $0.000444. Decisions D-38–D-40. |
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 22 Nov 2026 | **Part 2.1 done**: migrations `V2_1_1` (skill_aliases, strip_terms, resume_suggestions, resume_placeholder_map, strip_reports, work_history, ai_calls) and `V2_1_2` (111 aliases, 144 institutions, 170 employers). Added PDFBox extraction with `SCANNED_OR_EMPTY`/`NOT_ENGLISH` failure reasons, pure `ResumeStripper` (known identifiers, header name, personal-detail lines, email/phone/URL patterns, seeded institutions/employers, education `[YEAR]`, work-duration parsing attached to employer placeholders) and `IdentifierScan`. Added `AiProvider`/`AiGateway`, `DeepSeekProvider` (official API, `deepseek-flash`, thinking disabled, retry, JSON mode, token cost) and `RuleBasedFallbackProvider`, recording every call in `ai_calls` and blocking leaks with `ai_call_blocked`. Resume pipeline runs async with restart recovery; suggestions restore employer names from the private placeholder map. API: resume suggestions/apply, strip reports, work-history CRUD, profile previous titles, alias-aware skill suggest. Frontend P14 has processing/failed/ready states, chip-stripped preview, wrong-strip report and editable suggestions; P13 has previous titles and work history CRUD. Golden test passes (30 text fixtures + 5 PDFs for extraction). 92 backend tests, 11 frontend tests, design check, build and OpenAPI export green. Live DeepSeek Flash run applied the extracted profile. Decisions D-38–D-40. |
 | 21 Nov 2026 | **Landing product tour & login redesign**: added an Inside FairFold product feature grid, live open-role count and candidate/employer how-it-works steps to the landing page. Redesigned the login form with a secure-sign-in badge, back-to-home link, password reveal, inline forgot-password link, register CTA and privacy note. Decision D-37. |
 | 21 Nov 2026 | **Guest landing page at `/`**: added `HomePage` + `LandingPage` with a hero and mock screening/evidence card, three fairness pillars, latest three active jobs, candidate/employer calls to action and a final CTA. `PublicShell` now accepts optional children so the landing page reuses the public header/footer. Guests see the landing page at `/`; signed-in users are redirected to their role dashboard. Decision D-36. |
 | 21 Nov 2026 | **Company links on job pages**: company names on Browse Jobs and job detail are now primary-colored links, and the job detail sidebar has a **View company profile** button. Dummy data now makes **AeroVista Digital** public (so job `...019` links to its company page) while **DataBound Analytics** demonstrates the confidential-company case. |

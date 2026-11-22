@@ -1,0 +1,46 @@
+Mehedi Haque
+mehedi.haque16@example.com | +8801710002192 | linkedin.com/in/mehedi-haque-16 | github.com/mehedihaque
+Date of Birth: 19 May 1988
+Father's Name: Karim Haque
+Mother's Name: Rahima Haque
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198110126704
+Present Address: House 26, Road 10, Dhanmondi, Dhaka
+Permanent Address: Village Mehedipur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Software Engineer with experience building reliable software. I work with JavaScript and React, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+JavaScript, React, Node.js, TypeScript, PostgreSQL, MySQL
+
+WORK EXPERIENCE
+Software Engineer
+CloudNine Technologies
+May 2016 - Sep 2017
+- Built and maintained services in JavaScript.
+- Improved API performance and added automated tests.
+- Worked with Node.js and TypeScript.
+
+Software Engineer
+Enosis Solutions
+Aug 2019 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+University of Dhaka
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- React Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

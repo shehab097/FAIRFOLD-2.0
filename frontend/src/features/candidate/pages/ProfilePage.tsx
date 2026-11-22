@@ -20,6 +20,7 @@ import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { emptyLocation, formatLocation, parseLocation, type LocationValue } from '../../../lib/locations';
 import { ProfilePhotoCard } from '../../account/components/ProfilePhotoCard';
+import { WorkHistorySection } from '../components/WorkHistorySection';
 import { UserAvatar } from '../../../components/ui/UserAvatar';
 
 function DetailItem({ label, value }: { label: string; value: ReactNode }) {
@@ -185,6 +186,7 @@ export function ProfilePage() {
   const [remotePreference, setRemotePreference] = useState('any');
   const [totalExperienceYears, setTotalExperienceYears] = useState('');
   const [educationLevel, setEducationLevel] = useState('');
+  const [previousJobTitles, setPreviousJobTitles] = useState('');
   const [editor, setEditor] = useState<{ open: boolean; skill: CandidateSkill | null }>({
     open: false,
     skill: null,
@@ -200,6 +202,7 @@ export function ProfilePage() {
     setRemotePreference(profile.remotePreference ?? 'any');
     setTotalExperienceYears(profile.totalExperienceYears?.toString() ?? '');
     setEducationLevel(profile.educationLevel ?? '');
+    setPreviousJobTitles((profile.previousJobTitles ?? []).join('\n'));
   }, [profile]);
 
   async function saveBasics() {
@@ -212,6 +215,10 @@ export function ProfilePage() {
         remotePreference: remotePreference as (typeof REMOTE_PREFERENCES)[number],
         totalExperienceYears: totalExperienceYears.trim() === '' ? null : Number(totalExperienceYears),
         educationLevel: educationLevel || null,
+        previousJobTitles: previousJobTitles
+          .split('\n')
+          .map((title) => title.trim())
+          .filter(Boolean),
       });
       toast('Profile saved.', 'success');
       setTab('overview');
@@ -344,6 +351,10 @@ export function ProfilePage() {
             />
             <DetailItem label="Education" value={profile?.educationLevel?.replace('_', ' ')} />
             <DetailItem
+              label="Previous titles"
+              value={profile?.previousJobTitles?.length ? profile.previousJobTitles.join(', ') : null}
+            />
+            <DetailItem
               label="Current resume"
               value={
                 resume ? (
@@ -415,6 +426,18 @@ export function ProfilePage() {
                 ))}
               </Select>
             </div>
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs text-text-secondary">
+                Previous job titles (one per line)
+              </label>
+              <textarea
+                value={previousJobTitles}
+                onChange={(e) => setPreviousJobTitles(e.target.value)}
+                rows={3}
+                className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none"
+                placeholder="Backend Engineer&#10;Software Engineer"
+              />
+            </div>
           </div>
           <div className="mt-4">
             <label className="mb-1 block text-xs text-text-secondary">Bio</label>
@@ -453,6 +476,8 @@ export function ProfilePage() {
           <Table columns={columns} rows={skills ?? []} rowKey={(s) => s.id} />
         )}
       </div>
+
+      <WorkHistorySection />
 
       <SkillEditor open={editor.open} initial={editor.skill} onClose={() => setEditor({ open: false, skill: null })} />
 

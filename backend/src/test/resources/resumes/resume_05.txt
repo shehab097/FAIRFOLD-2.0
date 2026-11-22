@@ -1,0 +1,46 @@
+Imran Kabir
+imran.kabir4@example.com | +8801710000548 | linkedin.com/in/imran-kabir-4 | github.com/imrankabir
+Date of Birth: 7 May 1992
+Father's Name: Karim Kabir
+Mother's Name: Rahima Kabir
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198410031676
+Present Address: House 14, Road 7, Dhanmondi, Dhaka
+Permanent Address: Village Imranpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Frontend Engineer with experience building reliable software. I work with JavaScript and React, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+JavaScript, React, Node.js, TypeScript, PostgreSQL, MySQL
+
+WORK EXPERIENCE
+Frontend Engineer
+Brain Station 23
+May 2019 - Sep 2020
+- Built and maintained services in JavaScript.
+- Improved API performance and added automated tests.
+- Worked with Node.js and TypeScript.
+
+Software Engineer
+Daraz Bangladesh
+Aug 2017 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Chittagong University of Engineering and Technology
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- React Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

@@ -1,0 +1,842 @@
+{
+  "resume_01.txt": {
+    "firstName": "Tanvir",
+    "lastName": "Ahmed",
+    "email": "tanvir.ahmed0@example.com",
+    "phone": "+8801710000000",
+    "mustNotAppear": [
+      "Tanvir Ahmed",
+      "Tanvir",
+      "Ahmed",
+      "tanvir.ahmed0@example.com",
+      "+8801710000000",
+      "3 Jan 1988",
+      "198010000000",
+      "House 10, Road 3, Dhanmondi, Dhaka",
+      "linkedin.com/in/tanvir-ahmed-0",
+      "github.com/tanvirahmed",
+      "University of Dhaka",
+      "Grameenphone",
+      "bKash"
+    ],
+    "mustAppear": [
+      "Java",
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React"
+    ]
+  },
+  "resume_02.txt": {
+    "firstName": "Nusrat",
+    "lastName": "Jahan",
+    "email": "nusrat.jahan1@example.com",
+    "phone": "+8801710000137",
+    "mustNotAppear": [
+      "Nusrat Jahan",
+      "Nusrat",
+      "Jahan",
+      "nusrat.jahan1@example.com",
+      "+8801710000137",
+      "4 Feb 1989",
+      "198110007919",
+      "House 11, Road 4, Dhanmondi, Dhaka",
+      "linkedin.com/in/nusrat-jahan-1",
+      "github.com/nusratjahan",
+      "Bangladesh University of Engineering and Technology"
+    ],
+    "mustAppear": [
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js"
+    ]
+  },
+  "resume_03.txt": {
+    "firstName": "Rafiq",
+    "lastName": "Hasan",
+    "email": "rafiq.hasan2@example.com",
+    "phone": "+8801710000274",
+    "mustNotAppear": [
+      "Rafiq Hasan",
+      "Rafiq",
+      "Hasan",
+      "rafiq.hasan2@example.com",
+      "+8801710000274",
+      "5 Mar 1990",
+      "198210015838",
+      "House 12, Road 5, Dhanmondi, Dhaka",
+      "linkedin.com/in/rafiq-hasan-2",
+      "github.com/rafiqhasan",
+      "North South University",
+      "Therap BD",
+      "ShopUp"
+    ],
+    "mustAppear": [
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript"
+    ]
+  },
+  "resume_04.txt": {
+    "firstName": "Sadia",
+    "lastName": "Islam",
+    "email": "sadia.islam3@example.com",
+    "phone": "+8801710000411",
+    "mustNotAppear": [
+      "Sadia Islam",
+      "Sadia",
+      "Islam",
+      "sadia.islam3@example.com",
+      "+8801710000411",
+      "6 Apr 1991",
+      "198310023757",
+      "House 13, Road 6, Dhanmondi, Dhaka",
+      "linkedin.com/in/sadia-islam-3",
+      "github.com/sadiaislam",
+      "BRAC University"
+    ],
+    "mustAppear": [
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL"
+    ]
+  },
+  "resume_05.txt": {
+    "firstName": "Imran",
+    "lastName": "Kabir",
+    "email": "imran.kabir4@example.com",
+    "phone": "+8801710000548",
+    "mustNotAppear": [
+      "Imran Kabir",
+      "Imran",
+      "Kabir",
+      "imran.kabir4@example.com",
+      "+8801710000548",
+      "7 May 1992",
+      "198410031676",
+      "House 14, Road 7, Dhanmondi, Dhaka",
+      "linkedin.com/in/imran-kabir-4",
+      "github.com/imrankabir",
+      "Chittagong University of Engineering and Technology",
+      "Brain Station 23",
+      "Daraz Bangladesh"
+    ],
+    "mustAppear": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL"
+    ]
+  },
+  "resume_06.txt": {
+    "firstName": "Farhana",
+    "lastName": "Akter",
+    "email": "farhana.akter5@example.com",
+    "phone": "+8801710000685",
+    "mustNotAppear": [
+      "Farhana Akter",
+      "Farhana",
+      "Akter",
+      "farhana.akter5@example.com",
+      "+8801710000685",
+      "8 Jun 1993",
+      "198510039595",
+      "House 15, Road 8, Dhanmondi, Dhaka",
+      "linkedin.com/in/farhana-akter-5",
+      "github.com/farhanaakter",
+      "Rajshahi University"
+    ],
+    "mustAppear": [
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL",
+      "Docker"
+    ]
+  },
+  "resume_07.txt": {
+    "firstName": "Mahmud",
+    "lastName": "Rahman",
+    "email": "mahmud.rahman6@example.com",
+    "phone": "+8801710000822",
+    "mustNotAppear": [
+      "Mahmud Rahman",
+      "Mahmud",
+      "Rahman",
+      "mahmud.rahman6@example.com",
+      "+8801710000822",
+      "9 Jul 1994",
+      "198610047514",
+      "House 16, Road 9, Dhanmondi, Dhaka",
+      "linkedin.com/in/mahmud-rahman-6",
+      "github.com/mahmudrahman",
+      "Jahangirnagar University",
+      "Pathao",
+      "BlueOrbit Solutions"
+    ],
+    "mustAppear": [
+      "Java",
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React"
+    ]
+  },
+  "resume_08.txt": {
+    "firstName": "Tasnim",
+    "lastName": "Chowdhury",
+    "email": "tasnim.chowdhury7@example.com",
+    "phone": "+8801710000959",
+    "mustNotAppear": [
+      "Tasnim Chowdhury",
+      "Tasnim",
+      "Chowdhury",
+      "tasnim.chowdhury7@example.com",
+      "+8801710000959",
+      "10 Aug 1995",
+      "198710055433",
+      "House 17, Road 10, Dhanmondi, Dhaka",
+      "linkedin.com/in/tasnim-chowdhury-7",
+      "github.com/tasnimchowdhury",
+      "Daffodil International University"
+    ],
+    "mustAppear": [
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js"
+    ]
+  },
+  "resume_09.txt": {
+    "firstName": "Arif",
+    "lastName": "Hossain",
+    "email": "arif.hossain8@example.com",
+    "phone": "+8801710001096",
+    "mustNotAppear": [
+      "Arif Hossain",
+      "Arif",
+      "Hossain",
+      "arif.hossain8@example.com",
+      "+8801710001096",
+      "11 Sep 1988",
+      "198810063352",
+      "House 18, Road 11, Dhanmondi, Dhaka",
+      "linkedin.com/in/arif-hossain-8",
+      "github.com/arifhossain",
+      "American International University-Bangladesh",
+      "Chaldal",
+      "Delta Software Company"
+    ],
+    "mustAppear": [
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript"
+    ]
+  },
+  "resume_10.txt": {
+    "firstName": "Mitu",
+    "lastName": "Sultana",
+    "email": "mitu.sultana9@example.com",
+    "phone": "+8801710001233",
+    "mustNotAppear": [
+      "Mitu Sultana",
+      "Mitu",
+      "Sultana",
+      "mitu.sultana9@example.com",
+      "+8801710001233",
+      "12 Oct 1989",
+      "198910071271",
+      "House 19, Road 3, Dhanmondi, Dhaka",
+      "linkedin.com/in/mitu-sultana-9",
+      "github.com/mitusultana",
+      "Khulna University of Engineering and Technology"
+    ],
+    "mustAppear": [
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL"
+    ]
+  },
+  "resume_11.txt": {
+    "firstName": "Shakib",
+    "lastName": "Alam",
+    "email": "shakib.alam10@example.com",
+    "phone": "+8801710001370",
+    "mustNotAppear": [
+      "Shakib Alam",
+      "Shakib",
+      "Alam",
+      "shakib.alam10@example.com",
+      "+8801710001370",
+      "13 Nov 1990",
+      "199010079190",
+      "House 20, Road 4, Dhanmondi, Dhaka",
+      "linkedin.com/in/shakib-alam-10",
+      "github.com/shakibalam",
+      "Stanford University",
+      "Acme Technologies",
+      "Orbit Data Systems"
+    ],
+    "mustAppear": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL"
+    ]
+  },
+  "resume_12.txt": {
+    "firstName": "Rumana",
+    "lastName": "Begum",
+    "email": "rumana.begum11@example.com",
+    "phone": "+8801710001507",
+    "mustNotAppear": [
+      "Rumana Begum",
+      "Rumana",
+      "Begum",
+      "rumana.begum11@example.com",
+      "+8801710001507",
+      "14 Dec 1991",
+      "199110087109",
+      "House 21, Road 5, Dhanmondi, Dhaka",
+      "linkedin.com/in/rumana-begum-11",
+      "github.com/rumanabegum",
+      "University of Toronto"
+    ],
+    "mustAppear": [
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL",
+      "Docker"
+    ]
+  },
+  "resume_13.txt": {
+    "firstName": "Jahid",
+    "lastName": "Karim",
+    "email": "jahid.karim12@example.com",
+    "phone": "+8801710001644",
+    "mustNotAppear": [
+      "Jahid Karim",
+      "Jahid",
+      "Karim",
+      "jahid.karim12@example.com",
+      "+8801710001644",
+      "15 Jan 1992",
+      "199210095028",
+      "House 22, Road 6, Dhanmondi, Dhaka",
+      "linkedin.com/in/jahid-karim-12",
+      "github.com/jahidkarim",
+      "National University of Singapore",
+      "Nexus Systems Ltd.",
+      "FinEdge Solutions Ltd."
+    ],
+    "mustAppear": [
+      "Java",
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React"
+    ]
+  },
+  "resume_14.txt": {
+    "firstName": "Nabila",
+    "lastName": "Rashid",
+    "email": "nabila.rashid13@example.com",
+    "phone": "+8801710001781",
+    "mustNotAppear": [
+      "Nabila Rashid",
+      "Nabila",
+      "Rashid",
+      "nabila.rashid13@example.com",
+      "+8801710001781",
+      "16 Feb 1993",
+      "199310102947",
+      "House 23, Road 7, Dhanmondi, Dhaka",
+      "linkedin.com/in/nabila-rashid-13",
+      "github.com/nabilarashid",
+      "Indian Institute of Technology Bombay"
+    ],
+    "mustAppear": [
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js"
+    ]
+  },
+  "resume_15.txt": {
+    "firstName": "Sabbir",
+    "lastName": "Mahmood",
+    "email": "sabbir.mahmood14@example.com",
+    "phone": "+8801710001918",
+    "mustNotAppear": [
+      "Sabbir Mahmood",
+      "Sabbir",
+      "Mahmood",
+      "sabbir.mahmood14@example.com",
+      "+8801710001918",
+      "17 Mar 1994",
+      "199410110866",
+      "House 24, Road 8, Dhanmondi, Dhaka",
+      "linkedin.com/in/sabbir-mahmood-14",
+      "github.com/sabbirmahmood",
+      "University of Melbourne",
+      "GreenField Bank",
+      "BRAC Bank"
+    ],
+    "mustAppear": [
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript"
+    ]
+  },
+  "resume_16.txt": {
+    "firstName": "Tania",
+    "lastName": "Parvin",
+    "email": "tania.parvin15@example.com",
+    "phone": "+8801710002055",
+    "mustNotAppear": [
+      "Tania Parvin",
+      "Tania",
+      "Parvin",
+      "tania.parvin15@example.com",
+      "+8801710002055",
+      "18 Apr 1995",
+      "198010118785",
+      "House 25, Road 9, Dhanmondi, Dhaka",
+      "linkedin.com/in/tania-parvin-15",
+      "github.com/taniaparvin",
+      "University of Manchester"
+    ],
+    "mustAppear": [
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL"
+    ]
+  },
+  "resume_17.txt": {
+    "firstName": "Mehedi",
+    "lastName": "Haque",
+    "email": "mehedi.haque16@example.com",
+    "phone": "+8801710002192",
+    "mustNotAppear": [
+      "Mehedi Haque",
+      "Mehedi",
+      "Haque",
+      "mehedi.haque16@example.com",
+      "+8801710002192",
+      "19 May 1988",
+      "198110126704",
+      "House 26, Road 10, Dhanmondi, Dhaka",
+      "linkedin.com/in/mehedi-haque-16",
+      "github.com/mehedihaque",
+      "University of Dhaka",
+      "CloudNine Technologies",
+      "Enosis Solutions"
+    ],
+    "mustAppear": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL"
+    ]
+  },
+  "resume_18.txt": {
+    "firstName": "Ishrat",
+    "lastName": "Jahan",
+    "email": "ishrat.jahan17@example.com",
+    "phone": "+8801710002329",
+    "mustNotAppear": [
+      "Ishrat Jahan",
+      "Ishrat",
+      "Jahan",
+      "ishrat.jahan17@example.com",
+      "+8801710002329",
+      "20 Jun 1989",
+      "198210134623",
+      "House 27, Road 11, Dhanmondi, Dhaka",
+      "linkedin.com/in/ishrat-jahan-17",
+      "github.com/ishratjahan",
+      "Bangladesh University of Engineering and Technology"
+    ],
+    "mustAppear": [
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL",
+      "Docker"
+    ]
+  },
+  "resume_19.txt": {
+    "firstName": "Fahim",
+    "lastName": "Zaman",
+    "email": "fahim.zaman18@example.com",
+    "phone": "+8801710002466",
+    "mustNotAppear": [
+      "Fahim Zaman",
+      "Fahim",
+      "Zaman",
+      "fahim.zaman18@example.com",
+      "+8801710002466",
+      "21 Jul 1990",
+      "198310142542",
+      "House 28, Road 3, Dhanmondi, Dhaka",
+      "linkedin.com/in/fahim-zaman-18",
+      "github.com/fahimzaman",
+      "North South University",
+      "Grameenphone",
+      "bKash"
+    ],
+    "mustAppear": [
+      "Java",
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React"
+    ]
+  },
+  "resume_20.txt": {
+    "firstName": "Sumaiya",
+    "lastName": "Rahman",
+    "email": "sumaiya.rahman19@example.com",
+    "phone": "+8801710002603",
+    "mustNotAppear": [
+      "Sumaiya Rahman",
+      "Sumaiya",
+      "Rahman",
+      "sumaiya.rahman19@example.com",
+      "+8801710002603",
+      "22 Aug 1991",
+      "198410150461",
+      "House 29, Road 4, Dhanmondi, Dhaka",
+      "linkedin.com/in/sumaiya-rahman-19",
+      "github.com/sumaiyarahman",
+      "BRAC University"
+    ],
+    "mustAppear": [
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js"
+    ]
+  },
+  "resume_21.txt": {
+    "firstName": "Rakib",
+    "lastName": "Uddin",
+    "email": "rakib.uddin20@example.com",
+    "phone": "+8801710002740",
+    "mustNotAppear": [
+      "Rakib Uddin",
+      "Rakib",
+      "Uddin",
+      "rakib.uddin20@example.com",
+      "+8801710002740",
+      "23 Sep 1992",
+      "198510158380",
+      "House 30, Road 5, Dhanmondi, Dhaka",
+      "linkedin.com/in/rakib-uddin-20",
+      "github.com/rakibuddin",
+      "Chittagong University of Engineering and Technology",
+      "Therap BD",
+      "ShopUp"
+    ],
+    "mustAppear": [
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript"
+    ]
+  },
+  "resume_22.txt": {
+    "firstName": "Anika",
+    "lastName": "Tabassum",
+    "email": "anika.tabassum21@example.com",
+    "phone": "+8801710002877",
+    "mustNotAppear": [
+      "Anika Tabassum",
+      "Anika",
+      "Tabassum",
+      "anika.tabassum21@example.com",
+      "+8801710002877",
+      "24 Oct 1993",
+      "198610166299",
+      "House 31, Road 6, Dhanmondi, Dhaka",
+      "linkedin.com/in/anika-tabassum-21",
+      "github.com/anikatabassum",
+      "Rajshahi University"
+    ],
+    "mustAppear": [
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL"
+    ]
+  },
+  "resume_23.txt": {
+    "firstName": "Sajid",
+    "lastName": "Bhuiyan",
+    "email": "sajid.bhuiyan22@example.com",
+    "phone": "+8801710003014",
+    "mustNotAppear": [
+      "Sajid Bhuiyan",
+      "Sajid",
+      "Bhuiyan",
+      "sajid.bhuiyan22@example.com",
+      "+8801710003014",
+      "25 Nov 1994",
+      "198710174218",
+      "House 32, Road 7, Dhanmondi, Dhaka",
+      "linkedin.com/in/sajid-bhuiyan-22",
+      "github.com/sajidbhuiyan",
+      "Jahangirnagar University",
+      "Brain Station 23",
+      "Daraz Bangladesh"
+    ],
+    "mustAppear": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL"
+    ]
+  },
+  "resume_24.txt": {
+    "firstName": "Lamia",
+    "lastName": "Siddiqua",
+    "email": "lamia.siddiqua23@example.com",
+    "phone": "+8801710003151",
+    "mustNotAppear": [
+      "Lamia Siddiqua",
+      "Lamia",
+      "Siddiqua",
+      "lamia.siddiqua23@example.com",
+      "+8801710003151",
+      "26 Dec 1995",
+      "198810182137",
+      "House 33, Road 8, Dhanmondi, Dhaka",
+      "linkedin.com/in/lamia-siddiqua-23",
+      "github.com/lamiasiddiqua",
+      "Daffodil International University"
+    ],
+    "mustAppear": [
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL",
+      "Docker"
+    ]
+  },
+  "resume_25.txt": {
+    "firstName": "Tuhin",
+    "lastName": "Barua",
+    "email": "tuhin.barua24@example.com",
+    "phone": "+8801710003288",
+    "mustNotAppear": [
+      "Tuhin Barua",
+      "Tuhin",
+      "Barua",
+      "tuhin.barua24@example.com",
+      "+8801710003288",
+      "27 Jan 1988",
+      "198910190056",
+      "House 34, Road 9, Dhanmondi, Dhaka",
+      "linkedin.com/in/tuhin-barua-24",
+      "github.com/tuhinbarua",
+      "American International University-Bangladesh",
+      "Pathao",
+      "BlueOrbit Solutions"
+    ],
+    "mustAppear": [
+      "Java",
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React"
+    ]
+  },
+  "resume_26.txt": {
+    "firstName": "Mariam",
+    "lastName": "Khan",
+    "email": "mariam.khan25@example.com",
+    "phone": "+8801710003425",
+    "mustNotAppear": [
+      "Mariam Khan",
+      "Mariam",
+      "Khan",
+      "mariam.khan25@example.com",
+      "+8801710003425",
+      "28 Feb 1989",
+      "199010197975",
+      "House 35, Road 10, Dhanmondi, Dhaka",
+      "linkedin.com/in/mariam-khan-25",
+      "github.com/mariamkhan",
+      "Khulna University of Engineering and Technology"
+    ],
+    "mustAppear": [
+      "Spring Boot",
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js"
+    ]
+  },
+  "resume_27.txt": {
+    "firstName": "Naeem",
+    "lastName": "Sarker",
+    "email": "naeem.sarker26@example.com",
+    "phone": "+8801710003562",
+    "mustNotAppear": [
+      "Naeem Sarker",
+      "Naeem",
+      "Sarker",
+      "naeem.sarker26@example.com",
+      "+8801710003562",
+      "29 Mar 1990",
+      "199110205894",
+      "House 36, Road 11, Dhanmondi, Dhaka",
+      "linkedin.com/in/naeem-sarker-26",
+      "github.com/naeemsarker",
+      "Stanford University",
+      "Chaldal",
+      "Delta Software Company"
+    ],
+    "mustAppear": [
+      "Python",
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript"
+    ]
+  },
+  "resume_28.txt": {
+    "firstName": "Priya",
+    "lastName": "Dey",
+    "email": "priya.dey27@example.com",
+    "phone": "+8801710003699",
+    "mustNotAppear": [
+      "Priya Dey",
+      "Priya",
+      "Dey",
+      "priya.dey27@example.com",
+      "+8801710003699",
+      "30 Apr 1991",
+      "199210213813",
+      "House 37, Road 3, Dhanmondi, Dhaka",
+      "linkedin.com/in/priya-dey-27",
+      "github.com/priyadey",
+      "University of Toronto"
+    ],
+    "mustAppear": [
+      "Django",
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL"
+    ]
+  },
+  "resume_29.txt": {
+    "firstName": "Ayaan",
+    "lastName": "Siddiqui",
+    "email": "ayaan.siddiqui28@example.com",
+    "phone": "+8801710003836",
+    "mustNotAppear": [
+      "Ayaan Siddiqui",
+      "Ayaan",
+      "Siddiqui",
+      "ayaan.siddiqui28@example.com",
+      "+8801710003836",
+      "31 May 1992",
+      "199310221732",
+      "House 38, Road 4, Dhanmondi, Dhaka",
+      "linkedin.com/in/ayaan-siddiqui-28",
+      "github.com/ayaansiddiqui",
+      "National University of Singapore",
+      "Acme Technologies",
+      "Orbit Data Systems"
+    ],
+    "mustAppear": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL"
+    ]
+  },
+  "resume_30.txt": {
+    "firstName": "Zarin",
+    "lastName": "Tasnim",
+    "email": "zarin.tasnim29@example.com",
+    "phone": "+8801710003973",
+    "mustNotAppear": [
+      "Zarin Tasnim",
+      "Zarin",
+      "Tasnim",
+      "zarin.tasnim29@example.com",
+      "+8801710003973",
+      "32 Jun 1993",
+      "199410229651",
+      "House 39, Road 5, Dhanmondi, Dhaka",
+      "linkedin.com/in/zarin-tasnim-29",
+      "github.com/zarintasnim",
+      "Indian Institute of Technology Bombay"
+    ],
+    "mustAppear": [
+      "React",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "MySQL",
+      "Docker"
+    ]
+  }
+}

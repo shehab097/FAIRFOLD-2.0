@@ -1,0 +1,46 @@
+Tuhin Barua
+tuhin.barua24@example.com | +8801710003288 | linkedin.com/in/tuhin-barua-24 | github.com/tuhinbarua
+Date of Birth: 27 Jan 1988
+Father's Name: Karim Barua
+Mother's Name: Rahima Barua
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198910190056
+Present Address: House 34, Road 9, Dhanmondi, Dhaka
+Permanent Address: Village Tuhinpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Software Engineer with experience building reliable software. I work with Java and Spring Boot, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Java, Spring Boot, Python, Django, JavaScript, React
+
+WORK EXPERIENCE
+Software Engineer
+Pathao
+Jan 2019 - May 2020
+- Built and maintained services in Java.
+- Improved API performance and added automated tests.
+- Worked with Python and Django.
+
+Software Engineer
+BlueOrbit Solutions
+Apr 2017 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+American International University-Bangladesh
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- Spring Boot Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

@@ -102,6 +102,13 @@
             <version>8.10.1</version>
         </dependency>
 
+        <!-- PDF text extraction for resumes -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
         <!-- WebP ImageIO reader/writer for profile-photo conversion -->
         <dependency>
             <groupId>com.github.usefulness</groupId>

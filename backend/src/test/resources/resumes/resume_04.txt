@@ -1,0 +1,46 @@
+Sadia Islam
+sadia.islam3@example.com | +8801710000411 | linkedin.com/in/sadia-islam-3 | github.com/sadiaislam
+Date of Birth: 6 Apr 1991
+Father's Name: Karim Islam
+Mother's Name: Rahima Islam
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198310023757
+Present Address: House 13, Road 6, Dhanmondi, Dhaka
+Permanent Address: Village Sadiapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Full Stack Developer with experience building reliable software. I work with Django and JavaScript, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Django, JavaScript, React, Node.js, TypeScript, PostgreSQL
+
+WORK EXPERIENCE
+Full Stack Developer
+Enosis Solutions
+Apr 2018 - Aug 2022
+- Built and maintained services in Django.
+- Improved API performance and added automated tests.
+- Worked with React and Node.js.
+
+Software Engineer
+Chaldal
+Jul 2016 - Nov 2019
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+BRAC University
+2011 - 2015
+CGPA: 3.8/4.00
+
+CERTIFICATIONS
+- JavaScript Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

@@ -1,0 +1,46 @@
+Sabbir Mahmood
+sabbir.mahmood14@example.com | +8801710001918 | linkedin.com/in/sabbir-mahmood-14 | github.com/sabbirmahmood
+Date of Birth: 17 Mar 1994
+Father's Name: Karim Mahmood
+Mother's Name: Rahima Mahmood
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199410110866
+Present Address: House 24, Road 8, Dhanmondi, Dhaka
+Permanent Address: Village Sabbirpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+DevOps Engineer with experience building reliable software. I work with Python and Django, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Python, Django, JavaScript, React, Node.js, TypeScript
+
+WORK EXPERIENCE
+DevOps Engineer
+GreenField Bank
+Mar 2019 - Jul 2022
+- Built and maintained services in Python.
+- Improved API performance and added automated tests.
+- Worked with JavaScript and React.
+
+Software Engineer
+BRAC Bank
+Jun 2017 - Oct 2019
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+University of Melbourne
+2010 - 2014
+CGPA: 3.7/4.00
+
+CERTIFICATIONS
+- Django Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

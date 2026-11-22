@@ -1,0 +1,46 @@
+Rumana Begum
+rumana.begum11@example.com | +8801710001507 | linkedin.com/in/rumana-begum-11 | github.com/rumanabegum
+Date of Birth: 14 Dec 1991
+Father's Name: Karim Begum
+Mother's Name: Rahima Begum
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199110087109
+Present Address: House 21, Road 5, Dhanmondi, Dhaka
+Permanent Address: Village Rumanapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Full Stack Developer with experience building reliable software. I work with React and Node.js, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+React, Node.js, TypeScript, PostgreSQL, MySQL, Docker
+
+WORK EXPERIENCE
+Full Stack Developer
+BlueOrbit Solutions
+Dec 2016 - Apr 2020
+- Built and maintained services in React.
+- Improved API performance and added automated tests.
+- Worked with TypeScript and PostgreSQL.
+
+Software Engineer
+CloudNine Technologies
+Mar 2019 - Jul 2022
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+University of Toronto
+2011 - 2015
+CGPA: 3.8/4.00
+
+CERTIFICATIONS
+- Node.js Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

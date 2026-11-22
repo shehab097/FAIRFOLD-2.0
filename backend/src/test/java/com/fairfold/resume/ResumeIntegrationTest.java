@@ -23,6 +23,9 @@ class ResumeIntegrationTest extends AbstractIntegrationTest {
     @MockitoBean
     private StorageService storageService;
 
+    @MockitoBean
+    private ResumeProcessingService processingService;
+
     private static String bearer(String token) {
         return "Bearer " + token;
     }
@@ -39,7 +42,7 @@ class ResumeIntegrationTest extends AbstractIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, bearer(candidate.token())))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.filename").value("cv.pdf"))
-                .andExpect(jsonPath("$.status").value("uploaded"))
+                .andExpect(jsonPath("$.status").value("processing"))
                 .andExpect(jsonPath("$.sizeBytes").value(pdf.length));
 
         mockMvc.perform(get("/api/candidate/resume").header(HttpHeaders.AUTHORIZATION, bearer(candidate.token())))

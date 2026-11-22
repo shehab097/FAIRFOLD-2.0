@@ -1,0 +1,46 @@
+Priya Dey
+priya.dey27@example.com | +8801710003699 | linkedin.com/in/priya-dey-27 | github.com/priyadey
+Date of Birth: 30 Apr 1991
+Father's Name: Karim Dey
+Mother's Name: Rahima Dey
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199210213813
+Present Address: House 37, Road 3, Dhanmondi, Dhaka
+Permanent Address: Village Priyapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Full Stack Developer with experience building reliable software. I work with Django and JavaScript, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Django, JavaScript, React, Node.js, TypeScript, PostgreSQL
+
+WORK EXPERIENCE
+Full Stack Developer
+Daraz Bangladesh
+Apr 2017 - Aug 2021
+- Built and maintained services in Django.
+- Improved API performance and added automated tests.
+- Worked with React and Node.js.
+
+Software Engineer
+GreenField Bank
+Jul 2015 - Nov 2018
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+University of Toronto
+2011 - 2015
+CGPA: 3.8/4.00
+
+CERTIFICATIONS
+- JavaScript Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

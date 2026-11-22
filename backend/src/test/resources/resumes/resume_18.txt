@@ -1,0 +1,46 @@
+Ishrat Jahan
+ishrat.jahan17@example.com | +8801710002329 | linkedin.com/in/ishrat-jahan-17 | github.com/ishratjahan
+Date of Birth: 20 Jun 1989
+Father's Name: Karim Jahan
+Mother's Name: Rahima Jahan
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198210134623
+Present Address: House 27, Road 11, Dhanmondi, Dhaka
+Permanent Address: Village Ishratpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Backend Engineer with experience building reliable software. I work with React and Node.js, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+React, Node.js, TypeScript, PostgreSQL, MySQL, Docker
+
+WORK EXPERIENCE
+Backend Engineer
+FinEdge Solutions Ltd.
+Jun 2017 - Oct 2019
+- Built and maintained services in React.
+- Improved API performance and added automated tests.
+- Worked with TypeScript and PostgreSQL.
+
+Software Engineer
+Brain Station 23
+Sep 2015 - Jan 2016
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Bangladesh University of Engineering and Technology
+2009 - 2013
+CGPA: 3.6/4.00
+
+CERTIFICATIONS
+- Node.js Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

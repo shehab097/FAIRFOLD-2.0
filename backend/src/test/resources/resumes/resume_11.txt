@@ -1,0 +1,46 @@
+Shakib Alam
+shakib.alam10@example.com | +8801710001370 | linkedin.com/in/shakib-alam-10 | github.com/shakibalam
+Date of Birth: 13 Nov 1990
+Father's Name: Karim Alam
+Mother's Name: Rahima Alam
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199010079190
+Present Address: House 20, Road 4, Dhanmondi, Dhaka
+Permanent Address: Village Shakibpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Senior Backend Engineer with experience building reliable software. I work with JavaScript and React, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+JavaScript, React, Node.js, TypeScript, PostgreSQL, MySQL
+
+WORK EXPERIENCE
+Senior Backend Engineer
+Acme Technologies
+Nov 2015 - Mar 2018
+- Built and maintained services in JavaScript.
+- Improved API performance and added automated tests.
+- Worked with Node.js and TypeScript.
+
+Software Engineer
+Orbit Data Systems
+Feb 2018 - Jun 2020
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Stanford University
+2010 - 2014
+CGPA: 3.7/4.00
+
+CERTIFICATIONS
+- React Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

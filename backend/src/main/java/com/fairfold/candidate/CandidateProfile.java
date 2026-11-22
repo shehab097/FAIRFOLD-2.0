@@ -12,6 +12,8 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -45,6 +47,10 @@ public class CandidateProfile {
     @Enumerated(EnumType.STRING)
     @Column(name = "education_level", length = 20)
     private EducationLevel educationLevel;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "previous_job_titles", columnDefinition = "json", nullable = false)
+    private List<String> previousJobTitles = new ArrayList<>();
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -112,6 +118,14 @@ public class CandidateProfile {
 
     public void setEducationLevel(EducationLevel educationLevel) {
         this.educationLevel = educationLevel;
+    }
+
+    public List<String> getPreviousJobTitles() {
+        return previousJobTitles;
+    }
+
+    public void setPreviousJobTitles(List<String> previousJobTitles) {
+        this.previousJobTitles = previousJobTitles == null ? new ArrayList<>() : previousJobTitles;
     }
 
     public Instant getUpdatedAt() {

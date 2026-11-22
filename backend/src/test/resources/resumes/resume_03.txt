@@ -1,0 +1,46 @@
+Rafiq Hasan
+rafiq.hasan2@example.com | +8801710000274 | linkedin.com/in/rafiq-hasan-2 | github.com/rafiqhasan
+Date of Birth: 5 Mar 1990
+Father's Name: Karim Hasan
+Mother's Name: Rahima Hasan
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198210015838
+Present Address: House 12, Road 5, Dhanmondi, Dhaka
+Permanent Address: Village Rafiqpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Senior Backend Engineer with experience building reliable software. I work with Python and Django, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Python, Django, JavaScript, React, Node.js, TypeScript
+
+WORK EXPERIENCE
+Senior Backend Engineer
+Therap BD
+Mar 2017 - Jul 2020
+- Built and maintained services in Python.
+- Improved API performance and added automated tests.
+- Worked with JavaScript and React.
+
+Software Engineer
+ShopUp
+Jun 2015 - Oct 2017
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+North South University
+2010 - 2014
+CGPA: 3.7/4.00
+
+CERTIFICATIONS
+- Django Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

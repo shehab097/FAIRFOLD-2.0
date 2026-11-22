@@ -1,0 +1,46 @@
+Farhana Akter
+farhana.akter5@example.com | +8801710000685 | linkedin.com/in/farhana-akter-5 | github.com/farhanaakter
+Date of Birth: 8 Jun 1993
+Father's Name: Karim Akter
+Mother's Name: Rahima Akter
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198510039595
+Present Address: House 15, Road 8, Dhanmondi, Dhaka
+Permanent Address: Village Farhanapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Data Engineer with experience building reliable software. I work with React and Node.js, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+React, Node.js, TypeScript, PostgreSQL, MySQL, Docker
+
+WORK EXPERIENCE
+Data Engineer
+bKash
+Jun 2015 - Oct 2017
+- Built and maintained services in React.
+- Improved API performance and added automated tests.
+- Worked with TypeScript and PostgreSQL.
+
+Software Engineer
+Acme Technologies
+Sep 2018 - Jan 2019
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Rajshahi University
+2009 - 2013
+CGPA: 3.6/4.00
+
+CERTIFICATIONS
+- Node.js Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

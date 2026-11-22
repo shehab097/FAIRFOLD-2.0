@@ -1,0 +1,46 @@
+Tanvir Ahmed
+tanvir.ahmed0@example.com | +8801710000000 | linkedin.com/in/tanvir-ahmed-0 | github.com/tanvirahmed
+Date of Birth: 3 Jan 1988
+Father's Name: Karim Ahmed
+Mother's Name: Rahima Ahmed
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198010000000
+Present Address: House 10, Road 3, Dhanmondi, Dhaka
+Permanent Address: Village Tanvirpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Software Engineer with experience building reliable software. I work with Java and Spring Boot, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Java, Spring Boot, Python, Django, JavaScript, React
+
+WORK EXPERIENCE
+Software Engineer
+Grameenphone
+Jan 2015 - May 2016
+- Built and maintained services in Java.
+- Improved API performance and added automated tests.
+- Worked with Python and Django.
+
+Software Engineer
+bKash
+Apr 2018 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+University of Dhaka
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- Spring Boot Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

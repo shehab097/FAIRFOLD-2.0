@@ -1,0 +1,46 @@
+Tania Parvin
+tania.parvin15@example.com | +8801710002055 | linkedin.com/in/tania-parvin-15 | github.com/taniaparvin
+Date of Birth: 18 Apr 1995
+Father's Name: Karim Parvin
+Mother's Name: Rahima Parvin
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198010118785
+Present Address: House 25, Road 9, Dhanmondi, Dhaka
+Permanent Address: Village Taniapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Junior Software Engineer with experience building reliable software. I work with Django and JavaScript, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Django, JavaScript, React, Node.js, TypeScript, PostgreSQL
+
+WORK EXPERIENCE
+Junior Software Engineer
+Orbit Data Systems
+Apr 2015 - Aug 2019
+- Built and maintained services in Django.
+- Improved API performance and added automated tests.
+- Worked with React and Node.js.
+
+Software Engineer
+Therap BD
+Jul 2018 - Nov 2021
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+University of Manchester
+2011 - 2015
+CGPA: 3.8/4.00
+
+CERTIFICATIONS
+- JavaScript Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

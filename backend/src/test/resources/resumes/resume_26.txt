@@ -1,0 +1,46 @@
+Mariam Khan
+mariam.khan25@example.com | +8801710003425 | linkedin.com/in/mariam-khan-25 | github.com/mariamkhan
+Date of Birth: 28 Feb 1989
+Father's Name: Karim Khan
+Mother's Name: Rahima Khan
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199010197975
+Present Address: House 35, Road 10, Dhanmondi, Dhaka
+Permanent Address: Village Mariampur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Backend Engineer with experience building reliable software. I work with Spring Boot and Python, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Spring Boot, Python, Django, JavaScript, React, Node.js
+
+WORK EXPERIENCE
+Backend Engineer
+ShopUp
+Feb 2015 - Jun 2017
+- Built and maintained services in Spring Boot.
+- Improved API performance and added automated tests.
+- Worked with Django and JavaScript.
+
+Software Engineer
+Nexus Systems Ltd.
+May 2018 - Sep 2019
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Khulna University of Engineering and Technology
+2009 - 2013
+CGPA: 3.6/4.00
+
+CERTIFICATIONS
+- Python Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

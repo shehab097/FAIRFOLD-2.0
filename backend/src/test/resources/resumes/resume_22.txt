@@ -1,0 +1,46 @@
+Anika Tabassum
+anika.tabassum21@example.com | +8801710002877 | linkedin.com/in/anika-tabassum-21 | github.com/anikatabassum
+Date of Birth: 24 Oct 1993
+Father's Name: Karim Tabassum
+Mother's Name: Rahima Tabassum
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198610166299
+Present Address: House 31, Road 6, Dhanmondi, Dhaka
+Permanent Address: Village Anikapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Data Engineer with experience building reliable software. I work with Django and JavaScript, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Django, JavaScript, React, Node.js, TypeScript, PostgreSQL
+
+WORK EXPERIENCE
+Data Engineer
+Enosis Solutions
+Oct 2016 - Feb 2018
+- Built and maintained services in Django.
+- Improved API performance and added automated tests.
+- Worked with React and Node.js.
+
+Software Engineer
+Chaldal
+Jan 2019 - May 2020
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+Rajshahi University
+2009 - 2013
+CGPA: 3.6/4.00
+
+CERTIFICATIONS
+- JavaScript Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

@@ -55,7 +55,7 @@ public class CandidateService {
         return profileRepository.findById(userId)
                 .map(this::toProfileResponse)
                 .orElseGet(() -> new ProfileResponse(null, null, null, null,
-                        RemotePreference.any.name(), null, null));
+                        RemotePreference.any.name(), null, null, List.of()));
     }
 
     @Transactional
@@ -72,6 +72,7 @@ public class CandidateService {
         profile.setRemotePreference(parseRemotePreference(request.remotePreference()));
         profile.setTotalExperienceYears(request.totalExperienceYears());
         profile.setEducationLevel(parseEducationLevel(request.educationLevel()));
+        profile.setPreviousJobTitles(cleanTitles(request.previousJobTitles()));
         profileRepository.save(profile);
         return toProfileResponse(profile);
     }
@@ -173,7 +174,21 @@ public class CandidateService {
                 profile.getPhone(), profile.getTitle(), profile.getBio(), profile.getLocation(),
                 profile.getRemotePreference() == null ? RemotePreference.any.name() : profile.getRemotePreference().name(),
                 profile.getTotalExperienceYears(),
-                profile.getEducationLevel() == null ? null : profile.getEducationLevel().name());
+                profile.getEducationLevel() == null ? null : profile.getEducationLevel().name(),
+                profile.getPreviousJobTitles());
+    }
+
+    private java.util.List<String> cleanTitles(java.util.List<String> titles) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        if (titles != null) {
+            for (String title : titles) {
+                String value = trimToNull(title);
+                if (value != null && out.size() < 20) {
+                    out.add(value.length() > 255 ? value.substring(0, 255) : value);
+                }
+            }
+        }
+        return out;
     }
 
     private CandidateSkillLevel parseLevel(String value) {

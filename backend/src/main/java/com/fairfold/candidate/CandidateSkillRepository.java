@@ -12,6 +12,8 @@ public interface CandidateSkillRepository extends JpaRepository<CandidateSkill, 
 
     Optional<CandidateSkill> findByIdAndUserId(UUID id, UUID userId);
 
+    Optional<CandidateSkill> findByUserIdAndSkillId(UUID userId, UUID skillId);
+
     boolean existsByUserIdAndSkillId(UUID userId, UUID skillId);
 
     long countByUserId(UUID userId);

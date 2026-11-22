@@ -9,19 +9,15 @@ import java.util.List;
 @Service
 public class SkillService {
 
-    private final SkillRepository skillRepository;
+    private final SkillCanonicalizer canonicalizer;
 
-    public SkillService(SkillRepository skillRepository) {
-        this.skillRepository = skillRepository;
+    public SkillService(SkillCanonicalizer canonicalizer) {
+        this.canonicalizer = canonicalizer;
     }
 
     @Transactional(readOnly = true)
     public List<SkillDto> suggest(String query) {
-        if (query == null || query.isBlank()) {
-            return List.of();
-        }
-        return skillRepository.findTop10ByNameContainingIgnoreCaseOrderByNameAsc(query.trim())
-                .stream()
+        return canonicalizer.suggest(query).stream()
                 .map(SkillDto::from)
                 .toList();
     }

@@ -1,0 +1,46 @@
+Rakib Uddin
+rakib.uddin20@example.com | +8801710002740 | linkedin.com/in/rakib-uddin-20 | github.com/rakibuddin
+Date of Birth: 23 Sep 1992
+Father's Name: Karim Uddin
+Mother's Name: Rahima Uddin
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198510158380
+Present Address: House 30, Road 5, Dhanmondi, Dhaka
+Permanent Address: Village Rakibpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Frontend Engineer with experience building reliable software. I work with Python and Django, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Python, Django, JavaScript, React, Node.js, TypeScript
+
+WORK EXPERIENCE
+Frontend Engineer
+Therap BD
+Sep 2015 - Jan 2016
+- Built and maintained services in Python.
+- Improved API performance and added automated tests.
+- Worked with JavaScript and React.
+
+Software Engineer
+ShopUp
+Dec 2018 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Chittagong University of Engineering and Technology
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- Django Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

@@ -1,0 +1,46 @@
+Fahim Zaman
+fahim.zaman18@example.com | +8801710002466 | linkedin.com/in/fahim-zaman-18 | github.com/fahimzaman
+Date of Birth: 21 Jul 1990
+Father's Name: Karim Zaman
+Mother's Name: Rahima Zaman
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198310142542
+Present Address: House 28, Road 3, Dhanmondi, Dhaka
+Permanent Address: Village Fahimpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Senior Backend Engineer with experience building reliable software. I work with Java and Spring Boot, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Java, Spring Boot, Python, Django, JavaScript, React
+
+WORK EXPERIENCE
+Senior Backend Engineer
+Grameenphone
+Jul 2018 - Nov 2021
+- Built and maintained services in Java.
+- Improved API performance and added automated tests.
+- Worked with Python and Django.
+
+Software Engineer
+bKash
+Oct 2016 - Feb 2018
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+North South University
+2010 - 2014
+CGPA: 3.7/4.00
+
+CERTIFICATIONS
+- Spring Boot Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

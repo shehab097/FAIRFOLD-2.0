@@ -1,0 +1,46 @@
+Nabila Rashid
+nabila.rashid13@example.com | +8801710001781 | linkedin.com/in/nabila-rashid-13 | github.com/nabilarashid
+Date of Birth: 16 Feb 1993
+Father's Name: Karim Rashid
+Mother's Name: Rahima Rashid
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199310102947
+Present Address: House 23, Road 7, Dhanmondi, Dhaka
+Permanent Address: Village Nabilapur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Data Engineer with experience building reliable software. I work with Spring Boot and Python, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Spring Boot, Python, Django, JavaScript, React, Node.js
+
+WORK EXPERIENCE
+Data Engineer
+Delta Software Company
+Feb 2018 - Jun 2020
+- Built and maintained services in Spring Boot.
+- Improved API performance and added automated tests.
+- Worked with Django and JavaScript.
+
+Software Engineer
+Grameenphone
+May 2016 - Sep 2017
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Indian Institute of Technology Bombay
+2009 - 2013
+CGPA: 3.6/4.00
+
+CERTIFICATIONS
+- Python Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

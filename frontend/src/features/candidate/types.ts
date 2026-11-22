@@ -18,6 +18,7 @@ export interface CandidateProfile {
   remotePreference: RemotePreference;
   totalExperienceYears: number | null;
   educationLevel: string | null;
+  previousJobTitles: string[];
 }
 
 export interface CandidateProfileInput {
@@ -28,6 +29,7 @@ export interface CandidateProfileInput {
   remotePreference: RemotePreference;
   totalExperienceYears: number | null;
   educationLevel: string | null;
+  previousJobTitles?: string[];
 }
 
 export interface CandidateSkill {
@@ -45,7 +47,60 @@ export interface Resume {
   sizeBytes: number;
   status: string;
   failureReason: string | null;
+  failureMessage: string | null;
+  strippedText: string | null;
+  droppedPlaceholders: DroppedPlaceholder[];
   uploadedAt: string;
+}
+
+export interface DroppedPlaceholder {
+  placeholder: string;
+  kind: string;
+  originalValue: string;
+}
+
+export interface ResumeSuggestionSkill {
+  name: string;
+  skillId: string | null;
+  level: CandidateSkillLevel;
+  years: number | null;
+}
+
+export interface ResumeSuggestionWork {
+  title: string;
+  employer: string | null;
+  startMonth: string | null;
+  endMonth: string | null;
+  isCurrent: boolean;
+  skillsUsed: string[];
+}
+
+export interface ResumeSuggestions {
+  provider: 'ai' | 'rule_based';
+  skills: ResumeSuggestionSkill[];
+  totalExperienceYears: number | null;
+  educationLevel: string | null;
+  jobTitles: string[];
+  workHistory: ResumeSuggestionWork[];
+}
+
+export interface WorkHistory {
+  id: string;
+  title: string;
+  employer: string | null;
+  startMonth: string | null;
+  endMonth: string | null;
+  isCurrent: boolean;
+  skillsUsed: string[];
+}
+
+export interface WorkHistoryInput {
+  title: string;
+  employer: string | null;
+  startMonth: string | null;
+  endMonth: string | null;
+  isCurrent: boolean;
+  skillsUsed: string[];
 }
 
 export interface CandidateApplicationListItem {

@@ -249,6 +249,7 @@ Key settings (see `.env.example` for the full list):
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `admin@fairfold.local` / *(empty)* | Seeds the first admin on startup |
 | `AI_PROVIDER` | `fallback` | `fallback` (no key) or `deepseek` |
 | `DEEPSEEK_API_KEY` | *(empty)* | Only needed for `AI_PROVIDER=deepseek` |
+| `DEEPSEEK_BASE_URL` / `DEEPSEEK_MODEL` | `https://api.deepseek.com` / `deepseek-flash` | Official DeepSeek API endpoint and model |
 | `PAYMENT_PROVIDER` | `fake` | `fake` or `bkash` |
 | `STORAGE_DIR` | `../data/resumes` | Where uploaded resumes are stored |
 | `APP_BASE_URL` | `http://localhost:5173` | Frontend base URL used in links |

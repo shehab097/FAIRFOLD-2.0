@@ -1,0 +1,46 @@
+Ayaan Siddiqui
+ayaan.siddiqui28@example.com | +8801710003836 | linkedin.com/in/ayaan-siddiqui-28 | github.com/ayaansiddiqui
+Date of Birth: 31 May 1992
+Father's Name: Karim Siddiqui
+Mother's Name: Rahima Siddiqui
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 199310221732
+Present Address: House 38, Road 4, Dhanmondi, Dhaka
+Permanent Address: Village Ayaanpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Frontend Engineer with experience building reliable software. I work with JavaScript and React, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+JavaScript, React, Node.js, TypeScript, PostgreSQL, MySQL
+
+WORK EXPERIENCE
+Frontend Engineer
+Acme Technologies
+May 2018 - Sep 2019
+- Built and maintained services in JavaScript.
+- Improved API performance and added automated tests.
+- Worked with Node.js and TypeScript.
+
+Software Engineer
+Orbit Data Systems
+Aug 2016 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+National University of Singapore
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- React Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

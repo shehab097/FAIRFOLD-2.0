@@ -1,19 +1,26 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   addSkill,
+  applyResumeSuggestions,
   applyToJob,
+  createWorkHistory,
+  deleteWorkHistory,
   deleteSkill,
   getApplication,
   getDashboard,
   getProfile,
   getResume,
+  getResumeSuggestions,
   listApplications,
   listSkills,
+  listWorkHistory,
+  reportWrongStrip,
   updateProfile,
   updateSkill,
+  updateWorkHistory,
   uploadResume,
 } from '../../api/candidate';
-import type { ApplicationStatus } from './types';
+import type { ApplicationStatus, WorkHistoryInput } from './types';
 
 export function useProfile() {
   return useQuery({ queryKey: ['candidate', 'profile'], queryFn: getProfile });
@@ -66,7 +73,13 @@ export function useDeleteSkill() {
 }
 
 export function useResume() {
-  return useQuery({ queryKey: ['candidate', 'resume'], queryFn: getResume, retry: false });
+  return useQuery({
+    queryKey: ['candidate', 'resume'],
+    queryFn: getResume,
+    retry: false,
+    refetchInterval: (query) =>
+      query.state.data?.status === 'processing' ? 2000 : false,
+  });
 }
 
 export function useUploadResume() {
@@ -76,6 +89,74 @@ export function useUploadResume() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['candidate', 'resume'] });
       qc.invalidateQueries({ queryKey: ['candidate', 'dashboard'] });
+    },
+  });
+}
+
+export function useResumeSuggestions(enabled: boolean) {
+  return useQuery({
+    queryKey: ['candidate', 'resume', 'suggestions'],
+    queryFn: getResumeSuggestions,
+    enabled,
+    retry: false,
+  });
+}
+
+export function useApplyResumeSuggestions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: applyResumeSuggestions,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['candidate', 'profile'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'skills'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'work-history'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'dashboard'] });
+    },
+  });
+}
+
+export function useReportWrongStrip() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: reportWrongStrip,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['candidate', 'resume'] }),
+  });
+}
+
+export function useWorkHistory() {
+  return useQuery({ queryKey: ['candidate', 'work-history'], queryFn: listWorkHistory });
+}
+
+export function useCreateWorkHistory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createWorkHistory,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['candidate', 'work-history'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'profile'] });
+    },
+  });
+}
+
+export function useUpdateWorkHistory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: WorkHistoryInput }) =>
+      updateWorkHistory(id, input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['candidate', 'work-history'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'profile'] });
+    },
+  });
+}
+
+export function useDeleteWorkHistory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteWorkHistory,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['candidate', 'work-history'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'profile'] });
     },
   });
 }

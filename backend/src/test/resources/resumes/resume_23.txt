@@ -1,0 +1,46 @@
+Sajid Bhuiyan
+sajid.bhuiyan22@example.com | +8801710003014 | linkedin.com/in/sajid-bhuiyan-22 | github.com/sajidbhuiyan
+Date of Birth: 25 Nov 1994
+Father's Name: Karim Bhuiyan
+Mother's Name: Rahima Bhuiyan
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198710174218
+Present Address: House 32, Road 7, Dhanmondi, Dhaka
+Permanent Address: Village Sajidpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+DevOps Engineer with experience building reliable software. I work with JavaScript and React, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+JavaScript, React, Node.js, TypeScript, PostgreSQL, MySQL
+
+WORK EXPERIENCE
+DevOps Engineer
+Brain Station 23
+Nov 2017 - Mar 2020
+- Built and maintained services in JavaScript.
+- Improved API performance and added automated tests.
+- Worked with Node.js and TypeScript.
+
+Software Engineer
+Daraz Bangladesh
+Feb 2015 - Jun 2017
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+Jahangirnagar University
+2010 - 2014
+CGPA: 3.7/4.00
+
+CERTIFICATIONS
+- React Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

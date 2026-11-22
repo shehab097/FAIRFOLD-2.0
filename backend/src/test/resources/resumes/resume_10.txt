@@ -1,0 +1,46 @@
+Mitu Sultana
+mitu.sultana9@example.com | +8801710001233 | linkedin.com/in/mitu-sultana-9 | github.com/mitusultana
+Date of Birth: 12 Oct 1989
+Father's Name: Karim Sultana
+Mother's Name: Rahima Sultana
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198910071271
+Present Address: House 19, Road 3, Dhanmondi, Dhaka
+Permanent Address: Village Mitupur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Backend Engineer with experience building reliable software. I work with Django and JavaScript, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Django, JavaScript, React, Node.js, TypeScript, PostgreSQL
+
+WORK EXPERIENCE
+Backend Engineer
+Daraz Bangladesh
+Oct 2019 - Feb 2021
+- Built and maintained services in Django.
+- Improved API performance and added automated tests.
+- Worked with React and Node.js.
+
+Software Engineer
+GreenField Bank
+Jan 2017 - May 2018
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+MSc in Computer Science
+Khulna University of Engineering and Technology
+2009 - 2013
+CGPA: 3.6/4.00
+
+CERTIFICATIONS
+- JavaScript Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.

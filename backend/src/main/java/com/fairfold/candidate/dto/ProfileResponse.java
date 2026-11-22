@@ -1,6 +1,7 @@
 package com.fairfold.candidate.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public record ProfileResponse(
         String phone,
@@ -9,6 +10,7 @@ public record ProfileResponse(
         String location,
         String remotePreference,
         BigDecimal totalExperienceYears,
-        String educationLevel
+        String educationLevel,
+        List<String> previousJobTitles
 ) {
 }

@@ -1,0 +1,46 @@
+Arif Hossain
+arif.hossain8@example.com | +8801710001096 | linkedin.com/in/arif-hossain-8 | github.com/arifhossain
+Date of Birth: 11 Sep 1988
+Father's Name: Karim Hossain
+Mother's Name: Rahima Hossain
+Nationality: Bangladeshi
+Religion: Islam
+Marital Status: Single
+NID: 198810063352
+Present Address: House 18, Road 11, Dhanmondi, Dhaka
+Permanent Address: Village Arifpur, District Sylhet
+Blood Group: B+
+Photo: attached
+
+PROFESSIONAL SUMMARY
+Software Engineer with experience building reliable software. I work with Python and Django, write tests, review code and collaborate with product and design teams.
+
+SKILLS
+Python, Django, JavaScript, React, Node.js, TypeScript
+
+WORK EXPERIENCE
+Software Engineer
+Chaldal
+Sep 2018 - Jan 2019
+- Built and maintained services in Python.
+- Improved API performance and added automated tests.
+- Worked with JavaScript and React.
+
+Software Engineer
+Delta Software Company
+Dec 2016 - Present
+- Delivered internal tools and dashboards.
+- Partnered with QA on release checks.
+
+EDUCATION
+BSc in Computer Science
+American International University-Bangladesh
+2008 - 2012
+CGPA: 3.5/4.00
+
+CERTIFICATIONS
+- Django Professional Certificate
+- Agile Foundations
+
+REFERENCES
+Available on request.
