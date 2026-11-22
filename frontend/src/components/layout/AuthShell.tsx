@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { BarChart3, EyeOff, ShieldCheck, UserCheck, type LucideIcon } from 'lucide-react';
 import { Icon } from '../ui/Icon';
 import { Logo } from '../ui/Logo';
@@ -15,9 +15,9 @@ export function AuthShell() {
     <div className="flex min-h-screen bg-bg">
       {/* Brand panel */}
       <aside className="hidden w-[46%] flex-col justify-between border-r border-border bg-surface p-10 lg:flex xl:p-14">
-        <Link to="/" aria-label="FairFold home" className="self-start">
+        <div className="self-start">
           <Logo />
-        </Link>
+        </div>
 
         <div className="mx-auto w-full max-w-md">
           <h2 className="text-[32px] font-bold leading-tight tracking-tight">
@@ -65,9 +65,9 @@ export function AuthShell() {
       {/* Form panel */}
       <main className="relative flex flex-1 flex-col">
         <div className="flex items-center justify-between p-4 sm:p-6">
-          <Link to="/" aria-label="FairFold home" className="lg:invisible">
+          <div className="lg:invisible">
             <Logo />
-          </Link>
+          </div>
           <ThemeToggle />
         </div>
         <div className="flex flex-1 items-center justify-center px-6 pb-16">

@@ -123,6 +123,11 @@ public class ResumeSuggestionService {
                 if (skill == null || skill.name() == null || skill.name().isBlank()) {
                     continue;
                 }
+                // One odd AI-suggested name must not block the whole save.
+                if (canonicalizer.resolve(skill.name()).isEmpty()
+                        && !canonicalizer.isValidNewSkillName(skill.name())) {
+                    continue;
+                }
                 Skill canonical = canonicalizer.resolveOrCreate(skill.name());
                 CandidateSkill row = candidateSkillRepository
                         .findByUserIdAndSkillId(userId, canonical.getId())

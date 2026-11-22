@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 @Service
 public class SkillCanonicalizer {
 
-    private static final Pattern NEW_SKILL_NAME = Pattern.compile("[A-Za-z0-9+#.\\- ]{1,40}");
+    private static final Pattern NEW_SKILL_NAME = Pattern.compile("[A-Za-z0-9+#.\\- /&]{1,40}");
 
     private final SkillRepository skillRepository;
     private final SkillAliasRepository aliasRepository;
@@ -34,7 +34,26 @@ public class SkillCanonicalizer {
         if (rawName == null || rawName.isBlank()) {
             return Optional.empty();
         }
-        String name = rawName.strip();
+        String name = rawName.strip().replaceAll("\\s+", " ");
+        Optional<Skill> direct = findExact(name);
+        if (direct.isPresent()) {
+            return direct;
+        }
+        // "AWS (ECS, RDS, S3)" -> "AWS"
+        String withoutParentheses = name.replaceAll("\\s*\\([^)]*\\)", "").strip();
+        Optional<Skill> cleaned = findExact(withoutParentheses);
+        if (cleaned.isPresent()) {
+            return cleaned;
+        }
+        // "Java 17/21" / "Spring Boot 3" -> "Java" / "Spring Boot"
+        String withoutVersion = withoutParentheses.replaceAll("\\s+v?\\d+(?:\\.\\d+)*.*$", "").strip();
+        return findExact(withoutVersion);
+    }
+
+    private Optional<Skill> findExact(String name) {
+        if (name.isBlank()) {
+            return Optional.empty();
+        }
         Optional<Skill> exact = skillRepository.findByNameIgnoreCase(name);
         if (exact.isPresent()) {
             return exact;
@@ -55,7 +74,7 @@ public class SkillCanonicalizer {
         }
         if (!NEW_SKILL_NAME.matcher(name).matches()) {
             throw ApiException.badRequest("INVALID_SKILL_NAME",
-                    "A new skill may use letters, digits, spaces, + # . - only (at most 40 characters).");
+                    "A new skill may use letters, digits, spaces, + # . - / & only (at most 40 characters).");
         }
         Skill skill = new Skill();
         skill.setName(name);
@@ -84,5 +103,14 @@ public class SkillCanonicalizer {
 
     public String normalise(String rawName) {
         return rawName == null ? null : rawName.strip().toLowerCase(Locale.ROOT);
+    }
+
+    /** True when the name can be stored as a new skill row. */
+    public boolean isValidNewSkillName(String rawName) {
+        if (rawName == null) {
+            return false;
+        }
+        String name = rawName.strip().replaceAll("\\s+", " ");
+        return NEW_SKILL_NAME.matcher(name).matches();
     }
 }

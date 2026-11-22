@@ -72,6 +72,9 @@ class ResumeProcessingIntegrationTest extends AbstractIntegrationTest {
                 {"skills":[{"name":"Java","level":"intermediate","years":3},
                             {"name":"JS","level":"beginner","years":null},
                             {"name":"Spring Security","level":"intermediate","years":2},
+                            {"name":"Java 17/21","level":"expert","years":7},
+                            {"name":"TCP/IP","level":"intermediate","years":2},
+                            {"name":"Bad(Name)","level":"beginner","years":null},
                             {"name":"CustomTool-1","level":"expert","years":1}],
                  "totalExperienceYears":4.5,
                  "educationLevel":"bachelor",
@@ -100,7 +103,9 @@ class ResumeProcessingIntegrationTest extends AbstractIntegrationTest {
         JsonNode skillsNode = objectMapper.readTree(skills.getResponse().getContentAsString());
         assertThat(skillsNode).isNotEmpty();
         assertThat(skillsNode.findValuesAsText("name")).contains("Java", "JavaScript");
-        assertThat(skillsNode.findValuesAsText("name")).contains("CustomTool-1", "Spring Security");
+        assertThat(skillsNode.findValuesAsText("name"))
+                .contains("CustomTool-1", "Spring Security", "TCP/IP", "Java")
+                .doesNotContain("Bad(Name)", "Java 17/21");
 
         mockMvc.perform(get("/api/candidate/work-history")
                         .header(HttpHeaders.AUTHORIZATION, bearer(candidate.token())))
