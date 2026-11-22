@@ -24,11 +24,19 @@ export function UserAvatar({ name, avatarUrl, size = 'sm', className }: UserAvat
 
   if (avatarUrl) {
     return (
-      <img
-        src={avatarUrl}
-        alt={name ? `${name} profile photo` : 'Profile photo'}
-        className={cn('shrink-0 object-cover', shape, className)}
-      />
+      <div
+        className={cn(
+          'flex aspect-square shrink-0 items-center justify-center overflow-hidden bg-surface',
+          shape,
+          className,
+        )}
+      >
+        <img
+          src={avatarUrl}
+          alt={name ? `${name} profile photo` : 'Profile photo'}
+          className="block h-full w-full object-cover object-center"
+        />
+      </div>
     );
   }
 

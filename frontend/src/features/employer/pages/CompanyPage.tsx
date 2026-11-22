@@ -76,12 +76,12 @@ function CompanyProfileView({
     <div className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
       <div className="flex flex-col justify-between gap-4 pb-6 sm:flex-row sm:items-center">
         <div className="flex items-start gap-4">
-          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-sm">
+          <div className="relative flex aspect-square h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
             {company.logoUrl ? (
               <img
                 src={company.logoUrl}
                 alt={company.name ?? 'Company logo'}
-                className="h-full w-full object-contain"
+                className="block h-full w-full object-cover object-center"
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-primary-subtle text-xl font-bold text-primary-text">
@@ -195,7 +195,7 @@ function CompanyProfileView({
               value={
                 company.logoUrl ? (
                   <a href={company.logoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-primary-text hover:underline">
-                    <img src={company.logoUrl} alt="" className="h-4 w-4 rounded object-contain" />
+                    <img src={company.logoUrl} alt="" className="h-4 w-4 rounded object-cover object-center" />
                     View logo image
                   </a>
                 ) : null
@@ -400,12 +400,12 @@ export function CompanyPage() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface p-1 shadow-sm">
+                <div className="flex aspect-square h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
                   {form.logoUrl ? (
                     <img
                       src={form.logoUrl}
                       alt={form.name || 'Company logo'}
-                      className="h-full w-full object-contain"
+                      className="block h-full w-full object-cover object-center"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-primary-subtle text-xl font-bold text-primary-text">

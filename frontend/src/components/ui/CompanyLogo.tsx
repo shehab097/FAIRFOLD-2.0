@@ -28,13 +28,17 @@ export function CompanyLogo({ name, logoUrl, size = 'md', className }: CompanyLo
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-center overflow-hidden border border-border bg-surface p-1 font-bold text-primary-text',
+        'flex aspect-square shrink-0 items-center justify-center overflow-hidden border border-border bg-surface font-bold text-primary-text',
         SIZES[size],
         className,
       )}
     >
       {logoUrl ? (
-        <img src={logoUrl} alt={name ? `${name} logo` : 'Company logo'} className="h-full w-full object-contain" />
+        <img
+          src={logoUrl}
+          alt={name ? `${name} logo` : 'Company logo'}
+          className="block h-full w-full object-cover object-center"
+        />
       ) : initials ? (
         <span className="flex h-full w-full items-center justify-center bg-primary-subtle">{initials}</span>
       ) : (

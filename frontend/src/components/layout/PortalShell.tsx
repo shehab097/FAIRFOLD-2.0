@@ -24,7 +24,7 @@ export function PortalShell() {
 
   const sidebarContent = (onNavigate?: () => void) => (
     <>
-      <div className="flex h-14 shrink-0 items-center justify-between px-6">
+      <div className="flex min-h-14 shrink-0 items-start justify-between px-6 pt-4 pb-2">
         <Logo subtitle={roleLabel} />
         {onNavigate && (
           <button
