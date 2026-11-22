@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,4 +27,19 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
     List<Application> findByJobIdOrderByCreatedAtAscIdAsc(UUID jobId);
 
     List<Application> findByJobIdAndStatusOrderByCreatedAtAscIdAsc(UUID jobId, ApplicationStatus status);
+
+    @Query("select count(a) from Application a, Job j where a.jobId = j.id "
+            + "and j.companyId = :companyId and a.createdAt >= :since")
+    long countNewApplications(@Param("companyId") UUID companyId, @Param("since") Instant since);
+
+    @Query("select count(a) from Application a, Job j where a.jobId = j.id "
+            + "and j.companyId = :companyId and a.status = :status")
+    long countByCompanyAndStatus(@Param("companyId") UUID companyId,
+                                 @Param("status") ApplicationStatus status);
+
+    @Query("select count(a) from Application a, Job j where a.jobId = j.id "
+            + "and j.companyId = :companyId and a.status = :status and a.biasStatus = :bias")
+    long countByCompanyStatusAndBias(@Param("companyId") UUID companyId,
+                                     @Param("status") ApplicationStatus status,
+                                     @Param("bias") com.fairfold.screening.BiasStatus bias);
 }

@@ -35,14 +35,17 @@ public class JobService {
     private final SkillRepository skillRepository;
     private final CompanyRepository companyRepository;
     private final AuditService auditService;
+    private final JobScreeningQuestionRepository questionRepository;
     private final Clock clock;
 
     public JobService(JobRepository jobRepository, SkillRepository skillRepository,
-                      CompanyRepository companyRepository, AuditService auditService, Clock clock) {
+                      CompanyRepository companyRepository, AuditService auditService,
+                      JobScreeningQuestionRepository questionRepository, Clock clock) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository;
         this.companyRepository = companyRepository;
         this.auditService = auditService;
+        this.questionRepository = questionRepository;
         this.clock = clock;
     }
 
@@ -215,6 +218,15 @@ public class JobService {
         copy.setSkills(copiedSkills);
 
         jobRepository.save(copy);
+        int position = 0;
+        for (JobScreeningQuestion sourceQuestion
+                : questionRepository.findByJobIdOrderByPositionAsc(source.getId())) {
+            JobScreeningQuestion question = new JobScreeningQuestion();
+            question.setJobId(copy.getId());
+            question.setPosition(position++);
+            question.setText(sourceQuestion.getText());
+            questionRepository.save(question);
+        }
         auditService.record(userId, "job_duplicated", "job", copy.getId().toString(), "{}");
         return toEmployerDetail(copy);
     }
@@ -372,7 +384,10 @@ public class JobService {
                 job.getHfMinYears(), job.getHfCountry(), job.getCutoffScore(),
                 job.getStatus(), job.getPublishedAt(),
                 job.getSalaryType(), job.getSalaryMin(), job.getSalaryMax(),
-                job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable());
+                job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable(),
+                questionRepository.findByJobIdOrderByPositionAsc(job.getId()).stream()
+                        .map(JobScreeningQuestion::getText)
+                        .toList());
     }
 
     private PublicJobListItem toPublicListItem(Job job) {

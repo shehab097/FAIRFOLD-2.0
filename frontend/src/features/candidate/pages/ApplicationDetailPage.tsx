@@ -1,11 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, TriangleAlert } from 'lucide-react';
 import { useApplication } from '../queries';
 import { Banner } from '../../../components/ui/Banner';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
 import { Icon } from '../../../components/ui/Icon';
+import { ScoreMeter } from '../../../components/ui/ScoreMeter';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { formatDate } from '../../../lib/format';
 
@@ -35,6 +36,65 @@ export function ApplicationDetailPage() {
           {application.country}
         </p>
       </div>
+
+      {application.status === 'not_matched' && (
+        <Banner tone="warning">
+          Not matched: {application.notMatchedRule ?? 'A hard filter excluded this application.'}
+        </Banner>
+      )}
+
+      {(application.score !== null || application.claims.length > 0) && (
+        <Card>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">How you were scored</h2>
+              <p className="mt-1 text-sm text-text-secondary">
+                Scores are advisory. Each claim is backed by a quote from your stripped resume.
+              </p>
+            </div>
+            {application.scoringMode === 'rule_based' && (
+              <Badge tone="warning" icon={TriangleAlert}>
+                Rule-based result
+              </Badge>
+            )}
+          </div>
+          {application.score !== null && (
+            <div className="mt-5 max-w-sm">
+              <ScoreMeter score={application.score} />
+            </div>
+          )}
+          <div className="mt-5 space-y-3">
+            {application.claims.map((claim, index) => (
+              <div key={`${claim.requirement}-${index}`} className="rounded-xl border border-border bg-bg p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-text">{claim.requirement}</span>
+                  <Badge status={claim.verdict} />
+                </div>
+                {claim.quote && (
+                  <p className="mt-2 rounded-md bg-highlight px-2 py-1 text-xs text-text">
+                    “{claim.quote}”
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+          {application.missingSkills.length > 0 && (
+            <div className="mt-5">
+              <h3 className="mb-2 text-sm font-semibold text-text">Missing skills</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {application.missingSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full border border-border bg-raised px-2.5 py-0.5 text-xs text-text-secondary"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+      )}
 
       <Card>
         <h2 className="mb-4 text-xl font-semibold">Status timeline</h2>

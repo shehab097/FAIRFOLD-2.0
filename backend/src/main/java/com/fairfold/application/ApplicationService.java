@@ -2,7 +2,6 @@ package com.fairfold.application;
 
 import com.fairfold.application.dto.CandidateApplicationDetail;
 import com.fairfold.application.dto.CandidateApplicationListItem;
-import com.fairfold.application.dto.EmployerApplicantListItem;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
@@ -15,6 +14,8 @@ import com.fairfold.notification.NotificationService;
 import com.fairfold.resume.Resume;
 import com.fairfold.resume.ResumeRepository;
 import com.fairfold.resume.ResumeStatus;
+import com.fairfold.screening.ApplicationClaim;
+import com.fairfold.screening.ApplicationClaimRepository;
 import com.fairfold.screening.AliasService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +39,7 @@ public class ApplicationService {
     private final NotificationService notificationService;
     private final AuditService auditService;
     private final AliasService aliasService;
+    private final ApplicationClaimRepository claimRepository;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               ApplicationStatusHistoryRepository historyRepository,
@@ -46,7 +48,8 @@ public class ApplicationService {
                               ResumeRepository resumeRepository,
                               NotificationService notificationService,
                               AuditService auditService,
-                              AliasService aliasService) {
+                              AliasService aliasService,
+                              ApplicationClaimRepository claimRepository) {
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
         this.jobRepository = jobRepository;
@@ -55,6 +58,7 @@ public class ApplicationService {
         this.notificationService = notificationService;
         this.auditService = auditService;
         this.aliasService = aliasService;
+        this.claimRepository = claimRepository;
     }
 
     @Transactional
@@ -120,36 +124,6 @@ public class ApplicationService {
         return toDetail(application, job);
     }
 
-    @Transactional
-    public PageResponse<EmployerApplicantListItem> listForEmployer(UUID companyId, UUID jobId, Pageable pageable) {
-        jobRepository.findByIdAndCompanyId(jobId, companyId)
-                .orElseThrow(() -> ApiException.notFound("JOB_NOT_FOUND", "Job not found."));
-
-        List<Application> all = applicationRepository.findByJobIdOrderByCreatedAtAscIdAsc(jobId);
-        int total = all.size();
-        int from = Math.min(pageable.getPageNumber() * pageable.getPageSize(), total);
-        int to = Math.min(from + pageable.getPageSize(), total);
-        List<Application> slice = all.subList(from, to);
-
-        List<EmployerApplicantListItem> items = new java.util.ArrayList<>();
-        for (int i = 0; i < slice.size(); i++) {
-            Application application = slice.get(i);
-            String alias = aliasService.aliasFor(companyId, application.getCandidateId());
-            items.add(new EmployerApplicantListItem(
-                    application.getId(),
-                    alias,
-                    alias,
-                    application.getScore(),
-                    application.getStatus().name(),
-                    application.getBiasStatus() == null ? null : application.getBiasStatus().name(),
-                    application.getGateStatus().name(),
-                    application.getScoringMode() == null ? null : application.getScoringMode().name(),
-                    application.getNotMatchedRule(),
-                    application.getCreatedAt()));
-        }
-        return PageResponse.of(items, pageable.getPageNumber(), pageable.getPageSize(), total);
-    }
-
     // --- helpers -----------------------------------------------------------
 
     private CandidateApplicationListItem toListItem(Application application, Job job) {
@@ -169,12 +143,26 @@ public class ApplicationService {
                         h.getToStatus().name(), h.getCreatedAt()))
                 .toList();
         Company company = resolvePublicCompany(job.getCompanyId());
+        List<CandidateApplicationDetail.Claim> claims = claimRepository
+                .findByApplicationIdOrderByIdAsc(application.getId()).stream()
+                .map(this::toCandidateClaim)
+                .toList();
         return new CandidateApplicationDetail(
                 application.getId(), application.getJobId(), job.getTitle(),
                 company == null ? null : company.getName(),
                 company == null ? null : company.getId(),
                 job.getCity(), job.getCountry(),
-                application.getStatus().name(), application.getCreatedAt(), history);
+                application.getStatus().name(), application.getCreatedAt(), history,
+                application.getScore(),
+                application.getScoringMode() == null ? null : application.getScoringMode().name(),
+                claims, application.getMissingSkills(), application.getNotMatchedRule(),
+                application.getGateStatus().name());
+    }
+
+    private CandidateApplicationDetail.Claim toCandidateClaim(ApplicationClaim claim) {
+        return new CandidateApplicationDetail.Claim(
+                claim.getRequirementText(), claim.getKind().name(),
+                claim.getVerdict().name(), claim.getQuote());
     }
 
     private Map<UUID, Job> jobsBy(List<Application> applications) {

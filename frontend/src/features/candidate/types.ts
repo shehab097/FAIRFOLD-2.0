@@ -118,6 +118,13 @@ export interface ApplicationHistoryEntry {
   at: string;
 }
 
+export interface CandidateApplicationClaim {
+  requirement: string;
+  kind: string;
+  verdict: 'met' | 'partial' | 'not_met';
+  quote: string | null;
+}
+
 export interface CandidateApplicationDetail {
   id: string;
   jobId: string;
@@ -129,6 +136,12 @@ export interface CandidateApplicationDetail {
   status: ApplicationStatus;
   appliedAt: string;
   history: ApplicationHistoryEntry[];
+  score: number | null;
+  scoringMode: 'ai' | 'rule_based' | null;
+  claims: CandidateApplicationClaim[];
+  missingSkills: string[];
+  notMatchedRule: string | null;
+  gateStatus: string;
 }
 
 export interface DashboardChecklist {

@@ -60,6 +60,10 @@ const STATUS_ENTRIES: Record<string, { tone: StatusTone; label: string }> = {
   // Bias
   clear: { tone: 'success', label: 'Clear' },
   flagged: { tone: 'warning', label: 'Flagged' },
+  // Claim verdicts
+  met: { tone: 'success', label: 'Met' },
+  partial: { tone: 'warning', label: 'Partial' },
+  not_met: { tone: 'failure', label: 'Not met' },
   // Resume
   uploaded: { tone: 'neutral', label: 'Uploaded' },
   processing: { tone: 'progress', label: 'Processing' },

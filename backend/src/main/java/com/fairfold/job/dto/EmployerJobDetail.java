@@ -32,7 +32,8 @@ public record EmployerJobDetail(
         BigDecimal salaryMax,
         String salaryCurrency,
         SalaryPeriod salaryPeriod,
-        boolean salaryNegotiable
+        boolean salaryNegotiable,
+        List<String> screeningQuestions
 ) {
     public record SkillRef(UUID id, String name, boolean mustHave) {}
 }

@@ -1,6 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useCreateJob, useEmployerJob, useUpdateJob } from '../queries';
+import { Plus, Trash2, Wand2 } from 'lucide-react';
+import {
+  useCreateJob,
+  useEmployerJob,
+  useSaveScreeningQuestions,
+  useSuggestScreeningQuestions,
+  useUpdateJob,
+} from '../queries';
 import { SkillPicker, type SelectedSkill } from '../components/SkillPicker';
 import {
   EXPERIENCE_LEVELS,
@@ -22,6 +29,7 @@ import { MarkdownEditor } from '../../../components/ui/MarkdownEditor';
 import { emptyLocation, type LocationValue } from '../../../lib/locations';
 import { CURRENCIES } from '../../../lib/currencies';
 import { getApiErrorMessage, getFieldErrors } from '../../../lib/errors';
+import { useToast } from '../../../components/ui/Toast';
 
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
   return (
@@ -41,6 +49,9 @@ export function JobEditorPage() {
   const { data: job, isLoading: loadingJob } = useEmployerJob(jobId);
   const createJob = useCreateJob();
   const updateJob = useUpdateJob(jobId ?? '');
+  const suggestQuestions = useSuggestScreeningQuestions();
+  const saveQuestions = useSaveScreeningQuestions();
+  const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -59,6 +70,7 @@ export function JobEditorPage() {
   const [hfMinYears, setHfMinYears] = useState('');
   const [hfCountry, setHfCountry] = useState('');
   const [cutoffScore, setCutoffScore] = useState('');
+  const [questions, setQuestions] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -81,6 +93,7 @@ export function JobEditorPage() {
       setHfMinYears(job.hfMinYears?.toString() ?? '');
       setHfCountry(job.hfCountry ?? '');
       setCutoffScore(job.cutoffScore?.toString() ?? '');
+      setQuestions(job.screeningQuestions ?? []);
     }
   }, [job]);
 
@@ -109,16 +122,35 @@ export function JobEditorPage() {
     };
   }
 
+  async function handleSuggestQuestions() {
+    if (!jobId) {
+      toast('Create the draft first, then suggest questions.', 'error');
+      return;
+    }
+    try {
+      const result = await suggestQuestions.mutateAsync(jobId);
+      setQuestions(result.questions);
+      toast('Screening questions suggested.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
     try {
+      const cleaned = questions.map((q) => q.trim()).filter(Boolean);
       if (isEdit) {
         await updateJob.mutateAsync(buildInput());
+        if (job?.status === 'draft') {
+          await saveQuestions.mutateAsync({ jobId: jobId as string, questions: cleaned });
+        }
         navigate(`/employer/jobs/${jobId}`);
       } else {
         const created = await createJob.mutateAsync(buildInput());
+        await saveQuestions.mutateAsync({ jobId: created.id, questions: cleaned });
         navigate(`/employer/jobs/${created.id}`);
       }
     } catch (err) {
@@ -281,6 +313,61 @@ export function JobEditorPage() {
               label="Salary is negotiable (uncheck for “not negotiable”)"
             />
           )}
+        </section>
+
+        <section className="space-y-4 border border-border bg-surface p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Screening questions</h2>
+              <p className="text-sm text-text-secondary">
+                Used later in the interview pack. You can edit the suggested list.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              loading={suggestQuestions.isPending}
+              onClick={handleSuggestQuestions}
+            >
+              <Wand2 size={16} />
+              Suggest questions
+            </Button>
+          </div>
+          {questions.length === 0 && (
+            <p className="text-sm text-text-subtle">No screening questions yet.</p>
+          )}
+          <div className="space-y-2">
+            {questions.map((question, index) => (
+              <div key={index} className="flex items-start gap-2">
+                <Input
+                  value={question}
+                  onChange={(e) =>
+                    setQuestions((current) =>
+                      current.map((value, i) => (i === index ? e.target.value : value)),
+                    )
+                  }
+                  placeholder={`Question ${index + 1}`}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-10 px-2"
+                  aria-label="Remove question"
+                  onClick={() => setQuestions((current) => current.filter((_, i) => i !== index))}
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setQuestions((current) => [...current, ''])}
+          >
+            <Plus size={16} />
+            Add question
+          </Button>
         </section>
 
         <section className="space-y-4 border border-border bg-surface p-6">

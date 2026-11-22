@@ -1,12 +1,26 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useApplicants, useEmployerJob, useJobAction } from '../queries';
+import {
+  useApplicants,
+  useEmployerJob,
+  useJobAction,
+  usePullBackApplication,
+  useRetryScreening,
+  useScreeningEstimate,
+  useScreeningProgress,
+  useStartScreening,
+} from '../queries';
 import type { JobAction } from '../../../api/employerJobs';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { Checkbox } from '../../../components/ui/Checkbox';
+import { Dialog } from '../../../components/ui/Dialog';
 import { Markdown } from '../../../components/ui/Markdown';
+import { ProgressBar } from '../../../components/ui/ProgressBar';
+import { ScoreMeter } from '../../../components/ui/ScoreMeter';
+import { Select } from '../../../components/ui/Select';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { Table, type Column } from '../../../components/ui/Table';
 import { Tabs } from '../../../components/ui/Tabs';
@@ -14,7 +28,14 @@ import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
 import { formatSalary } from '../../../lib/salary';
-import type { EmployerApplicantListItem, EmployerJobDetail, JobStatus } from '../../jobs/types';
+import { useQueryClient } from '@tanstack/react-query';
+import { TriangleAlert } from 'lucide-react';
+import type {
+  ApplicantFilters,
+  EmployerApplicantListItem,
+  EmployerJobDetail,
+  JobStatus,
+} from '../../jobs/types';
 
 const ACTIONS: Record<JobStatus, { label: string; value: JobAction }[]> = {
   draft: [{ label: 'Activate', value: 'activate' }],
@@ -29,16 +50,42 @@ const ACTIONS: Record<JobStatus, { label: string; value: JobAction }[]> = {
   closed: [],
 };
 
-function ApplicantsTab({ applicants }: { applicants: EmployerApplicantListItem[] }) {
-  const columns: Column<EmployerApplicantListItem>[] = [
-    { header: 'Applicant', render: (a) => <span className="font-medium">{a.label}</span> },
-    { header: 'Status', render: (a) => <Badge status={a.status} /> },
-    { header: 'Applied', render: (a) => formatDate(a.appliedAt) },
-  ];
-  if (applicants.length === 0) {
-    return <div className="rounded border border-border bg-surface p-8 text-center text-text-secondary">No applicants yet.</div>;
+const STATUS_OPTIONS = [
+  { value: '', label: 'All statuses' },
+  { value: 'applied', label: 'Applied' },
+  { value: 'screening', label: 'Screening' },
+  { value: 'screened', label: 'Screened' },
+  { value: 'not_matched', label: 'Not matched' },
+  { value: 'shortlisted', label: 'Shortlisted' },
+  { value: 'interview', label: 'Interview' },
+  { value: 'hired', label: 'Hired' },
+  { value: 'rejected', label: 'Rejected' },
+];
+
+const GATE_OPTIONS = [
+  { value: '', label: 'All gates' },
+  { value: 'not_required', label: 'Not required' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'passed', label: 'Passed' },
+  { value: 'failed', label: 'Failed' },
+];
+
+const BIAS_OPTIONS = [
+  { value: '', label: 'All bias states' },
+  { value: 'clear', label: 'Clear' },
+  { value: 'flagged', label: 'Flagged' },
+];
+
+function ModeBadge({ mode }: { mode: string | null }) {
+  if (!mode) return <span className="text-text-subtle">—</span>;
+  if (mode === 'rule_based') {
+    return (
+      <Badge tone="warning" icon={TriangleAlert}>
+        Rule-based
+      </Badge>
+    );
   }
-  return <Table columns={columns} rows={applicants} rowKey={(a) => a.id} />;
+  return <Badge tone="neutral">AI</Badge>;
 }
 
 function Fact({ label, children }: { label: string; children: ReactNode }) {
@@ -57,7 +104,7 @@ function Chips({ title, skills, muted }: { title: string; skills: EmployerJobDet
       <div className="flex flex-wrap gap-1.5">
         {skills.length === 0 && <span className="text-sm text-text-subtle">None</span>}
         {skills.map((s) => (
-          <span key={s.id} className={`rounded-sm bg-raised px-2 py-0.5 text-xs ${muted ? 'text-text-secondary' : 'text-text'}`}>
+          <span key={s.id} className={`rounded-md bg-raised px-2 py-0.5 text-xs ${muted ? 'text-text-secondary' : 'text-text'}`}>
             {s.name}
             {s.mustHave && <span className="ml-1 text-accent">(must)</span>}
           </span>
@@ -71,7 +118,7 @@ function Overview({ job, applicantCount }: { job: EmployerJobDetail; applicantCo
   const hasFilters = job.hfMinYears !== null || job.hfCountry || job.cutoffScore !== null;
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px]">
-      <article className="divide-y divide-border rounded border border-border bg-surface p-6 sm:p-8">
+      <article className="divide-y divide-border rounded-xl border border-border bg-surface p-6 shadow-sm sm:p-8">
         <section className="pb-6">
           <h2 className="mb-3 text-lg font-semibold">Description</h2>
           <Markdown source={job.description} />
@@ -82,10 +129,20 @@ function Overview({ job, applicantCount }: { job: EmployerJobDetail; applicantCo
             <Markdown source={job.requirements} />
           </section>
         )}
+        {job.screeningQuestions.length > 0 && (
+          <section className="pt-6">
+            <h2 className="mb-3 text-lg font-semibold">Screening questions</h2>
+            <ol className="ml-5 list-decimal space-y-1.5 text-sm text-text">
+              {job.screeningQuestions.map((question) => (
+                <li key={question}>{question}</li>
+              ))}
+            </ol>
+          </section>
+        )}
       </article>
 
       <aside className="lg:sticky lg:top-20 lg:self-start">
-        <div className="divide-y divide-border rounded border border-border bg-surface p-5">
+        <div className="divide-y divide-border rounded-xl border border-border bg-surface p-5 shadow-sm">
           <dl className="pb-4">
             <Fact label="Status"><Badge status={job.status} /></Fact>
             <Fact label="Applicants">{applicantCount}</Fact>
@@ -112,10 +169,312 @@ function Overview({ job, applicantCount }: { job: EmployerJobDetail; applicantCo
   );
 }
 
+function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean }) {
+  const jobId = job.id;
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [filters, setFilters] = useState<ApplicantFilters>({
+    includeNotMatched: false,
+    page: 0,
+    size: 10,
+  });
+  const [screenOpen, setScreenOpen] = useState(false);
+  const { data: applicants, isLoading } = useApplicants(jobId, filters);
+  const { data: progress } = useScreeningProgress(jobId);
+  const { data: estimate, isLoading: estimating } = useScreeningEstimate(jobId, screenOpen);
+  const startScreening = useStartScreening();
+  const retryScreening = useRetryScreening();
+  const pullBack = usePullBackApplication();
+  const lastRunStatus = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!progress) return;
+    if (progress.status === 'finished' && lastRunStatus.current !== 'finished') {
+      qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'applications'] });
+      qc.invalidateQueries({ queryKey: ['employer', 'dashboard'] });
+    }
+    lastRunStatus.current = progress.status;
+  }, [progress, jobId, qc]);
+
+  const totalPages = applicants?.totalPages ?? 0;
+  const page = filters.page ?? 0;
+
+  function updateFilter(patch: Partial<ApplicantFilters>) {
+    setFilters((current) => ({
+      ...current,
+      ...patch,
+      page: 0,
+      ...(patch.status === 'not_matched' ? { includeNotMatched: true } : {}),
+    }));
+  }
+
+  async function confirmScreen() {
+    try {
+      await startScreening.mutateAsync(jobId);
+      setScreenOpen(false);
+      toast('Screening started.', 'success');
+      qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'screening'] });
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    }
+  }
+
+  async function retryFailed() {
+    try {
+      await retryScreening.mutateAsync(jobId);
+      toast('Failed items queued again.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    }
+  }
+
+  async function pullBackCandidate(application: EmployerApplicantListItem) {
+    try {
+      await pullBack.mutateAsync(application.id);
+      toast('Candidate pulled back into screening.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    }
+  }
+
+  const columns: Column<EmployerApplicantListItem>[] = [
+    {
+      header: 'Rank',
+      className: 'w-16',
+      render: (a) => (
+        <span className="tabular-nums text-text-secondary">
+          {(applicants?.items.indexOf(a) ?? 0) + page * (filters.size ?? 10) + 1}
+        </span>
+      ),
+    },
+    {
+      header: 'Alias',
+      render: (a) => (
+        <Link
+          to={`/employer/jobs/${jobId}/applications/${a.id}`}
+          className="inline-flex items-center rounded-full border border-border bg-raised px-2.5 py-0.5 text-xs font-semibold text-text hover:border-primary-text hover:text-primary-text"
+        >
+          {a.alias}
+        </Link>
+      ),
+    },
+    {
+      header: 'Score',
+      render: (a) => <ScoreMeter score={a.score} cutoff={job.cutoffScore} />,
+    },
+    {
+      header: 'Status',
+      render: (a) => (
+        <div className="space-y-1">
+          <Badge status={a.status} />
+          {a.notMatchedRule && (
+            <div className="max-w-[220px] text-xs text-text-secondary">{a.notMatchedRule}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: 'Bias',
+      render: (a) => (a.biasStatus ? <Badge status={a.biasStatus} /> : <span className="text-text-subtle">—</span>),
+    },
+    {
+      header: 'Gate',
+      render: (a) => <Badge status={a.gateStatus} />,
+    },
+    { header: 'Mode', render: (a) => <ModeBadge mode={a.scoringMode} /> },
+    { header: 'Applied', render: (a) => <span className="text-text-secondary">{formatDate(a.appliedAt)}</span> },
+    {
+      header: '',
+      render: (a) => (
+        <div className="flex justify-end gap-1">
+          <Link to={`/employer/jobs/${jobId}/applications/${a.id}`}>
+            <Button variant="ghost" className="h-8 px-2 text-xs">
+              Review
+            </Button>
+          </Link>
+          {a.status === 'not_matched' && (
+            <Button
+              variant="secondary"
+              className="h-8 px-2 text-xs"
+              loading={pullBack.isPending}
+              onClick={() => pullBackCandidate(a)}
+            >
+              Pull back
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <Banner tone="info">Scores are advisory, you decide. Identities stay hidden until you shortlist.</Banner>
+
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+        <div className="grid flex-1 gap-3 sm:grid-cols-4">
+          <div>
+            <label className="mb-1 block text-xs text-text-secondary">Status</label>
+            <Select
+              value={filters.status ?? ''}
+              onChange={(e) => updateFilter({ status: e.target.value || undefined })}
+            >
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-text-secondary">Gate</label>
+            <Select
+              value={filters.gate ?? ''}
+              onChange={(e) => updateFilter({ gate: e.target.value || undefined })}
+            >
+              {GATE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-text-secondary">Bias</label>
+            <Select
+              value={filters.bias ?? ''}
+              onChange={(e) => updateFilter({ bias: e.target.value || undefined })}
+            >
+              {BIAS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="flex items-end pb-2">
+            <Checkbox
+              checked={Boolean(filters.includeNotMatched)}
+              onChange={(checked) => updateFilter({ includeNotMatched: checked })}
+              label="Show not matched"
+            />
+          </div>
+        </div>
+        {isHr && (
+          <Button onClick={() => setScreenOpen(true)}>Screen All</Button>
+        )}
+      </div>
+
+      {progress && (
+        <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Badge status={progress.status} />
+              <span className="text-sm text-text-secondary">
+                {progress.mode === 'rule_based' ? 'Rule-based' : 'AI'} screening
+              </span>
+            </div>
+            {progress.failed > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-accent">{progress.failed} failed</span>
+                {isHr && (
+                  <Button variant="secondary" loading={retryScreening.isPending} onClick={retryFailed}>
+                    Retry failed
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+          <ProgressBar
+            value={progress.done}
+            max={progress.total}
+            label={`Screening progress · ${progress.done} of ${progress.total} done`}
+            tone={progress.failed > 0 ? 'danger' : 'primary'}
+          />
+        </div>
+      )}
+
+      {isLoading ? (
+        <Skeleton className="h-48 w-full" />
+      ) : (
+        <Table
+          columns={columns}
+          rows={applicants?.items ?? []}
+          rowKey={(a) => a.id}
+          empty={
+            <div className="rounded-xl border border-border bg-surface p-8 text-center text-sm text-text-secondary">
+              No applicants match these filters.
+            </div>
+          }
+        />
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            variant="secondary"
+            disabled={page <= 0}
+            onClick={() => setFilters((current) => ({ ...current, page: page - 1 }))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-text-secondary">
+            Page {page + 1} of {totalPages}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={page + 1 >= totalPages}
+            onClick={() => setFilters((current) => ({ ...current, page: page + 1 }))}
+          >
+            Next
+          </Button>
+        </div>
+      )}
+
+      <Dialog open={screenOpen} title="Screen All" onClose={() => setScreenOpen(false)}>
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            Every new applicant with a ready resume will be scored. Scores are advisory and identities
+            stay hidden until you shortlist.
+          </p>
+          {estimating && <Skeleton className="h-20 w-full" />}
+          {estimate && (
+            <div className="divide-y divide-border rounded-xl border border-border bg-bg px-4">
+              <Fact label="Applicants">{estimate.count}</Fact>
+              <Fact label="Mode">
+                {estimate.mode === 'rule_based' ? (
+                  <Badge tone="warning" icon={TriangleAlert}>Rule-based</Badge>
+                ) : (
+                  <Badge tone="neutral">AI</Badge>
+                )}
+              </Fact>
+              <Fact label="Estimated cost">
+                <span className="tabular-nums">${Number(estimate.estimatedCostUsd).toFixed(4)}</span>
+              </Fact>
+            </div>
+          )}
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" onClick={() => setScreenOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              loading={startScreening.isPending}
+              disabled={!estimate || estimate.count === 0}
+              onClick={confirmScreen}
+            >
+              Confirm and screen {estimate ? `(${estimate.count})` : ''}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+    </div>
+  );
+}
+
 export function JobWorkspacePage() {
   const { jobId } = useParams<{ jobId: string }>();
   const { data: job, isLoading, isError } = useEmployerJob(jobId);
-  const { data: applicants } = useApplicants(jobId);
+  const { data: applicantPage } = useApplicants(jobId, { page: 0, size: 1, includeNotMatched: true });
   const jobAction = useJobAction();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -124,7 +483,6 @@ export function JobWorkspacePage() {
   const [busy, setBusy] = useState<string | null>(null);
 
   const isHr = user?.role === 'EMPLOYER_HR';
-  const applicantCount = applicants?.totalItems ?? 0;
 
   async function run(action: JobAction) {
     setBusy(action);
@@ -191,7 +549,7 @@ export function JobWorkspacePage() {
       <Tabs
         tabs={[
           { key: 'overview', label: 'Overview' },
-          { key: 'applicants', label: `Applicants (${applicantCount})` },
+          { key: 'applicants', label: 'Applicants' },
         ]}
         active={tab}
         onChange={setTab}
@@ -199,9 +557,9 @@ export function JobWorkspacePage() {
 
       <div className="mt-6">
         {tab === 'overview' ? (
-          <Overview job={job} applicantCount={applicantCount} />
+          <Overview job={job} applicantCount={applicantPage?.totalItems ?? 0} />
         ) : (
-          <ApplicantsTab applicants={applicants?.items ?? []} />
+          <ApplicantsTab job={job} isHr={isHr} />
         )}
       </div>
     </div>

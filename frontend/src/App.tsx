@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { PublicShell } from './components/layout/PublicShell';
 import { AuthShell } from './components/layout/AuthShell';
 import { PortalShell } from './components/layout/PortalShell';
@@ -17,6 +17,8 @@ import { CompanyPage } from './features/employer/pages/CompanyPage';
 import { JobsPage } from './features/employer/pages/JobsPage';
 import { JobEditorPage } from './features/employer/pages/JobEditorPage';
 import { JobWorkspacePage } from './features/employer/pages/JobWorkspacePage';
+import { ApplicationReviewPage } from './features/employer/pages/ApplicationReviewPage';
+import { EmployerDashboardPage } from './features/employer/pages/EmployerDashboardPage';
 import { DashboardPage } from './features/candidate/pages/DashboardPage';
 import { ProfilePage } from './features/candidate/pages/ProfilePage';
 import { ResumePage } from './features/candidate/pages/ResumePage';
@@ -104,7 +106,7 @@ export default function App() {
           path="/employer"
           element={
             <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER']}>
-              <Navigate to="/employer/jobs" replace />
+              <EmployerDashboardPage />
             </RequireRole>
           }
         />
@@ -137,6 +139,14 @@ export default function App() {
           element={
             <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER']}>
               <JobWorkspacePage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employer/jobs/:jobId/applications/:applicationId"
+          element={
+            <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER']}>
+              <ApplicationReviewPage />
             </RequireRole>
           }
         />

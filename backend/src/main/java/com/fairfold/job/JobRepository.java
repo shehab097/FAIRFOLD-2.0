@@ -16,6 +16,8 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
 
     Optional<Job> findByIdAndCompanyId(UUID id, UUID companyId);
 
+    long countByCompanyIdAndStatus(UUID companyId, JobStatus status);
+
     @Query("select j from Job j where j.companyId = :companyId and (:status is null or j.status = :status) order by j.createdAt desc")
     Page<Job> findByCompany(@Param("companyId") UUID companyId, @Param("status") JobStatus status, Pageable pageable);
 

@@ -14,7 +14,15 @@ public record CandidateApplicationDetail(
         String country,
         String status,
         Instant appliedAt,
-        List<HistoryEntry> history
+        List<HistoryEntry> history,
+        Integer score,
+        String scoringMode,
+        List<Claim> claims,
+        List<String> missingSkills,
+        String notMatchedRule,
+        String gateStatus
 ) {
     public record HistoryEntry(String status, Instant at) {}
+
+    public record Claim(String requirement, String kind, String verdict, String quote) {}
 }

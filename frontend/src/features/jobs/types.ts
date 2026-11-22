@@ -93,6 +93,7 @@ export interface EmployerJobDetail extends SalaryFields {
   cutoffScore: number | null;
   status: JobStatus;
   publishedAt: string | null;
+  screeningQuestions: string[];
 }
 
 export interface JobInput extends SalaryFields {
@@ -172,4 +173,82 @@ export interface EmployerApplicantListItem {
   scoringMode: string | null;
   notMatchedRule: string | null;
   appliedAt: string;
+}
+
+export interface ApplicantFilters {
+  status?: string;
+  gate?: string;
+  bias?: string;
+  includeNotMatched?: boolean;
+  page?: number;
+  size?: number;
+}
+
+export interface EmployerReviewClaim {
+  requirement: string;
+  kind: string;
+  verdict: 'met' | 'partial' | 'not_met';
+  quote: string | null;
+  source: string;
+}
+
+export interface EmployerReviewHistory {
+  status: string;
+  at: string;
+}
+
+export interface EmployerIdentity {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+}
+
+export interface EmployerReview {
+  id: string;
+  jobId: string;
+  jobTitle: string;
+  alias: string;
+  status: string;
+  score: number | null;
+  scoringMode: 'ai' | 'rule_based' | null;
+  biasStatus: 'clear' | 'flagged' | null;
+  biasNote: string | null;
+  gateStatus: string;
+  cutoffScore: number | null;
+  missingSkills: string[];
+  claims: EmployerReviewClaim[];
+  strippedText: string | null;
+  notMatchedRule: string | null;
+  history: EmployerReviewHistory[];
+  identity: EmployerIdentity | null;
+}
+
+export interface ScreeningEstimate {
+  count: number;
+  mode: 'ai' | 'rule_based';
+  estimatedCostUsd: number;
+}
+
+export interface ScreeningProgress {
+  runId: string;
+  status: 'running' | 'finished';
+  mode: 'ai' | 'rule_based';
+  total: number;
+  done: number;
+  failed: number;
+  startedAt: string;
+}
+
+export interface ScreeningQuestions {
+  questions: string[];
+}
+
+export interface EmployerDashboard {
+  openJobs: number;
+  newApplications: number;
+  awaitingScreening: number;
+  biasFlags: number;
+  interviewsThisWeek: number | null;
+  quota: unknown | null;
 }

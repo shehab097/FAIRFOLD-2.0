@@ -5,12 +5,25 @@ import {
   deleteJob,
   getEmployerJob,
   jobAction,
-  listApplicants,
   listEmployerJobs,
   updateJob,
   type JobAction,
 } from '../../api/employerJobs';
-import type { JobStatus } from '../jobs/types';
+import {
+  estimateScreening,
+  getEmployerDashboard,
+  getEmployerReview,
+  getScreeningProgress,
+  listApplicants,
+  pullBackApplication,
+  rejectApplication,
+  retryScreening,
+  saveScreeningQuestions,
+  shortlistApplication,
+  startScreening,
+  suggestScreeningQuestions,
+} from '../../api/employerScreening';
+import type { ApplicantFilters, JobStatus } from '../jobs/types';
 
 export function useCompany() {
   return useQuery({ queryKey: ['employer', 'company'], queryFn: getCompany });
@@ -99,10 +112,115 @@ export function useJobAction() {
   });
 }
 
-export function useApplicants(jobId: string | undefined) {
+export function useApplicants(jobId: string | undefined, filters: ApplicantFilters) {
   return useQuery({
-    queryKey: ['employer', 'job', jobId, 'applications'],
-    queryFn: () => listApplicants(jobId as string),
+    queryKey: ['employer', 'job', jobId, 'applications', filters],
+    queryFn: () => listApplicants(jobId as string, filters),
     enabled: Boolean(jobId),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useEmployerReview(applicationId: string | undefined) {
+  return useQuery({
+    queryKey: ['employer', 'application', applicationId],
+    queryFn: () => getEmployerReview(applicationId as string),
+    enabled: Boolean(applicationId),
+  });
+}
+
+function invalidateReview(qc: ReturnType<typeof useQueryClient>) {
+  qc.invalidateQueries({ queryKey: ['employer', 'application'] });
+  qc.invalidateQueries({ queryKey: ['employer', 'job'] });
+  qc.invalidateQueries({ queryKey: ['employer', 'dashboard'] });
+}
+
+export function useShortlistApplication() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      shortlistApplication(id, reason),
+    onSuccess: () => invalidateReview(qc),
+  });
+}
+
+export function useRejectApplication() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      rejectApplication(id, reason),
+    onSuccess: () => invalidateReview(qc),
+  });
+}
+
+export function usePullBackApplication() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => pullBackApplication(id),
+    onSuccess: () => invalidateReview(qc),
+  });
+}
+
+export function useScreeningEstimate(jobId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ['employer', 'job', jobId, 'screening', 'estimate'],
+    queryFn: () => estimateScreening(jobId as string),
+    enabled: Boolean(jobId) && enabled,
+  });
+}
+
+export function useScreeningProgress(jobId: string | undefined) {
+  return useQuery({
+    queryKey: ['employer', 'job', jobId, 'screening'],
+    queryFn: () => getScreeningProgress(jobId as string),
+    enabled: Boolean(jobId),
+    retry: false,
+    refetchInterval: (query) =>
+      query.state.data?.status === 'running' ? 3000 : false,
+  });
+}
+
+export function useStartScreening() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (jobId: string) => startScreening(jobId),
+    onSuccess: (_data, jobId) => {
+      qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'screening'] });
+      qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'applications'] });
+    },
+  });
+}
+
+export function useRetryScreening() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (jobId: string) => retryScreening(jobId),
+    onSuccess: (_data, jobId) => {
+      qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'screening'] });
+      qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'applications'] });
+    },
+  });
+}
+
+export function useEmployerDashboard() {
+  return useQuery({
+    queryKey: ['employer', 'dashboard'],
+    queryFn: getEmployerDashboard,
+  });
+}
+
+export function useSuggestScreeningQuestions() {
+  return useMutation({
+    mutationFn: (jobId: string) => suggestScreeningQuestions(jobId),
+  });
+}
+
+export function useSaveScreeningQuestions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ jobId, questions }: { jobId: string; questions: string[] }) =>
+      saveScreeningQuestions(jobId, questions),
+    onSuccess: (_data, vars) =>
+      qc.invalidateQueries({ queryKey: ['employer', 'job', vars.jobId] }),
   });
 }

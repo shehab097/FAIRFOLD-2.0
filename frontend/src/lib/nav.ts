@@ -41,7 +41,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Practice', to: '/candidate/practice', enabled: false, icon: Sparkles },
   ],
   EMPLOYER_HR: [
-    { label: 'Dashboard', to: '/employer', enabled: false, icon: LayoutDashboard, end: true },
+    { label: 'Dashboard', to: '/employer', enabled: true, icon: LayoutDashboard, end: true },
     { label: 'Jobs', to: '/employer/jobs', enabled: true, icon: Briefcase },
     { label: 'Company', to: '/employer/company', enabled: true, icon: Building2 },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
@@ -51,7 +51,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Billing', to: '/employer/billing', enabled: false, icon: CreditCard },
   ],
   EMPLOYER_MANAGER: [
-    { label: 'Dashboard', to: '/employer', enabled: false, icon: LayoutDashboard, end: true },
+    { label: 'Dashboard', to: '/employer', enabled: true, icon: LayoutDashboard, end: true },
     { label: 'Jobs', to: '/employer/jobs', enabled: true, icon: Briefcase },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: false, icon: Video },

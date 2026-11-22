@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 22 November 2026 · Updated by: implementation session (Part 2.2 screening engine, scoring, bias check)
+Last updated: 22 November 2026 · Updated by: implementation session (Part 2.3 ranked list, review, shortlist, reveal, override, dashboard, questions)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -15,7 +15,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [x] | | 21 Nov 2026 |
 | 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [x] | | 22 Nov 2026 |
 | 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [x] | | 22 Nov 2026 |
-| 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [ ] | | |
+| 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [x] | | 22 Nov 2026 |
 | 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [ ] | | |
 | 3.2 | 03_skills_proof.md | Taking assessments, Verified badge | [ ] | | |
 | 3.3 | 03_skills_proof.md | Gate, proctoring, certifications | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 2.2 done. Next: build Part 2.3 (ranked list, review, shortlist, reveal, override) from `docs/prompts/02_ai_screening.md`.
+**Current focus:** Part 2.3 done (chunk 2 complete). Next: build Part 3.1 (admin content: assessments, resources) from `docs/prompts/03_skills_proof.md`.
 
-**Next session start message:** `Build Part 2.3 from docs/prompts/02_ai_screening.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 3.1 from docs/prompts/03_skills_proof.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -95,6 +95,11 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-43 | 22 Nov 2026 | 2.2 | Candidate aliases are created when a candidate applies, and lazily when an employer lists applicants (for rows created before 2.2). Same company + candidate is unique and stable across jobs; another company gets its own alias. | Covers old applications, avoids a read-only list failing to create an alias, and keeps aliases unlinkable across companies. |
 | D-44 | 22 Nov 2026 | 2.2 | `ai_calls` rows are written in a `REQUIRES_NEW` transaction (`AiCallRecorder`). Screening item work stays in one transaction per item. | A blocked or failed call must be recorded even when the screening item transaction rolls back; the prompt requires a blocked row plus an audit entry. |
 
+| D-45 | 22 Nov 2026 | 2.3 | The applicant list loads the job’s applications, filters and sorts them in memory (score descending, nulls last, then appliedAt), then pages the slice. | Per-job lists are small, and this keeps the not-matched toggle, gate/bias filters and null-score ordering in one readable place without a large native query. |
+| D-46 | 22 Nov 2026 | 2.3 | The review DTO returns `identity` only when `shortlisted_at` is set; shortlist returns the updated review and writes `identity_reveal`, while shortlisting below the cut-off or rejecting at/above it writes `ai_decision`. | Matches FR-030/FR-052 and the database CHECK; the same rule protects every employer review response. |
+| D-47 | 22 Nov 2026 | 2.3 | `scripts/seed-demo.sh` (with `scripts/seed_demo.py`) seeds deterministic UUIDs for one company, one active job with 6 skills, 3 screening questions and 10 ready-resume candidates; it copies available dummy-data CVs into storage for previews. Screening questions are saved through the dedicated draft-only `PUT`, called after the job save. | Gives a repeatable one-command demo without depending on the git-ignored dummy-data generator, while still reusing its CVs when present. |
+| D-48 | 22 Nov 2026 | 2.3 | The review page highlights the first non-overlapping exact occurrence of each claim quote, and clicking a claim or quote scrolls to its counterpart. | Quotes are exact substrings from the backend; this avoids rendering overlapping marks twice and needs no extra dependency. |
+
 ## 4. Open questions (ask the owner, then move to Decisions)
 
 - [ ] Real plan names, prices and quotas for chunk 5.
@@ -123,11 +128,13 @@ Update after every part.
 | 2.1 | 92 passed | 11 passed | passed | yes | Resume upload → async PDFBox extraction → BR-05 stripping → AI gateway/fallback → `ready`/`failed`, suggestions + placeholder map, apply to profile/skills/work history, strip reports, work-history CRUD, skill aliases, golden test (30 fixtures, ≥95% removed). Live verified with `deepseek-flash`: real CV uploaded, stripped, suggestions returned (`provider=ai`), applied to Alice’s profile; `ai_calls` recorded 424 prompt / 264 completion tokens at $0.000444. Decisions D-38–D-40. |
 
 | 2.2 | 117 passed (25 new) | 11 passed | passed | yes | Screening migrations and entities; aliases (`C-` + 5 chars, stable per company); `HardFilterService`, `ScoringService` (quote validation, weights, partial credit), `BiasScanner` (`bias_terms.txt`, claim removal + score recompute); AI and rule-based screening; async runs with 4 threads, restart recovery, estimate/start/progress/retry; employer applicant list now returns aliases, score, bias/gate/scoring fields. Unit tests for all scoring cases, invented AI quote, bias, hard filters; end-to-end fallback run with 10 applicants (9 screened, 1 not matched), fake-AI quote downgrade, retry-only-failed, recovery and `NoIdentityLeakTest` after screening. |
+| 2.3 | 126 passed (9 new) | 11 passed | passed | yes | Migration `V2_3_1` (`job_screening_questions`); ranked/filtered applicant list with not-matched toggle; review with claims, stripped text and identity only after shortlist; shortlist/reject/pull-back with gate 409, 422 reason rules, DB CHECK and `identity_reveal`/`ai_decision`/`pull_back` audits; candidate score/claims without bias; employer dashboard; suggest/save screening questions. Frontend: P24 ranked table, Screen All dialog + 3s progress + retry, P25 quote-highlighted review, P16 score/claims, P20 dashboard, P23 questions. `scripts/seed-demo.sh` demo dataset. |
 
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 22 Nov 2026 | **Part 2.3 done (chunk 2 complete)**: employer applicant list is ranked by score (nulls last), filtered by status/gate/bias and hides `not_matched` unless toggled; review shows alias, score with cut-off, bias, gate, claims, missing skills and stripped text, revealing identity only after shortlist with an `identity_reveal` audit. Shortlist/reject enforce gate 409 and 422 written-reason rules (10+ chars) with `ai_decision` audits and the DB CHECK; pull-back creates a one-item filter-skipping run and re-screens. Added candidate score/claims (never bias), employer dashboard counters, and AI/fallback screening questions saved on drafts. Frontend P24/P25/P16/P20/P23 plus `ScoreMeter`, `ProgressBar` and the demo seed. 126 backend tests and 11 frontend tests green; design check + build pass; OpenAPI now 54 paths. Decisions D-45–D-48. |
 | 22 Nov 2026 | **Part 2.2 done**: migration `V2_2_1` (candidate_aliases, screening_runs, screening_items, application_claims and screening result columns on applications with CHECK constraints). Added `AliasService`, rule-based hard filters, pure `ScoringService` (weighted score, quote validation), `BiasScanner`, AI/fallback screening through `AiGateway`, and the async screening worker with restart recovery. Employer endpoints: estimate (count, mode, cost), start (202), progress and retry-failed; the applicant list now returns aliases instead of “Applicant n”. Verified a 10-applicant fallback run (9 screened, 1 not matched), invented AI quotes downgraded, retries and restart recovery, and no identity in employer responses. 117 backend tests green, OpenAPI now 47 paths. Decisions D-42–D-44. |
 | 22 Nov 2026 | **Fix resume suggestion save (400) and nested auth link**: “Save to profile” no longer fails when the AI proposes `TCP/IP`, `Linux/Bash` or versioned names; canonical matching now removes parenthetical/version text and invalid names are skipped. Also removed the `<Link><Logo/></Link>` nesting in `AuthShell` that produced the React `validateDOMNesting` warning. 92 backend + 11 frontend tests green. Decision D-41. |
 | 22 Nov 2026 | **Part 2.1 done**: migrations `V2_1_1` (skill_aliases, strip_terms, resume_suggestions, resume_placeholder_map, strip_reports, work_history, ai_calls) and `V2_1_2` (111 aliases, 144 institutions, 170 employers). Added PDFBox extraction with `SCANNED_OR_EMPTY`/`NOT_ENGLISH` failure reasons, pure `ResumeStripper` (known identifiers, header name, personal-detail lines, email/phone/URL patterns, seeded institutions/employers, education `[YEAR]`, work-duration parsing attached to employer placeholders) and `IdentifierScan`. Added `AiProvider`/`AiGateway`, `DeepSeekProvider` (official API, `deepseek-flash`, thinking disabled, retry, JSON mode, token cost) and `RuleBasedFallbackProvider`, recording every call in `ai_calls` and blocking leaks with `ai_call_blocked`. Resume pipeline runs async with restart recovery; suggestions restore employer names from the private placeholder map. API: resume suggestions/apply, strip reports, work-history CRUD, profile previous titles, alias-aware skill suggest. Frontend P14 has processing/failed/ready states, chip-stripped preview, wrong-strip report and editable suggestions; P13 has previous titles and work history CRUD. Golden test passes (30 text fixtures + 5 PDFs for extraction). 92 backend tests, 11 frontend tests, design check, build and OpenAPI export green. Live DeepSeek Flash run applied the extracted profile. Decisions D-38–D-40. |
@@ -181,5 +188,6 @@ Next start message:
 | Secrets check (chunk 6) | `./scripts/check-secrets.sh` |
 | Export API contract | `curl http://localhost:8080/v3/api-docs -o docs/openapi.json` |
 | Generate & seed dummy data (20 jobs, 10 users, 5 CVs) | `python3 dummy-data/generate_dummy_data.py && mariadb -u shehab -p1234 fairfold < dummy-data/seed_data.sql` |
+| Seed the 2.3 demo (1 company, 1 job, 10 candidates) | `./scripts/seed-demo.sh` (login `demo.hr@fairfold.dev` / `Password123!`) |
 | Reset local dev database | `mariadb -u root -p -e "DROP DATABASE fairfold; CREATE DATABASE fairfold CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_ci;"` |
 | Repair a half-applied Flyway migration | fix or drop the partial objects by hand, then `./mvnw flyway:repair` |

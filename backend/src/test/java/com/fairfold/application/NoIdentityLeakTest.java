@@ -29,9 +29,12 @@ class NoIdentityLeakTest extends AbstractIntegrationTest {
         jdbcTemplate.update("UPDATE resumes SET status = 'ready', stripped_text = ? WHERE id = ?",
                 "Built backend services and reviewed code.", resumeId.toString());
 
-        mockMvc.perform(post("/api/jobs/" + jobId + "/applications")
+        MvcResult applied = mockMvc.perform(post("/api/jobs/" + jobId + "/applications")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn();
+        String applicationId = objectMapper.readTree(applied.getResponse().getContentAsString())
+                .path("id").asText();
 
         mockMvc.perform(post("/api/employer/jobs/" + jobId + "/screening")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
@@ -59,6 +62,24 @@ class NoIdentityLeakTest extends AbstractIntegrationTest {
         assertFalse(body.contains("distinctive.candidate@secret.com"));
         assertFalse(body.contains("+8801712345678"));
         org.junit.jupiter.api.Assertions.assertTrue(body.contains("C-"));
+
+        MvcResult review = mockMvc.perform(get("/api/employer/applications/" + applicationId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
+                .andExpect(status().isOk())
+                .andReturn();
+        String reviewBody = review.getResponse().getContentAsString();
+        assertFalse(reviewBody.contains("Distinctive"));
+        assertFalse(reviewBody.contains("distinctive.candidate@secret.com"));
+        assertFalse(reviewBody.contains("+8801712345678"));
+        assertFalse(reviewBody.contains("\"identity\":{"));
+
+        MvcResult dashboard = mockMvc.perform(get("/api/employer/dashboard")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
+                .andExpect(status().isOk())
+                .andReturn();
+        String dashboardBody = dashboard.getResponse().getContentAsString();
+        assertFalse(dashboardBody.contains("Distinctive"));
+        assertFalse(dashboardBody.contains("distinctive.candidate@secret.com"));
     }
 
     private String registerDistinctiveCandidate() throws Exception {

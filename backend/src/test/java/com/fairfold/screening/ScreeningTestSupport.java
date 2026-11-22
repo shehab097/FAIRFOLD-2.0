@@ -14,6 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 abstract class ScreeningTestSupport extends AbstractIntegrationTest {
 
     protected UUID createScreeningJob(String token) throws Exception {
+        return createScreeningJob(token, true);
+    }
+
+    protected UUID createScreeningJob(String token, boolean activate) throws Exception {
         UUID javaId = skillId("Java");
         UUID springId = skillId("Spring Boot");
         UUID dockerId = skillId("Docker");
@@ -31,9 +35,11 @@ abstract class ScreeningTestSupport extends AbstractIntegrationTest {
                 .andReturn();
         UUID jobId = UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString())
                 .path("id").asText());
-        mockMvc.perform(post("/api/employer/jobs/" + jobId + "/activate")
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+        if (activate) {
+            mockMvc.perform(post("/api/employer/jobs/" + jobId + "/activate")
+                            .header("Authorization", "Bearer " + token))
+                    .andExpect(status().isOk());
+        }
         return jobId;
     }
 
@@ -81,7 +87,7 @@ abstract class ScreeningTestSupport extends AbstractIntegrationTest {
                         """,
                 applicationId.toString(), jobId.toString(), user.userId().toString(),
                 resumeId.toString());
-        return new Candidate(user.userId(), applicationId, resumeId);
+        return new Candidate(user.userId(), user.token(), applicationId, resumeId);
     }
 
     private void insertSkill(UUID userId, UUID skillId, String level) {
@@ -90,6 +96,23 @@ abstract class ScreeningTestSupport extends AbstractIntegrationTest {
                         VALUES (?, ?, ?, ?, NULL, false)
                         """,
                 UUID.randomUUID().toString(), userId.toString(), skillId.toString(), level);
+    }
+
+    protected void setResult(UUID applicationId, String status, Integer score,
+                             String biasStatus, String gateStatus) {
+        jdbcTemplate.update("""
+                        UPDATE applications
+                        SET status = ?, score = ?, bias_status = ?, gate_status = ?
+                        WHERE id = ?
+                        """,
+                status, score, biasStatus, gateStatus, applicationId.toString());
+        jdbcTemplate.update("""
+                        UPDATE applications
+                        SET scoring_mode = CASE WHEN status IN ('screened', 'not_matched')
+                                                THEN 'rule_based' ELSE NULL END
+                        WHERE id = ?
+                        """,
+                applicationId.toString());
     }
 
     protected JsonNode startAndAwait(String token, UUID jobId) throws Exception {
@@ -113,5 +136,5 @@ abstract class ScreeningTestSupport extends AbstractIntegrationTest {
         throw new AssertionError("Screening run " + runId + " did not finish in time");
     }
 
-    protected record Candidate(UUID userId, UUID applicationId, UUID resumeId) {}
+    protected record Candidate(UUID userId, String token, UUID applicationId, UUID resumeId) {}
 }
