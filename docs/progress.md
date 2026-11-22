@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 22 November 2026 · Updated by: implementation session (2.3 follow-up fixes: legacy resumes, progress 404, applied state)
+Last updated: 22 November 2026 · Updated by: implementation session (dashboard expansion + profile/resume UX fixes)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -107,6 +107,7 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-53 | 22 Nov 2026 | UI | The review page renders the stripped resume as a structured document: header with contact chips, uppercase section headings, bold employer/institution entries, bullet lists, skill chips, and neutral chips for stripped placeholders. Claim quotes are still highlighted with exact-substring matching. | The raw extracted text was a wall of line-broken text and hard to scan; a document layout keeps the same data and quote highlighting but is readable. |
 | D-54 | 22 Nov 2026 | UI | Removed the bordered, padded chip styling from stripped-resume placeholders. Both previews now show subtle inline bracketed tokens (`[Name]`, `[Employer]`, `[Institution]`, `[Email]`, …); the candidate preview keeps the original value in the tooltip. | The pill borders and margins looked like buttons scattered through the resume and made the text harder to read. |
 | D-55 | 22 Nov 2026 | 2.3+ | Employer dashboard refetches every 15 seconds and has a manual Refresh button; starting/retrying screening, changing job status, and shortlist/reject/pull-back invalidate the dashboard query. | Counters could stay stale after screening or job lifecycle changes; polling covers candidate applications arriving while the dashboard is open. |
+| D-56 | 22 Nov 2026 | 2.3+ | `GET /api/employer/dashboard` now also returns `pipeline` counts for every application status, the five newest applications (alias, job, score, status, bias, appliedAt) and up to five active jobs with applicant/awaiting/screened counts. The P20 page renders these as stat blocks, a pipeline grid, a recent-applications table and an open-jobs table. | The original dashboard only had four counters and made it hard to see where candidates were in the pipeline or which jobs needed attention. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -140,10 +141,13 @@ Update after every part.
 
 | 2.3+ | 128 passed (2 new) | 11 passed | passed | yes | Fixed Screen All count vs applicant list for legacy applications by falling back to the candidate’s ready current resume (and repairing the application link on start). Empty screening progress now returns `200 runId:null` instead of 404, and the candidate job page uses `GET /api/jobs/{id}/applications/mine` to show Applied/Screened + View application instead of an Apply button that 409s. |
 
+| 2.3++ | 128 passed | 11 passed | passed | yes | Employer dashboard expansion: status pipeline counts, five recent applications with aliases/scores/bias and links to review, and five active jobs with applicant/awaiting/screened counts. Dashboard polls every 15s and has a manual Refresh button; screening and job lifecycle actions invalidate it. Live check on demo company: 1 open job, 11 new, 0 awaiting, 1 bias flag, pipeline 7 screened / 1 shortlisted / 3 not matched. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 22 Nov 2026 | **Employer dashboard expansion**: added pipeline counts by application status, the five newest applications (alias, job, score, status, bias, applied), and active-job applicant activity. P20 now shows a pipeline grid, recent-applications table and open-jobs table; it polls every 15s with a Refresh button. Decision D-56. |
 | 22 Nov 2026 | **Employer dashboard freshness**: dashboard now polls every 15s with a Refresh button, and screening start/retry, job actions and review decisions invalidate its counters. Decision D-55. |
 | 22 Nov 2026 | **Placeholder token styling**: stripped resume/preview placeholders are now subtle inline bracketed tokens instead of bordered chips with spacing. Candidate tooltip still shows the original removed value. Decision D-54. |
 | 22 Nov 2026 | **Readable stripped resume**: replaced the plain pre-wrapped resume in P25 with a structured viewer (header/contact chips, section headings, job entries, bullets, skill chips, placeholder chips) while keeping clickable quote highlights. Decision D-53. |

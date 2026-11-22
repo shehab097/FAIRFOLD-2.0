@@ -322,7 +322,15 @@ class EmployerReviewIntegrationTest extends ScreeningTestSupport {
                 .andExpect(jsonPath("$.awaitingScreening").value(1))
                 .andExpect(jsonPath("$.biasFlags").value(1))
                 .andExpect(jsonPath("$.interviewsThisWeek").value(org.hamcrest.Matchers.nullValue()))
-                .andExpect(jsonPath("$.quota").value(org.hamcrest.Matchers.nullValue()));
+                .andExpect(jsonPath("$.quota").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.pipeline.applied").value(1))
+                .andExpect(jsonPath("$.pipeline.screened").value(2))
+                .andExpect(jsonPath("$.recentApplications.length()").value(3))
+                .andExpect(jsonPath("$.recentApplications[0].alias").exists())
+                .andExpect(jsonPath("$.jobs.length()").value(1))
+                .andExpect(jsonPath("$.jobs[0].applicants").value(3))
+                .andExpect(jsonPath("$.jobs[0].awaitingScreening").value(1))
+                .andExpect(jsonPath("$.jobs[0].screened").value(2));
     }
 
     @Test

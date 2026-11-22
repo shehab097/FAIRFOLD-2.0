@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,6 +18,8 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
     Optional<Job> findByIdAndCompanyId(UUID id, UUID companyId);
 
     long countByCompanyIdAndStatus(UUID companyId, JobStatus status);
+
+    List<Job> findByCompanyIdAndStatusOrderByUpdatedAtDesc(UUID companyId, JobStatus status, Pageable pageable);
 
     @Query("select j from Job j where j.companyId = :companyId and (:status is null or j.status = :status) order by j.createdAt desc")
     Page<Job> findByCompany(@Param("companyId") UUID companyId, @Param("status") JobStatus status, Pageable pageable);

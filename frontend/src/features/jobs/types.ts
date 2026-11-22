@@ -244,6 +244,37 @@ export interface ScreeningQuestions {
   questions: string[];
 }
 
+export interface EmployerDashboardPipeline {
+  applied: number;
+  screening: number;
+  screened: number;
+  shortlisted: number;
+  interview: number;
+  hired: number;
+  rejected: number;
+  notMatched: number;
+}
+
+export interface EmployerDashboardApplication {
+  id: string;
+  jobId: string;
+  jobTitle: string | null;
+  alias: string;
+  score: number | null;
+  status: string;
+  biasStatus: string | null;
+  appliedAt: string;
+}
+
+export interface EmployerDashboardJob {
+  id: string;
+  title: string;
+  status: string;
+  applicants: number;
+  awaitingScreening: number;
+  screened: number;
+}
+
 export interface EmployerDashboard {
   openJobs: number;
   newApplications: number;
@@ -251,4 +282,7 @@ export interface EmployerDashboard {
   biasFlags: number;
   interviewsThisWeek: number | null;
   quota: unknown | null;
+  pipeline: EmployerDashboardPipeline;
+  recentApplications: EmployerDashboardApplication[];
+  jobs: EmployerDashboardJob[];
 }

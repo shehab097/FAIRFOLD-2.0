@@ -44,4 +44,16 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
     long countByCompanyStatusAndBias(@Param("companyId") UUID companyId,
                                      @Param("status") ApplicationStatus status,
                                      @Param("bias") com.fairfold.screening.BiasStatus bias);
+
+    @Query("select a.status, count(a) from Application a, Job j "
+            + "where a.jobId = j.id and j.companyId = :companyId group by a.status")
+    List<Object[]> countByStatusForCompany(@Param("companyId") UUID companyId);
+
+    @Query("select a from Application a, Job j where a.jobId = j.id "
+            + "and j.companyId = :companyId order by a.createdAt desc, a.id desc")
+    List<Application> findRecentForCompany(@Param("companyId") UUID companyId, Pageable pageable);
+
+    long countByJobId(UUID jobId);
+
+    long countByJobIdAndStatus(UUID jobId, ApplicationStatus status);
 }
