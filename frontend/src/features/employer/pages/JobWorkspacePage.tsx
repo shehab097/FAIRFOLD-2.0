@@ -365,7 +365,7 @@ function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean })
         )}
       </div>
 
-      {progress && (
+      {progress?.runId && progress.status && (
         <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">

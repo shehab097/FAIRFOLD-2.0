@@ -64,7 +64,7 @@ public class ScreeningService {
     @Transactional(readOnly = true)
     public ScreeningEstimateResponse estimate(UUID companyId, UUID jobId) {
         requireJob(companyId, jobId);
-        List<Application> eligible = eligibleApplications(jobId);
+        List<Application> eligible = eligibleApplications(jobId, false);
         String mode = aiGateway.activeMode();
         return new ScreeningEstimateResponse(eligible.size(), mode, estimateCost(eligible, mode));
     }
@@ -78,7 +78,7 @@ public class ScreeningService {
         if (runRepository.existsByJobIdAndStatus(jobId, RunStatus.running)) {
             throw ApiException.conflict("SCREENING_RUNNING", "A screening run is already in progress.");
         }
-        List<Application> eligible = eligibleApplications(jobId);
+        List<Application> eligible = eligibleApplications(jobId, true);
         if (eligible.isEmpty()) {
             throw ApiException.conflict("NOTHING_TO_SCREEN", "There are no new applicants to screen.");
         }
@@ -109,9 +109,10 @@ public class ScreeningService {
     @Transactional(readOnly = true)
     public ScreeningProgressResponse progress(UUID companyId, UUID jobId) {
         requireJob(companyId, jobId);
-        ScreeningRun run = runRepository.findFirstByJobIdOrderByCreatedAtDesc(jobId)
-                .orElseThrow(() -> ApiException.notFound("SCREENING_NOT_FOUND",
-                        "No screening run has been started for this job."));
+        ScreeningRun run = runRepository.findFirstByJobIdOrderByCreatedAtDesc(jobId).orElse(null);
+        if (run == null) {
+            return new ScreeningProgressResponse(null, null, null, 0, 0, 0, null);
+        }
         return toProgress(run);
     }
 
@@ -138,13 +139,28 @@ public class ScreeningService {
                 .orElseThrow(() -> ApiException.notFound("JOB_NOT_FOUND", "Job not found."));
     }
 
-    private List<Application> eligibleApplications(UUID jobId) {
+    /**
+     * Applied applications with a ready resume. Legacy applications may point at
+     * a resume row that was never processed; when the candidate has a ready
+     * current resume, start() repairs the link so the item can be screened.
+     */
+    private List<Application> eligibleApplications(UUID jobId, boolean repairResume) {
         List<Application> applied = applicationRepository
                 .findByJobIdAndStatusOrderByCreatedAtAscIdAsc(jobId, ApplicationStatus.applied);
         List<Application> eligible = new ArrayList<>();
         for (Application application : applied) {
             Resume resume = resumeRepository.findById(application.getResumeId()).orElse(null);
             if (resume != null && resume.getStatus() == ResumeStatus.ready) {
+                eligible.add(application);
+                continue;
+            }
+            Resume current = resumeRepository.findByUserIdAndCurrentTrue(application.getCandidateId())
+                    .orElse(null);
+            if (current != null && current.getStatus() == ResumeStatus.ready) {
+                if (repairResume) {
+                    application.setResumeId(current.getId());
+                    applicationRepository.save(application);
+                }
                 eligible.add(application);
             }
         }

@@ -8,6 +8,7 @@ import {
   deleteSkill,
   getApplication,
   getDashboard,
+  getMyApplication,
   getProfile,
   getResume,
   getResumeSuggestions,
@@ -177,12 +178,22 @@ export function useApplication(id: string | undefined) {
   });
 }
 
+export function useMyApplication(jobId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ['candidate', 'application-for-job', jobId],
+    queryFn: () => getMyApplication(jobId as string),
+    enabled: Boolean(jobId) && enabled,
+    retry: false,
+  });
+}
+
 export function useApply(jobId: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => applyToJob(jobId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['candidate', 'applications'] });
+      qc.invalidateQueries({ queryKey: ['candidate', 'application-for-job', jobId] });
       qc.invalidateQueries({ queryKey: ['candidate', 'dashboard'] });
     },
   });

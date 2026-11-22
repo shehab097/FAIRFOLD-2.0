@@ -171,14 +171,68 @@ class ScreeningIntegrationTest extends ScreeningTestSupport {
     }
 
     @Test
-    void progress_returns_404_before_any_run() throws Exception {
+    void progress_is_empty_before_the_first_run() throws Exception {
         TestEmployer employer = registerEmployer("norun.hr@acme.com");
         completeCompany(employer.token());
         UUID jobId = createScreeningJob(employer.token());
         mockMvc.perform(get("/api/employer/jobs/" + jobId + "/screening")
                         .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("SCREENING_NOT_FOUND"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.runId").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.total").value(0));
+    }
+
+    @Test
+    void estimate_and_start_use_the_current_ready_resume_for_legacy_applications() throws Exception {
+        TestEmployer employer = registerEmployer("legacy.hr@acme.com");
+        completeCompany(employer.token());
+        UUID jobId = createScreeningJob(employer.token());
+        TestUser candidate = registerUser("legacy.candidate@example.com", "candidate");
+        jdbcTemplate.update("""
+                        INSERT INTO candidate_profiles
+                            (user_id, phone, title, location, remote_preference, total_experience_years,
+                             education_level, previous_job_titles)
+                        VALUES (?, '+8801712345678', 'Backend Engineer', 'Dhaka, Bangladesh', 'any', 6,
+                                'bachelor', JSON_ARRAY())
+                        """,
+                candidate.userId().toString());
+        UUID oldResume = UUID.randomUUID();
+        jdbcTemplate.update("""
+                        INSERT INTO resumes (id, user_id, original_filename, storage_key, size_bytes,
+                                             status, is_current, current_user_key)
+                        VALUES (?, ?, 'old.pdf', ?, 1024, 'uploaded', false, NULL)
+                        """,
+                oldResume.toString(), candidate.userId().toString(), UUID.randomUUID().toString());
+        UUID currentResume = UUID.randomUUID();
+        jdbcTemplate.update("""
+                        INSERT INTO resumes (id, user_id, original_filename, storage_key, size_bytes,
+                                             status, stripped_text, is_current, current_user_key)
+                        VALUES (?, ?, 'new.pdf', ?, 1024, 'ready',
+                                'Built Java and Spring Boot services with PostgreSQL and Docker.', true, ?)
+                        """,
+                currentResume.toString(), candidate.userId().toString(), UUID.randomUUID().toString(),
+                candidate.userId().toString());
+        UUID applicationId = UUID.randomUUID();
+        jdbcTemplate.update("""
+                        INSERT INTO applications (id, job_id, candidate_id, resume_id, status)
+                        VALUES (?, ?, ?, ?, 'applied')
+                        """,
+                applicationId.toString(), jobId.toString(), candidate.userId().toString(),
+                oldResume.toString());
+
+        mockMvc.perform(post("/api/employer/jobs/" + jobId + "/screening/estimate")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.count").value(1));
+
+        startAndAwait(employer.token(), jobId);
+
+        String linkedResume = jdbcTemplate.queryForObject(
+                "SELECT resume_id FROM applications WHERE id = ?", String.class, applicationId.toString());
+        assertThat(linkedResume).isEqualTo(currentResume.toString());
+        String applicationStatus = jdbcTemplate.queryForObject(
+                "SELECT status FROM applications WHERE id = ?", String.class, applicationId.toString());
+        assertThat(applicationStatus).isEqualTo("screened");
     }
 
     @Test

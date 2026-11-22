@@ -8,6 +8,7 @@ import type {
   CandidateSkill,
   Dashboard,
   Resume,
+  MyApplication,
   ResumeSuggestions,
   WorkHistory,
   WorkHistoryInput,
@@ -118,6 +119,11 @@ export async function deleteWorkHistory(id: string): Promise<void> {
 
 export async function applyToJob(jobId: string): Promise<CandidateApplicationDetail> {
   const { data } = await api.post<CandidateApplicationDetail>(`/api/jobs/${jobId}/applications`);
+  return data;
+}
+
+export async function getMyApplication(jobId: string): Promise<MyApplication> {
+  const { data } = await api.get<MyApplication>(`/api/jobs/${jobId}/applications/mine`);
   return data;
 }
 

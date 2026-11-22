@@ -163,6 +163,13 @@ export interface Dashboard {
   latestApplications: LatestApplication[];
 }
 
+export interface MyApplication {
+  applied: boolean;
+  applicationId: string | null;
+  status: ApplicationStatus | null;
+  appliedAt: string | null;
+}
+
 export const SKILL_LEVELS: CandidateSkillLevel[] = ['beginner', 'intermediate', 'expert'];
 export const REMOTE_PREFERENCES: RemotePreference[] = ['onsite', 'hybrid', 'remote', 'any'];
 export const EDUCATION_LEVELS = [

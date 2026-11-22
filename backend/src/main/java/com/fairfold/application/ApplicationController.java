@@ -2,6 +2,7 @@ package com.fairfold.application;
 
 import com.fairfold.application.dto.CandidateApplicationDetail;
 import com.fairfold.application.dto.CandidateApplicationListItem;
+import com.fairfold.application.dto.MyApplicationResponse;
 import com.fairfold.common.paging.PageResponse;
 import com.fairfold.common.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +40,13 @@ public class ApplicationController {
                                                             @PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(applicationService.apply(user.id(), id));
+    }
+
+    @GetMapping("/jobs/{id}/applications/mine")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Get the caller's application for a job, if any")
+    public MyApplicationResponse mine(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
+        return applicationService.myApplication(user.id(), id);
     }
 
     @GetMapping("/candidate/applications")

@@ -231,13 +231,13 @@ export interface ScreeningEstimate {
 }
 
 export interface ScreeningProgress {
-  runId: string;
-  status: 'running' | 'finished';
-  mode: 'ai' | 'rule_based';
+  runId: string | null;
+  status: 'running' | 'finished' | null;
+  mode: 'ai' | 'rule_based' | null;
   total: number;
   done: number;
   failed: number;
-  startedAt: string;
+  startedAt: string | null;
 }
 
 export interface ScreeningQuestions {

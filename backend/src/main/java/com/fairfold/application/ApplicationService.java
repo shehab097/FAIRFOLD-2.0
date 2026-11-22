@@ -2,6 +2,7 @@ package com.fairfold.application;
 
 import com.fairfold.application.dto.CandidateApplicationDetail;
 import com.fairfold.application.dto.CandidateApplicationListItem;
+import com.fairfold.application.dto.MyApplicationResponse;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
@@ -113,6 +114,14 @@ public class ApplicationService {
                         .map(a -> toListItem(a, jobs.get(a.getJobId())))
                         .toList(),
                 page.getNumber(), page.getSize(), page.getTotalElements());
+    }
+
+    @Transactional(readOnly = true)
+    public MyApplicationResponse myApplication(UUID candidateId, UUID jobId) {
+        return applicationRepository.findByJobIdAndCandidateId(jobId, candidateId)
+                .map(application -> new MyApplicationResponse(
+                        true, application.getId(), application.getStatus().name(), application.getCreatedAt()))
+                .orElseGet(() -> new MyApplicationResponse(false, null, null, null));
     }
 
     @Transactional(readOnly = true)

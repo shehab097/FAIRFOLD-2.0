@@ -17,6 +17,8 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
 
     Optional<Application> findByIdAndCandidateId(UUID id, UUID candidateId);
 
+    Optional<Application> findByJobIdAndCandidateId(UUID jobId, UUID candidateId);
+
     @Query("select a from Application a where a.candidateId = :candidateId and (:status is null or a.status = :status) order by a.createdAt desc")
     Page<Application> findByCandidate(@Param("candidateId") UUID candidateId,
                                       @Param("status") ApplicationStatus status,

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Building2, Link2, MapPin } from 'lucide-react';
 import { useJob } from '../queries';
-import { useApply } from '../../candidate/queries';
+import { useApply, useMyApplication } from '../../candidate/queries';
 import { useAuth } from '../../../app/auth/AuthContext';
+import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { CompanyLogo } from '../../../components/ui/CompanyLogo';
@@ -23,6 +24,7 @@ export function JobDetailPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const apply = useApply(jobId as string);
+  const myApplication = useMyApplication(jobId, user?.role === 'CANDIDATE');
   const [confirming, setConfirming] = useState(false);
 
   function copyLink() {
@@ -204,9 +206,27 @@ export function JobDetailPage() {
                 </Link>
               )}
               {user?.role === 'CANDIDATE' ? (
-                <Button className="w-full" onClick={() => setConfirming(true)}>
-                  Apply now
-                </Button>
+                myApplication.isLoading ? (
+                  <Button className="w-full" disabled>
+                    Checking application…
+                  </Button>
+                ) : myApplication.data?.applied ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between rounded-md border border-border bg-bg px-3 py-2">
+                      <span className="text-xs text-text-secondary">Your application</span>
+                      <Badge status={myApplication.data.status ?? 'applied'} />
+                    </div>
+                    <Link to={`/candidate/applications/${myApplication.data.applicationId}`}>
+                      <Button variant="secondary" className="w-full">
+                        View application
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <Button className="w-full" onClick={() => setConfirming(true)}>
+                    Apply now
+                  </Button>
+                )
               ) : !user ? (
                 <Button className="w-full" onClick={() => navigate(`/login?next=${encodeURIComponent(window.location.pathname)}`)}>
                   Log in to apply
