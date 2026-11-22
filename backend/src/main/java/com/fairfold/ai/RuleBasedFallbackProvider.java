@@ -143,7 +143,95 @@ public class RuleBasedFallbackProvider implements AiProvider {
 
     @Override
     public AiResult<List<AiResult.Verdict>> screen(AiResult.ScreeningRequest request) {
-        throw new AiProviderException("Rule-based screening is available from Part 2.2", null);
+        List<AiResult.Verdict> verdicts = new ArrayList<>();
+        String text = request.strippedText() == null ? "" : request.strippedText();
+        for (AiResult.Requirement requirement : request.requirements()) {
+            if (requirement.key() != null && requirement.key().startsWith("skill:")) {
+                verdicts.add(screenSkill(requirement, text));
+            } else if ("experience".equals(requirement.key())) {
+                verdicts.add(screenExperience(requirement));
+            } else {
+                verdicts.add(new AiResult.Verdict(requirement.key(), "not_met", null));
+            }
+        }
+        return AiResult.ruleBased(verdicts);
+    }
+
+    private AiResult.Verdict screenSkill(AiResult.Requirement requirement, String text) {
+        UUID skillId;
+        try {
+            skillId = UUID.fromString(requirement.key().substring("skill:".length()));
+        } catch (IllegalArgumentException e) {
+            return new AiResult.Verdict(requirement.key(), "not_met", null);
+        }
+        Skill skill = skillRepository.findById(skillId).orElse(null);
+        if (skill == null) {
+            return new AiResult.Verdict(requirement.key(), "not_met", null);
+        }
+        List<String> terms = new ArrayList<>();
+        terms.add(skill.getName());
+        for (SkillAlias alias : aliasRepository.findBySkillId(skillId)) {
+            terms.add(alias.getAlias());
+        }
+        for (String term : terms) {
+            Matcher matcher = Pattern.compile("(?i)(?<![\\w+#])" + Pattern.quote(term) + "(?![\\w+#])")
+                    .matcher(text);
+            if (matcher.find()) {
+                return new AiResult.Verdict(requirement.key(), "met",
+                        sentenceAround(text, matcher.start(), matcher.end()));
+            }
+        }
+        return new AiResult.Verdict(requirement.key(), "not_met", null);
+    }
+
+    private AiResult.Verdict screenExperience(AiResult.Requirement requirement) {
+        String text = requirement.text() == null ? "" : requirement.text();
+        Matcher levelMatcher = Pattern.compile("(?i)Experience level:\\s*(entry|mid|senior|lead)").matcher(text);
+        String level = levelMatcher.find() ? levelMatcher.group(1).toLowerCase(Locale.ROOT) : "entry";
+        Matcher yearsMatcher = Pattern.compile("(?i)profile:\\s*(\\d+(?:\\.\\d+)?)\\s*years?").matcher(text);
+        BigDecimal years = yearsMatcher.find() ? new BigDecimal(yearsMatcher.group(1)) : null;
+        int threshold = switch (level) {
+            case "mid" -> 2;
+            case "senior" -> 5;
+            case "lead" -> 8;
+            default -> 0;
+        };
+        if (years == null) {
+            return new AiResult.Verdict(requirement.key(), threshold == 0 ? "met" : "not_met", null);
+        }
+        double value = years.doubleValue();
+        if (value >= threshold) {
+            return new AiResult.Verdict(requirement.key(), "met", null);
+        }
+        if (value > 0 && value >= threshold / 2.0) {
+            return new AiResult.Verdict(requirement.key(), "partial", null);
+        }
+        return new AiResult.Verdict(requirement.key(), "not_met", null);
+    }
+
+    private String sentenceAround(String text, int start, int end) {
+        int from = start;
+        while (from > 0 && !isBoundary(text.charAt(from - 1))) {
+            from--;
+        }
+        int to = end;
+        while (to < text.length() && !isBoundary(text.charAt(to))) {
+            to++;
+        }
+        if (to < text.length()) {
+            to++;
+        }
+        String sentence = text.substring(from, to).strip();
+        if (sentence.length() <= 250) {
+            return sentence;
+        }
+        int center = Math.max(0, (start + end) / 2 - from - 125);
+        int cut = Math.min(sentence.length() - 250, center);
+        return sentence.substring(Math.max(0, cut), Math.min(sentence.length(), Math.max(0, cut) + 250)).strip();
+    }
+
+    private boolean isBoundary(char value) {
+        return value == '.' || value == '!' || value == '?' || value == '\n';
     }
 
     @Override

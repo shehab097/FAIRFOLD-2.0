@@ -163,7 +163,13 @@ export const SALARY_PERIODS: SalaryPeriod[] = ['year', 'month', 'hour'];
 
 export interface EmployerApplicantListItem {
   id: string;
+  alias: string;
   label: string;
+  score: number | null;
   status: string;
+  biasStatus: string | null;
+  gateStatus: string;
+  scoringMode: string | null;
+  notMatchedRule: string | null;
   appliedAt: string;
 }

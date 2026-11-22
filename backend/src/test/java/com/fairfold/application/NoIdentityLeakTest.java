@@ -25,11 +25,29 @@ class NoIdentityLeakTest extends AbstractIntegrationTest {
         String token = registerDistinctiveCandidate();
         UUID candidateId = jdbcTemplate.queryForObject(
                 "SELECT id FROM users WHERE email = 'distinctive.candidate@secret.com'", UUID.class);
-        insertResume(candidateId);
+        UUID resumeId = insertResume(candidateId);
+        jdbcTemplate.update("UPDATE resumes SET status = 'ready', stripped_text = ? WHERE id = ?",
+                "Built backend services and reviewed code.", resumeId.toString());
 
         mockMvc.perform(post("/api/jobs/" + jobId + "/applications")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/employer/jobs/" + jobId + "/screening")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
+                .andExpect(status().isAccepted());
+
+        for (int i = 0; i < 200; i++) {
+            MvcResult progress = mockMvc.perform(get("/api/employer/jobs/" + jobId + "/screening")
+                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            if ("finished".equals(objectMapper.readTree(progress.getResponse().getContentAsString())
+                    .path("status").asText())) {
+                break;
+            }
+            Thread.sleep(50);
+        }
 
         MvcResult result = mockMvc.perform(get("/api/employer/jobs/" + jobId + "/applications")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
@@ -40,6 +58,7 @@ class NoIdentityLeakTest extends AbstractIntegrationTest {
         assertFalse(body.contains("Distinctive"));
         assertFalse(body.contains("distinctive.candidate@secret.com"));
         assertFalse(body.contains("+8801712345678"));
+        org.junit.jupiter.api.Assertions.assertTrue(body.contains("C-"));
     }
 
     private String registerDistinctiveCandidate() throws Exception {

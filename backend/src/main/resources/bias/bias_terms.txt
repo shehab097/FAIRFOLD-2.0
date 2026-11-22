@@ -1,0 +1,8 @@
+\b(male|female|man|woman|men|women|boy|girl|gender|sex)\b
+\b(he|she|him|her|his|hers)\b
+\b(age|aged|years old|born|birth|date of birth|dob)\b
+\b(married|single|divorced|widowed|spouse|husband|wife|children|child|kids|pregnan\w*|maternity|paternity)\b
+\b(marital status|family status|religion|religious|muslim|islam|christian|hindu|buddhist|jewish|church|mosque|temple)\b
+\b(nationality|citizen|citizenship|ethnicity|race|racial|bangladeshi|indian|pakistani|american|british|canadian|african|asian|european|white|black)\b
+\b(disabled|disability|handicap\w*|wheelchair|autism|adhd|depression|mental health)\b
+\[INSTITUTION_

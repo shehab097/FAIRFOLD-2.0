@@ -24,4 +24,6 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
     List<Application> findTop5ByCandidateIdOrderByCreatedAtDesc(UUID candidateId);
 
     List<Application> findByJobIdOrderByCreatedAtAscIdAsc(UUID jobId);
+
+    List<Application> findByJobIdAndStatusOrderByCreatedAtAscIdAsc(UUID jobId, ApplicationStatus status);
 }

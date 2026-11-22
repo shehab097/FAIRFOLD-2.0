@@ -26,4 +26,16 @@ public class AsyncConfig {
         executor.initialize();
         return executor;
     }
+
+    /** One run per thread; up to four jobs can screen at the same time. */
+    @Bean("screeningExecutor")
+    public Executor screeningExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(4);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("screening-");
+        executor.initialize();
+        return executor;
+    }
 }

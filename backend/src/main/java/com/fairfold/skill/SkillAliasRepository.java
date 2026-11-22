@@ -10,5 +10,7 @@ public interface SkillAliasRepository extends JpaRepository<SkillAlias, UUID> {
 
     Optional<SkillAlias> findByAliasIgnoreCase(String alias);
 
+    java.util.List<SkillAlias> findBySkillId(UUID skillId);
+
     List<SkillAlias> findTop10ByAliasContainingIgnoreCaseOrderByAliasAsc(String alias);
 }

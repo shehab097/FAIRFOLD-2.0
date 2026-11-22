@@ -152,7 +152,8 @@ class ApplicationIntegrationTest extends AbstractIntegrationTest {
         mockMvc.perform(get("/api/employer/jobs/" + jobId + "/applications")
                         .header(HttpHeaders.AUTHORIZATION, bearer(employer.token())))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items[0].label").value("Applicant 1"))
+                .andExpect(jsonPath("$.items[0].alias").value(org.hamcrest.Matchers.matchesPattern("C-[A-HJ-NP-Z2-9]{5}")))
+                .andExpect(jsonPath("$.items[0].label").value(org.hamcrest.Matchers.matchesPattern("C-[A-HJ-NP-Z2-9]{5}")))
                 .andExpect(jsonPath("$.items[0].status").value("applied"));
     }
 }

@@ -15,6 +15,7 @@ import com.fairfold.notification.NotificationService;
 import com.fairfold.resume.Resume;
 import com.fairfold.resume.ResumeRepository;
 import com.fairfold.resume.ResumeStatus;
+import com.fairfold.screening.AliasService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class ApplicationService {
     private final ResumeRepository resumeRepository;
     private final NotificationService notificationService;
     private final AuditService auditService;
+    private final AliasService aliasService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               ApplicationStatusHistoryRepository historyRepository,
@@ -43,7 +45,8 @@ public class ApplicationService {
                               CompanyRepository companyRepository,
                               ResumeRepository resumeRepository,
                               NotificationService notificationService,
-                              AuditService auditService) {
+                              AuditService auditService,
+                              AliasService aliasService) {
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
         this.jobRepository = jobRepository;
@@ -51,6 +54,7 @@ public class ApplicationService {
         this.resumeRepository = resumeRepository;
         this.notificationService = notificationService;
         this.auditService = auditService;
+        this.aliasService = aliasService;
     }
 
     @Transactional
@@ -80,6 +84,7 @@ public class ApplicationService {
         historyRepository.save(new ApplicationStatusHistory(
                 application.getId(), null, ApplicationStatus.applied, candidateId, null));
 
+        aliasService.aliasFor(job.getCompanyId(), candidateId);
         auditService.record(candidateId, "application_created", "application",
                 application.getId().toString(), "{}");
 
@@ -115,7 +120,7 @@ public class ApplicationService {
         return toDetail(application, job);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PageResponse<EmployerApplicantListItem> listForEmployer(UUID companyId, UUID jobId, Pageable pageable) {
         jobRepository.findByIdAndCompanyId(jobId, companyId)
                 .orElseThrow(() -> ApiException.notFound("JOB_NOT_FOUND", "Job not found."));
@@ -129,10 +134,17 @@ public class ApplicationService {
         List<EmployerApplicantListItem> items = new java.util.ArrayList<>();
         for (int i = 0; i < slice.size(); i++) {
             Application application = slice.get(i);
+            String alias = aliasService.aliasFor(companyId, application.getCandidateId());
             items.add(new EmployerApplicantListItem(
                     application.getId(),
-                    "Applicant " + (from + i + 1),
+                    alias,
+                    alias,
+                    application.getScore(),
                     application.getStatus().name(),
+                    application.getBiasStatus() == null ? null : application.getBiasStatus().name(),
+                    application.getGateStatus().name(),
+                    application.getScoringMode() == null ? null : application.getScoringMode().name(),
+                    application.getNotMatchedRule(),
                     application.getCreatedAt()));
         }
         return PageResponse.of(items, pageable.getPageNumber(), pageable.getPageSize(), total);

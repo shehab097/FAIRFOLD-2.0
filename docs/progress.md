@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 22 November 2026 · Updated by: implementation session (Part 2.1 resume processing, stripping, AI gateway)
+Last updated: 22 November 2026 · Updated by: implementation session (Part 2.2 screening engine, scoring, bias check)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -14,7 +14,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 1.2 | 01_core_platform.md | Company, jobs, public job board | [x] | | 21 Nov 2026 |
 | 1.3 | 01_core_platform.md | Candidate profile, resume upload, applying, notifications | [x] | | 21 Nov 2026 |
 | 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [x] | | 22 Nov 2026 |
-| 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [ ] | | |
+| 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [x] | | 22 Nov 2026 |
 | 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [ ] | | |
 | 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [ ] | | |
 | 3.2 | 03_skills_proof.md | Taking assessments, Verified badge | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 2.1 done. Next: build Part 2.2 (screening engine, scoring, bias check) from `docs/prompts/02_ai_screening.md`.
+**Current focus:** Part 2.2 done. Next: build Part 2.3 (ranked list, review, shortlist, reveal, override) from `docs/prompts/02_ai_screening.md`.
 
-**Next session start message:** `Build Part 2.2 from docs/prompts/02_ai_screening.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 2.3 from docs/prompts/02_ai_screening.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -90,6 +90,11 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-39 | 22 Nov 2026 | 2.1 | Default AI model is **`deepseek-flash`** on the official `https://api.deepseek.com` endpoint. Requests set `thinking: {type: disabled}`, `temperature: 0`, `response_format: json_object` and `max_tokens` (default 4000). Token prices default to $0.30 input / $1.20 output per million (peak rates). | Owner chose DeepSeek Flash. Thinking mode is enabled by default and consumed ~2,000 completion tokens for an 899-character resume, sometimes exhausting the token budget before the JSON answer; disabling it is faster, cheaper and deterministic for extraction. Prices checked on the official pricing page (22 Nov 2026). |
 | D-40 | 22 Nov 2026 | 2.1 | Integration tests keep `skills`, `skill_aliases` and `strip_terms` between tests (like the existing skills seed); the test profile stores files under `${java.io.tmpdir}/fairfold-test-resumes` and forces `app.ai.provider=fallback`. | These tables are reference data seeded by Flyway, not test-owned rows; truncating them broke alias resolution and stripping. Async processing is still exercised by polling the resume status. |
 | D-41 | 22 Nov 2026 | 2.1 | “Save to profile” accepts `/` and `&` in new skill names, strips parenthetical and version suffixes when matching canonical skills (`Java 17/21` → Java, `AWS (ECS, RDS, S3)` → AWS), and skips names that still cannot be stored instead of failing the whole request. | Real CVs suggested `TCP/IP` and `Linux/Bash`; one unsupported name returned 400 and discarded every other reviewed suggestion. |
+
+| D-42 | 22 Nov 2026 | 2.2 | Items of one screening run are processed **sequentially** on one async task; the four-thread `screeningExecutor` lets up to four different jobs run in parallel. | Keeps run counters, item statuses and finish detection race-free while still using the required 4-thread pool across runs. |
+| D-43 | 22 Nov 2026 | 2.2 | Candidate aliases are created when a candidate applies, and lazily when an employer lists applicants (for rows created before 2.2). Same company + candidate is unique and stable across jobs; another company gets its own alias. | Covers old applications, avoids a read-only list failing to create an alias, and keeps aliases unlinkable across companies. |
+| D-44 | 22 Nov 2026 | 2.2 | `ai_calls` rows are written in a `REQUIRES_NEW` transaction (`AiCallRecorder`). Screening item work stays in one transaction per item. | A blocked or failed call must be recorded even when the screening item transaction rolls back; the prompt requires a blocked row plus an audit entry. |
+
 ## 4. Open questions (ask the owner, then move to Decisions)
 
 - [ ] Real plan names, prices and quotas for chunk 5.
@@ -116,10 +121,14 @@ Update after every part.
 | 1.3+ | 61 passed | 11 passed | passed | yes | Location dropdowns (country/city/address), `jobs.address`, `country` job filter, company logo on public job cards/details, checklist auto-hide, job salary (fixed/range/negotiable + currency/period/negotiable flag), salary-range filter, compact job cards (salary + level + work mode + max 2 skills, each in a distinct semantic color; `entry` labelled Junior), USD salary formatting, role-aware `/` and `/jobs` routing, and profile photos for candidates/employer HR normalized to 480×480 WebP (center-cropped, +3 integration tests), plus “View job details” links from candidate applications and public company profiles (`/companies/:companyId`) with company job lists, company links on job cards/details and a job-detail **View company profile** button, plus a guest landing page at `/` with latest jobs, product feature grid, how-it-works steps and CTAs, and a redesigned login page. Full backend suite green; frontend typecheck/build/tests green. Decisions D-27–D-37. |
 
 | 2.1 | 92 passed | 11 passed | passed | yes | Resume upload → async PDFBox extraction → BR-05 stripping → AI gateway/fallback → `ready`/`failed`, suggestions + placeholder map, apply to profile/skills/work history, strip reports, work-history CRUD, skill aliases, golden test (30 fixtures, ≥95% removed). Live verified with `deepseek-flash`: real CV uploaded, stripped, suggestions returned (`provider=ai`), applied to Alice’s profile; `ai_calls` recorded 424 prompt / 264 completion tokens at $0.000444. Decisions D-38–D-40. |
+
+| 2.2 | 117 passed (25 new) | 11 passed | passed | yes | Screening migrations and entities; aliases (`C-` + 5 chars, stable per company); `HardFilterService`, `ScoringService` (quote validation, weights, partial credit), `BiasScanner` (`bias_terms.txt`, claim removal + score recompute); AI and rule-based screening; async runs with 4 threads, restart recovery, estimate/start/progress/retry; employer applicant list now returns aliases, score, bias/gate/scoring fields. Unit tests for all scoring cases, invented AI quote, bias, hard filters; end-to-end fallback run with 10 applicants (9 screened, 1 not matched), fake-AI quote downgrade, retry-only-failed, recovery and `NoIdentityLeakTest` after screening. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 22 Nov 2026 | **Part 2.2 done**: migration `V2_2_1` (candidate_aliases, screening_runs, screening_items, application_claims and screening result columns on applications with CHECK constraints). Added `AliasService`, rule-based hard filters, pure `ScoringService` (weighted score, quote validation), `BiasScanner`, AI/fallback screening through `AiGateway`, and the async screening worker with restart recovery. Employer endpoints: estimate (count, mode, cost), start (202), progress and retry-failed; the applicant list now returns aliases instead of “Applicant n”. Verified a 10-applicant fallback run (9 screened, 1 not matched), invented AI quotes downgraded, retries and restart recovery, and no identity in employer responses. 117 backend tests green, OpenAPI now 47 paths. Decisions D-42–D-44. |
 | 22 Nov 2026 | **Fix resume suggestion save (400) and nested auth link**: “Save to profile” no longer fails when the AI proposes `TCP/IP`, `Linux/Bash` or versioned names; canonical matching now removes parenthetical/version text and invalid names are skipped. Also removed the `<Link><Logo/></Link>` nesting in `AuthShell` that produced the React `validateDOMNesting` warning. 92 backend + 11 frontend tests green. Decision D-41. |
 | 22 Nov 2026 | **Part 2.1 done**: migrations `V2_1_1` (skill_aliases, strip_terms, resume_suggestions, resume_placeholder_map, strip_reports, work_history, ai_calls) and `V2_1_2` (111 aliases, 144 institutions, 170 employers). Added PDFBox extraction with `SCANNED_OR_EMPTY`/`NOT_ENGLISH` failure reasons, pure `ResumeStripper` (known identifiers, header name, personal-detail lines, email/phone/URL patterns, seeded institutions/employers, education `[YEAR]`, work-duration parsing attached to employer placeholders) and `IdentifierScan`. Added `AiProvider`/`AiGateway`, `DeepSeekProvider` (official API, `deepseek-flash`, thinking disabled, retry, JSON mode, token cost) and `RuleBasedFallbackProvider`, recording every call in `ai_calls` and blocking leaks with `ai_call_blocked`. Resume pipeline runs async with restart recovery; suggestions restore employer names from the private placeholder map. API: resume suggestions/apply, strip reports, work-history CRUD, profile previous titles, alias-aware skill suggest. Frontend P14 has processing/failed/ready states, chip-stripped preview, wrong-strip report and editable suggestions; P13 has previous titles and work history CRUD. Golden test passes (30 text fixtures + 5 PDFs for extraction). 92 backend tests, 11 frontend tests, design check, build and OpenAPI export green. Live DeepSeek Flash run applied the extracted profile. Decisions D-38–D-40. |
 | 21 Nov 2026 | **Landing product tour & login redesign**: added an Inside FairFold product feature grid, live open-role count and candidate/employer how-it-works steps to the landing page. Redesigned the login form with a secure-sign-in badge, back-to-home link, password reveal, inline forgot-password link, register CTA and privacy note. Decision D-37. |
