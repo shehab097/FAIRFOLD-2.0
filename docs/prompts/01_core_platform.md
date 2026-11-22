@@ -164,7 +164,7 @@ Employer home `/employer` redirects to `/employer/jobs` until P20 exists (chunk 
 5. Auth endpoints per the table. Refresh tokens: 256-bit random, stored hashed, rotated. Cookie `refresh_token`.
 6. Rate limit with Bucket4j: 10 requests per minute per IP on login, register and forgot-password (429 with `Retry-After`).
 7. Startup admin seed from `ADMIN_EMAIL` and `ADMIN_PASSWORD` when no such user exists.
-8. **Frontend skeleton:** Vite + React + TypeScript, Tailwind configured exactly as in 00_context section 9 (zero radius, no shadows, no gradients, token colours as CSS variables), `styles/tokens.css`, Inter via `@fontsource-variable/inter`, `scripts/check-design.sh`, Vite proxy for `/api`.
+8. **Frontend skeleton:** Vite + React + TypeScript, Tailwind configured exactly as in 00_context section 9 (zero radius, no shadows, no gradients, token colours as CSS variables), `styles/tokens.css`, Lato via the Google Fonts stylesheet, `scripts/check-design.sh`, Vite proxy for `/api`.
 9. Base components (square, token colours): Button, Input, Select, Textarea, Checkbox, Badge (+ `statusMap.ts`), Card, Table, Dialog, Toast, Banner, Skeleton, Tabs, Icon. Build only what pages need now.
 10. Layouts: PublicShell, AuthShell, PortalShell (sidebar with `enabled` flags, top bar placeholder for the bell and account menu).
 11. Router with lazy portals, `RequireAuth`, `RequireRole`, auth context with `bootstrapSession()`, Axios client with the single-flight refresh interceptor, error mapping.

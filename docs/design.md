@@ -91,7 +91,7 @@ Notes:
 
 ## 3. Typography
 
-**One font family for everything: Inter**, a clean, modern sans-serif that stays sharp and readable on dark backgrounds. No serif and no monospace fonts anywhere. Numbers, scores and aliases use the same font with tabular figures, so digits line up in columns.
+**One font family for everything: Lato**, a clean, modern sans-serif that stays sharp and readable on dark backgrounds. No serif and no monospace fonts anywhere. Numbers, scores and aliases use the same font with tabular figures, so digits line up in columns.
 
 | Use | Weight | Size / line height | Notes |
 |---|---|---|---|
@@ -103,8 +103,8 @@ Notes:
 | Numbers (scores, counts, table figures) and aliases (`C-7H2X9`) | 500 | 14/22 | `font-variant-numeric: tabular-nums` |
 | Large stat numbers (dashboards, cost estimate, error code) | 700 | 32/40 | Tabular figures |
 
-- Font: `@fontsource-variable/inter`, self-hosted (no external font requests, which also helps the Docker build). Fallback: `system-ui, sans-serif`.
-- Want a different look later? Change the single `--font-sans` variable (section 13.1) and the package. Good alternatives with the same dark-mode behaviour: Manrope, DM Sans, Plus Jakarta Sans.
+- Font: **Lato** from Google Fonts (`fonts.googleapis.com` stylesheet, preconnected in `index.html`). Fallback: `system-ui, sans-serif`. The browser fetches the font; keep the preconnect hints for faster paint.
+- Want a different look later? Change the single `--font-sans` variable (section 13.1) and the Google Fonts stylesheet URL. Good alternatives with the same dark-mode behaviour: Manrope, DM Sans, Plus Jakarta Sans.
 - Never go below 12 px. In dark mode avoid weights under 400.
 - Maximum line length for reading text (resume, descriptions, messages): about 70 characters.
 
@@ -231,7 +231,7 @@ Because success and "in progress" share the purple family, the **icon and text a
 import { Chart } from 'chart.js';
 Chart.defaults.color = '#B0A8B9';
 Chart.defaults.borderColor = '#4B4453';
-Chart.defaults.font.family = "'Inter Variable', Inter, system-ui, sans-serif";
+Chart.defaults.font.family = "'Lato', system-ui, sans-serif";
 Chart.defaults.elements.bar.borderRadius = 0;
 Chart.defaults.elements.line.tension = 0;
 Chart.defaults.elements.line.borderWidth = 2;
@@ -290,7 +290,7 @@ Target WCAG 2.1 AA.
 ```css
 :root {
   color-scheme: dark;
-  --font-sans: 'Inter Variable', Inter, system-ui, sans-serif;
+  --font-sans: 'Lato', system-ui, sans-serif;
   --bg: #0B0F17;           --surface: #1E293B;       --raised: #334155;
   --border: #334155;       --border-strong: #475569;
   --text: #F8FAFC;         --text-secondary: #94A3B8; --text-subtle: #64748B;

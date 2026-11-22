@@ -1,4 +1,3 @@
-import '@fontsource-variable/inter';
 import './styles/index.css';
 
 import React from 'react';

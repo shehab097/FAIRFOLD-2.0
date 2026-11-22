@@ -183,7 +183,7 @@ Application transitions (anything else returns 409; every change writes `applica
 
 ## 9. Design rules (summary)
 
-**Dark & Light mode support (via CSS variables, `ThemeContext`, and `ThemeToggle`). Smooth rounded corners across the UI (`rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-full`). No gradients. Subtle shadows. Five-colour palette. One sans-serif font (Inter).**
+**Dark & Light mode support (via CSS variables, `ThemeContext`, and `ThemeToggle`). Smooth rounded corners across the UI (`rounded-md`, `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-full`). No gradients. Subtle shadows. Five-colour palette. One sans-serif font (Lato).**
 
 | Token | Dark Mode | Light Mode | Use |
 |---|---|---|---|
@@ -206,7 +206,7 @@ Application transitions (anything else returns 409; every change writes `applica
 | `highlight` | `#563837` | `#FEEAE4` | Evidence quote background |
 
 - Tailwind config: all `borderRadius` = 0, `boxShadow` = none, `backgroundImage` = {}, `colors` limited to the tokens above (as CSS variables), `fontFamily.sans` only. No `rounded-*`, `shadow-*`, gradient classes or raw hex colours in components.
-- Type: Inter only. h1 28/36 700, h2 20/28 600, h3 16/24 600, body 14/22, labels 12/16 600 uppercase tracking 0.06em, numbers with tabular figures. Never below 12 px.
+- Type: Lato only. h1 28/36 700, h2 20/28 600, h3 16/24 600, body 14/22, labels 12/16 600 uppercase tracking 0.06em, numbers with tabular figures. Never below 12 px.
 - 1 px borders; depth through `bg` → `surface` → `raised`. Spacing 4 px scale. Control height 40 (44 on mobile).
 - Focus: 2 px solid `primary-text`, offset 2 px, on every interactive element.
 - Shells: PublicShell (top bar), PortalShell (top bar 56 px + sidebar 248 px from 1024 px, drawer below), FocusShell (assessment attempt), AuthShell (two columns from 900 px, left panel `primary-subtle`).
