@@ -1,6 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, FileText, KeyRound, LogOut, MapPin, Pencil, Phone, Plus, UserCheck } from 'lucide-react';
+import { Check, FileText, KeyRound, LogOut, MapPin, Pencil, Plus, UserCheck } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { useProfile, useResume, useSkills, useAddSkill, useUpdateSkill, useDeleteSkill, useUpdateProfile } from '../queries';
 import { suggestSkills } from '../../../api/skills';
@@ -22,18 +22,7 @@ import { emptyLocation, formatLocation, parseLocation, type LocationValue } from
 import { ProfilePhotoCard } from '../../account/components/ProfilePhotoCard';
 import { WorkHistorySection } from '../components/WorkHistorySection';
 import { UserAvatar } from '../../../components/ui/UserAvatar';
-
-function DetailItem({ label, value }: { label: string; value: ReactNode }) {
-  const empty = value === null || value === undefined || value === '';
-  return (
-    <div>
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className="mt-0.5 break-words text-sm font-medium text-text">
-        {empty ? <span className="font-normal text-text-subtle">Not specified</span> : value}
-      </dd>
-    </div>
-  );
-}
+import { DetailGrid, DetailItem, DetailSection } from '../../../components/ui/DetailList';
 
 function SkillEditor({
   open,
@@ -319,12 +308,6 @@ export function ProfilePage() {
                       {profile.location}
                     </span>
                   )}
-                  {profile?.phone && (
-                    <span className="inline-flex items-center gap-1">
-                      · <Icon icon={Phone} size={13} />
-                      {profile.phone}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
@@ -334,42 +317,64 @@ export function ProfilePage() {
             </Button>
           </div>
 
-          <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-4">
-            <DetailItem label="Full name" value={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()} />
-            <DetailItem label="Email" value={user?.email} />
-            <DetailItem label="Title" value={profile?.title} />
-            <DetailItem label="Location" value={profile?.location} />
-            <DetailItem label="Phone" value={profile?.phone} />
-            <DetailItem label="Remote preference" value={profile?.remotePreference} />
-            <DetailItem
-              label="Experience"
-              value={
-                profile?.totalExperienceYears !== null && profile?.totalExperienceYears !== undefined
-                  ? `${profile.totalExperienceYears} years`
-                  : null
-              }
-            />
-            <DetailItem label="Education" value={profile?.educationLevel?.replace('_', ' ')} />
-            <DetailItem
-              label="Previous titles"
-              value={profile?.previousJobTitles?.length ? profile.previousJobTitles.join(', ') : null}
-            />
-            <DetailItem
-              label="Current resume"
-              value={
-                resume ? (
-                  <Link to="/candidate/resume" className="inline-flex items-center gap-1 text-primary-text hover:underline">
-                    <Icon icon={FileText} size={14} />
-                    {resume.filename} (Preview)
-                  </Link>
+          <div className="space-y-6 py-6">
+            <DetailSection title="Personal details">
+              <DetailGrid>
+                <DetailItem label="Full name" value={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()} />
+                <DetailItem label="Email" value={user?.email} />
+                <DetailItem label="Phone" value={profile?.phone} />
+                <DetailItem label="Location" value={profile?.location} />
+              </DetailGrid>
+            </DetailSection>
+
+            <DetailSection title="Professional details">
+              <DetailGrid>
+                <DetailItem label="Title" value={profile?.title} />
+                <DetailItem
+                  label="Experience"
+                  value={
+                    profile?.totalExperienceYears !== null && profile?.totalExperienceYears !== undefined
+                      ? `${profile.totalExperienceYears} years`
+                      : null
+                  }
+                />
+                <DetailItem label="Education" value={profile?.educationLevel?.replace('_', ' ')} />
+                <DetailItem label="Remote preference" value={profile?.remotePreference} />
+                <DetailItem
+                  label="Current resume"
+                  value={
+                    resume ? (
+                      <Link to="/candidate/resume" className="inline-flex items-center gap-1 text-primary-text hover:underline">
+                        <Icon icon={FileText} size={14} />
+                        {resume.filename}
+                      </Link>
+                    ) : (
+                      <Link to="/candidate/resume" className="text-primary-text hover:underline">
+                        Upload resume
+                      </Link>
+                    )
+                  }
+                />
+              </DetailGrid>
+              <div className="mt-4">
+                <div className="text-xs text-text-secondary">Previous job titles</div>
+                {profile?.previousJobTitles?.length ? (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {profile.previousJobTitles.map((title) => (
+                      <span
+                        key={title}
+                        className="rounded-full border border-border bg-raised px-2.5 py-0.5 text-xs text-text-secondary"
+                      >
+                        {title}
+                      </span>
+                    ))}
+                  </div>
                 ) : (
-                  <Link to="/candidate/resume" className="text-primary-text hover:underline">
-                    Upload resume
-                  </Link>
-                )
-              }
-            />
-          </dl>
+                  <div className="mt-0.5 text-sm text-text-subtle">Not specified</div>
+                )}
+              </div>
+            </DetailSection>
+          </div>
 
           <div className="pt-6">
             <div className="mb-1.5 text-xs text-text-secondary">Bio</div>

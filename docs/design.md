@@ -139,7 +139,7 @@ Short description in text-secondary
 ```
 
 - **Minimalist containers:** Avoid excessive boxes and heavy borders. Group related content into a single `rounded-xl border border-border bg-surface p-6 sm:p-8 shadow-sm` card divided by `divide-y divide-border`.
-- **Clean definition grids:** Read-only profile and company views use a clean multi-column `<dl>` grid (`grid gap-y-5 gap-x-8 sm:grid-cols-2 lg:grid-cols-3`) with a 12 px `text-secondary` label and a 14 px `font-medium text-text` value (`Not specified` in `text-subtle` when empty).
+- **Clean definition grids:** Read-only profile and company views use grouped sections with a shared `DetailList` (`DetailSection` + a two-column `DetailGrid` at `sm` and above, never 3–4 columns). Each item is a 12 px `text-secondary` label and a 14 px `font-medium text-text` value (`Not specified` in `text-subtle` when empty).
 
 ### 5.3 Sidebar
 

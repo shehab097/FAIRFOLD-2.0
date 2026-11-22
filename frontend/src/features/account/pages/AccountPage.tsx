@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, FileText, KeyRound, LogOut, Mail, Monitor, Moon, Shield, Sun } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
@@ -11,18 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { Markdown } from '../../../components/ui/Markdown';
 import { UserAvatar } from '../../../components/ui/UserAvatar';
-
-function DetailItem({ label, value }: { label: string; value: ReactNode }) {
-  const empty = value === null || value === undefined || value === '';
-  return (
-    <div>
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className="mt-0.5 break-words text-sm font-medium text-text">
-        {empty ? <span className="font-normal text-text-subtle">Not specified</span> : value}
-      </dd>
-    </div>
-  );
-}
+import { DetailGrid, DetailItem, DetailSection } from '../../../components/ui/DetailList';
 
 function CandidateSnapshot() {
   const { data: profile } = useProfile();
@@ -48,27 +36,35 @@ function CandidateSnapshot() {
         </div>
       </div>
 
-      <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-3">
-        <DetailItem label="Professional title" value={profile?.title} />
-        <DetailItem label="Location" value={profile?.location} />
-        <DetailItem label="Phone" value={profile?.phone} />
-        <DetailItem label="Remote preference" value={profile?.remotePreference} />
-        <DetailItem
-          label="Total experience"
-          value={profile?.totalExperienceYears !== null && profile?.totalExperienceYears !== undefined ? `${profile.totalExperienceYears} years` : null}
-        />
-        <DetailItem label="Education level" value={profile?.educationLevel?.replace('_', ' ')} />
-        <DetailItem
-          label="Current resume"
-          value={
-            resume ? (
-              <Link to="/candidate/resume" className="text-primary-text hover:underline">
-                {resume.filename} ({resume.status})
-              </Link>
-            ) : null
-          }
-        />
-      </dl>
+      <div className="space-y-6 py-6">
+        <DetailSection title="Personal details">
+          <DetailGrid>
+            <DetailItem label="Location" value={profile?.location} />
+            <DetailItem label="Phone" value={profile?.phone} />
+            <DetailItem label="Remote preference" value={profile?.remotePreference} />
+          </DetailGrid>
+        </DetailSection>
+        <DetailSection title="Professional details">
+          <DetailGrid>
+            <DetailItem label="Professional title" value={profile?.title} />
+            <DetailItem
+              label="Total experience"
+              value={profile?.totalExperienceYears !== null && profile?.totalExperienceYears !== undefined ? `${profile.totalExperienceYears} years` : null}
+            />
+            <DetailItem label="Education level" value={profile?.educationLevel?.replace('_', ' ')} />
+            <DetailItem
+              label="Current resume"
+              value={
+                resume ? (
+                  <Link to="/candidate/resume" className="text-primary-text hover:underline">
+                    {resume.filename} ({resume.status})
+                  </Link>
+                ) : null
+              }
+            />
+          </DetailGrid>
+        </DetailSection>
+      </div>
 
       <div className="space-y-4 pt-6">
         <div>
@@ -112,41 +108,49 @@ function EmployerCompanySnapshot() {
         </Link>
       </div>
 
-      <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-3">
-        <DetailItem label="Company name" value={company.name} />
-        <DetailItem label="Industry" value={company.industry} />
-        <DetailItem label="Company size" value={company.size ? `${company.size} employees` : null} />
-        <DetailItem label="Tagline" value={company.tagline} />
-        <DetailItem label="Founded year" value={company.foundedYear} />
-        <DetailItem label="Headquarters" value={company.headquarters} />
-        <DetailItem
-          label="Public name visibility"
-          value={company.showNamePublicly ? 'Shown publicly on job posts' : 'Hidden (Confidential company)'}
-        />
-        <DetailItem
-          label="Website"
-          value={
-            company.website ? (
-              <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-primary-text hover:underline">
-                {company.website}
-              </a>
-            ) : null
-          }
-        />
-        <DetailItem
-          label="LinkedIn"
-          value={
-            company.linkedinUrl ? (
-              <a href={company.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-primary-text hover:underline">
-                {company.linkedinUrl}
-              </a>
-            ) : null
-          }
-        />
-        <DetailItem label="Logo URL" value={company.logoUrl} />
-        <DetailItem label="Contact email" value={company.contactEmail} />
-        <DetailItem label="Phone" value={company.phone} />
-      </dl>
+      <div className="space-y-6 py-6">
+        <DetailSection title="Company facts">
+          <DetailGrid>
+            <DetailItem label="Company name" value={company.name} />
+            <DetailItem label="Industry" value={company.industry} />
+            <DetailItem label="Company size" value={company.size ? `${company.size} employees` : null} />
+            <DetailItem label="Founded year" value={company.foundedYear} />
+            <DetailItem label="Headquarters" value={company.headquarters} />
+            <DetailItem
+              label="Public name visibility"
+              value={company.showNamePublicly ? 'Shown publicly on job posts' : 'Hidden (Confidential company)'}
+            />
+            <DetailItem label="Tagline" value={company.tagline} />
+          </DetailGrid>
+        </DetailSection>
+        <DetailSection title="Contact and links">
+          <DetailGrid>
+            <DetailItem
+              label="Website"
+              value={
+                company.website ? (
+                  <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-primary-text hover:underline">
+                    {company.website}
+                  </a>
+                ) : null
+              }
+            />
+            <DetailItem
+              label="LinkedIn"
+              value={
+                company.linkedinUrl ? (
+                  <a href={company.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-primary-text hover:underline">
+                    {company.linkedinUrl}
+                  </a>
+                ) : null
+              }
+            />
+            <DetailItem label="Contact email" value={company.contactEmail} />
+            <DetailItem label="Phone" value={company.phone} />
+            <DetailItem label="Logo URL" value={company.logoUrl} />
+          </DetailGrid>
+        </DetailSection>
+      </div>
 
       <div className="grid gap-8 pt-6 lg:grid-cols-2">
         <div>
@@ -209,15 +213,18 @@ export function AccountPage() {
           </div>
         </div>
 
-        <dl className="grid gap-y-5 gap-x-8 py-6 sm:grid-cols-2 lg:grid-cols-3">
-          <DetailItem label="Full name" value={`${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim()} />
-          <DetailItem label="First name" value={user?.firstName} />
-          <DetailItem label="Last name" value={user?.lastName} />
-          <DetailItem label="Email address" value={user?.email} />
-          <DetailItem label="Role" value={user?.role.replace('_', ' ')} />
-          <DetailItem label="Account ID" value={user?.id} />
-          {user?.companyId && <DetailItem label="Company ID" value={user.companyId} />}
-        </dl>
+        <div className="py-6">
+          <DetailSection title="Account details">
+            <DetailGrid>
+              <DetailItem label="First name" value={user?.firstName} />
+              <DetailItem label="Last name" value={user?.lastName} />
+              <DetailItem label="Email address" value={user?.email} />
+              <DetailItem label="Role" value={user?.role.replace('_', ' ')} />
+              <DetailItem label="Account ID" value={user?.id} />
+              {user?.companyId && <DetailItem label="Company ID" value={user.companyId} />}
+            </DetailGrid>
+          </DetailSection>
+        </div>
 
         <div className="pt-6">
           <h3 className="text-sm font-semibold text-text">Theme & appearance</h3>
