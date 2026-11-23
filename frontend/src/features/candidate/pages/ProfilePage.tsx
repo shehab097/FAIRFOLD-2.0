@@ -21,6 +21,7 @@ import { getApiErrorMessage } from '../../../lib/errors';
 import { emptyLocation, formatLocation, parseLocation, type LocationValue } from '../../../lib/locations';
 import { ProfilePhotoCard } from '../../account/components/ProfilePhotoCard';
 import { WorkHistorySection } from '../components/WorkHistorySection';
+import { CertificationsSection } from '../components/CertificationsSection';
 import { UserAvatar } from '../../../components/ui/UserAvatar';
 import { DetailGrid, DetailItem, DetailSection } from '../../../components/ui/DetailList';
 
@@ -483,6 +484,8 @@ export function ProfilePage() {
       </div>
 
       <WorkHistorySection />
+
+      <CertificationsSection />
 
       <SkillEditor open={editor.open} initial={editor.skill} onClose={() => setEditor({ open: false, skill: null })} />
 

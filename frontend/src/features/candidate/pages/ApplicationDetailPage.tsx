@@ -96,6 +96,45 @@ export function ApplicationDetailPage() {
         </Card>
       )}
 
+      {application.requiredAssessments.length > 0 && (
+        <Card>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold">Required assessments</h2>
+              <p className="mt-1 text-sm text-text-secondary">
+                This employer requires a pass before your application can be shortlisted.
+              </p>
+            </div>
+            <Badge status={application.gateStatus} />
+          </div>
+          <ul className="mt-4 divide-y divide-border">
+            {application.requiredAssessments.map((assessment) => (
+              <li key={assessment.assessmentId} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div>
+                  <div className="text-sm font-semibold text-text">
+                    {assessment.title ?? 'Assessment'}
+                  </div>
+                  <div className="text-xs text-text-secondary">
+                    Best {assessment.bestScore === null ? '—' : `${assessment.bestScore}%`} ·
+                    minimum {assessment.minScore}%
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge status={assessment.status} />
+                  {assessment.status !== 'passed' && (
+                    <Link to={`/candidate/assessments/${assessment.assessmentId}/attempt`}>
+                      <Button className="h-8 px-3 text-xs">
+                        {assessment.status === 'failed' ? 'Retake' : 'Take'}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       <Card>
         <h2 className="mb-4 text-xl font-semibold">Status timeline</h2>
         <ol className="space-y-0">

@@ -3,6 +3,14 @@ package com.fairfold.application;
 import com.fairfold.application.dto.CandidateApplicationDetail;
 import com.fairfold.application.dto.CandidateApplicationListItem;
 import com.fairfold.application.dto.MyApplicationResponse;
+import com.fairfold.assessment.Assessment;
+import com.fairfold.assessment.AssessmentAttempt;
+import com.fairfold.assessment.AssessmentAttemptRepository;
+import com.fairfold.assessment.AssessmentRepository;
+import com.fairfold.assessment.AttemptStatus;
+import com.fairfold.assessment.GateService;
+import com.fairfold.assessment.JobRequiredAssessment;
+import com.fairfold.assessment.JobRequiredAssessmentRepository;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
@@ -41,6 +49,10 @@ public class ApplicationService {
     private final AuditService auditService;
     private final AliasService aliasService;
     private final ApplicationClaimRepository claimRepository;
+    private final JobRequiredAssessmentRepository requiredAssessmentRepository;
+    private final AssessmentRepository assessmentRepository;
+    private final AssessmentAttemptRepository attemptRepository;
+    private final GateService gateService;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               ApplicationStatusHistoryRepository historyRepository,
@@ -50,7 +62,11 @@ public class ApplicationService {
                               NotificationService notificationService,
                               AuditService auditService,
                               AliasService aliasService,
-                              ApplicationClaimRepository claimRepository) {
+                              ApplicationClaimRepository claimRepository,
+                              JobRequiredAssessmentRepository requiredAssessmentRepository,
+                              AssessmentRepository assessmentRepository,
+                              AssessmentAttemptRepository attemptRepository,
+                              GateService gateService) {
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
         this.jobRepository = jobRepository;
@@ -60,6 +76,10 @@ public class ApplicationService {
         this.auditService = auditService;
         this.aliasService = aliasService;
         this.claimRepository = claimRepository;
+        this.requiredAssessmentRepository = requiredAssessmentRepository;
+        this.assessmentRepository = assessmentRepository;
+        this.attemptRepository = attemptRepository;
+        this.gateService = gateService;
     }
 
     @Transactional
@@ -100,6 +120,7 @@ public class ApplicationService {
                 "A candidate applied to " + job.getTitle() + ".",
                 "/employer/jobs/" + jobId);
 
+        gateService.recompute(application.getId());
         return toDetail(application, job);
     }
 
@@ -165,7 +186,43 @@ public class ApplicationService {
                 application.getScore(),
                 application.getScoringMode() == null ? null : application.getScoringMode().name(),
                 claims, application.getMissingSkills(), application.getNotMatchedRule(),
-                application.getGateStatus().name());
+                application.getGateStatus().name(),
+                requiredAssessments(application,job));
+    }
+
+    private List<CandidateApplicationDetail.RequiredAssessment> requiredAssessments(
+            Application application, Job job) {
+        List<JobRequiredAssessment> requirements = requiredAssessmentRepository.findByJobId(job.getId());
+        if (requirements.isEmpty()) {
+            return List.of();
+        }
+        List<UUID> assessmentIds = requirements.stream()
+                .map(JobRequiredAssessment::getAssessmentId).toList();
+        Map<UUID, Assessment> assessments = assessmentRepository.findAllById(assessmentIds).stream()
+                .collect(Collectors.toMap(Assessment::getId, Function.identity()));
+        List<AssessmentAttempt> attempts = attemptRepository
+                .findByUserIdAndAssessmentIdInAndStatusNot(
+                        application.getCandidateId(), assessmentIds, AttemptStatus.in_progress);
+        return requirements.stream()
+                .sorted(java.util.Comparator.comparing(r -> assessments.containsKey(r.getAssessmentId())
+                        ? assessments.get(r.getAssessmentId()).getTitle() : ""))
+                .map(requirement -> {
+                    List<AssessmentAttempt> own = attempts.stream()
+                            .filter(a -> a.getAssessmentId().equals(requirement.getAssessmentId()))
+                            .toList();
+                    Integer best = own.stream().map(AssessmentAttempt::getScore)
+                            .filter(score -> score != null).max(Integer::compareTo).orElse(null);
+                    String status = best != null && best >= requirement.getMinScore()
+                            ? "passed" : own.isEmpty() ? "pending" : "failed";
+                    return new CandidateApplicationDetail.RequiredAssessment(
+                            requirement.getAssessmentId(),
+                            assessments.containsKey(requirement.getAssessmentId())
+                                    ? assessments.get(requirement.getAssessmentId()).getTitle() : null,
+                            requirement.getMinScore(),
+                            best,
+                            status);
+                })
+                .toList();
     }
 
     private CandidateApplicationDetail.Claim toCandidateClaim(ApplicationClaim claim) {

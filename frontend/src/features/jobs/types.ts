@@ -94,6 +94,26 @@ export interface EmployerJobDetail extends SalaryFields {
   status: JobStatus;
   publishedAt: string | null;
   screeningQuestions: string[];
+  requiredAssessments: RequiredAssessmentRef[];
+}
+
+export interface RequiredAssessmentRef {
+  assessmentId: string;
+  title: string | null;
+  minScore: number;
+}
+
+export interface RequiredAssessmentInput {
+  assessmentId: string;
+  minScore: number;
+}
+
+export interface EmployerAssessmentOption {
+  id: string;
+  title: string;
+  skillName: string | null;
+  passMark: number;
+  durationMinutes: number;
 }
 
 export interface JobInput extends SalaryFields {
@@ -111,6 +131,7 @@ export interface JobInput extends SalaryFields {
   hfMinYears: number | null;
   hfCountry: string;
   cutoffScore: number | null;
+  requiredAssessments: RequiredAssessmentInput[];
 }
 
 export interface JobFilters {
@@ -222,6 +243,24 @@ export interface EmployerReview {
   notMatchedRule: string | null;
   history: EmployerReviewHistory[];
   identity: EmployerIdentity | null;
+  assessments: EmployerAssessmentSummary[];
+  verifiedSkills: string[];
+}
+
+export interface EmployerAssessmentFocus {
+  recorded: boolean;
+  leftCount: number;
+  totalSeconds: number;
+  explanation: string | null;
+}
+
+export interface EmployerAssessmentSummary {
+  assessmentTitle: string | null;
+  minScore: number;
+  bestScore: number | null;
+  passed: boolean;
+  lastAttemptAt: string | null;
+  focus: EmployerAssessmentFocus;
 }
 
 export interface ScreeningEstimate {

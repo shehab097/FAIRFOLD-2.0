@@ -1,11 +1,15 @@
 package com.fairfold.application;
 
 import com.fairfold.support.AbstractIntegrationTest;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -73,6 +77,31 @@ class NoIdentityLeakTest extends AbstractIntegrationTest {
         assertFalse(reviewBody.contains("+8801712345678"));
         assertFalse(reviewBody.contains("\"identity\":{"));
 
+        // Part 3.3 fields: required-assessment score and proctoring summary must not leak identity.
+        String admin = loginAdmin("leak-admin@example.com");
+        String assessmentTitle = "Leak assessment " + UUID.randomUUID().toString().substring(0, 5);
+        UUID assessmentId = createAssessment(admin, assessmentTitle);
+        jdbcTemplate.update("""
+                        INSERT INTO job_required_assessments (id, job_id, assessment_id, min_score)
+                        VALUES (?, ?, ?, 70)
+                        """,
+                UUID.randomUUID().toString(), jobId.toString(), assessmentId.toString());
+        portalAssessmentAttempt(token, assessmentId);
+
+        MvcResult reviewWithAssessments = mockMvc.perform(get("/api/employer/applications/" + applicationId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .jsonPath("$.assessments[0].assessmentTitle").value(assessmentTitle))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .jsonPath("$.assessments[0].focus.recorded").value(true))
+                .andReturn();
+        String assessmentBody = reviewWithAssessments.getResponse().getContentAsString();
+        assertFalse(assessmentBody.contains("Distinctive"));
+        assertFalse(assessmentBody.contains("distinctive.candidate@secret.com"));
+        assertFalse(assessmentBody.contains("+8801712345678"));
+        assertFalse(assessmentBody.contains("\"identity\":{"));
+
         MvcResult dashboard = mockMvc.perform(get("/api/employer/dashboard")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + employer.token()))
                 .andExpect(status().isOk())
@@ -92,5 +121,49 @@ class NoIdentityLeakTest extends AbstractIntegrationTest {
                 .andExpect(status().isCreated())
                 .andReturn();
         return objectMapper.readTree(result.getResponse().getContentAsString()).get("accessToken").asText();
+    }
+
+    private UUID createAssessment(String adminToken, String title) throws Exception {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("title", title);
+        body.put("skillId", skillId("Java"));
+        body.put("durationMinutes", 20);
+        body.put("passMark", 70);
+        body.put("active", true);
+        body.put("questions", List.of(Map.of(
+                "text", "One question",
+                "options", List.of(Map.of("id", "a", "text", "A"),
+                        Map.of("id", "b", "text", "B")),
+                "correctOptionId", "b")));
+        MvcResult result = mockMvc.perform(post("/api/admin/assessments")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated())
+                .andReturn();
+        return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("id").asText());
+    }
+
+    private void portalAssessmentAttempt(String token, UUID assessmentId) throws Exception {
+        MvcResult started = mockMvc.perform(post("/api/assessments/" + assessmentId + "/attempts")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk())
+                .andReturn();
+        String attemptId = objectMapper.readTree(started.getResponse().getContentAsString())
+                .path("attemptId").asText();
+        mockMvc.perform(post("/api/attempts/" + attemptId + "/consent")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"given\":true}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/attempts/" + attemptId + "/events")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[{\"type\":\"hidden\",\"durationSeconds\":30}]"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/attempts/" + attemptId + "/submit")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
+                .andExpect(status().isOk());
     }
 }

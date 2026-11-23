@@ -51,6 +51,8 @@ export interface AttemptView {
   totalQuestions?: number;
   status: AttemptStatus;
   skillVerified?: boolean;
+  proctoringConsent?: boolean | null;
+  explanation?: string | null;
   retryAvailableAt?: string | null;
   resources?: CandidateResource[];
 }

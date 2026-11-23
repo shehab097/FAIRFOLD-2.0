@@ -84,6 +84,23 @@ export interface ResumeSuggestions {
   workHistory: ResumeSuggestionWork[];
 }
 
+export interface Certification {
+  id: string;
+  name: string;
+  issuer: string;
+  issuedOn: string | null;
+  expiresOn: string | null;
+  credentialId: string | null;
+}
+
+export interface CertificationInput {
+  name: string;
+  issuer: string;
+  issuedOn: string | null;
+  expiresOn: string | null;
+  credentialId: string | null;
+}
+
 export interface WorkHistory {
   id: string;
   title: string;
@@ -142,6 +159,15 @@ export interface CandidateApplicationDetail {
   missingSkills: string[];
   notMatchedRule: string | null;
   gateStatus: string;
+  requiredAssessments: CandidateRequiredAssessment[];
+}
+
+export interface CandidateRequiredAssessment {
+  assessmentId: string;
+  title: string | null;
+  minScore: number;
+  bestScore: number | null;
+  status: 'pending' | 'failed' | 'passed';
 }
 
 export interface DashboardChecklist {

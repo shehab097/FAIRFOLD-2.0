@@ -20,9 +20,18 @@ public record CandidateApplicationDetail(
         List<Claim> claims,
         List<String> missingSkills,
         String notMatchedRule,
-        String gateStatus
+        String gateStatus,
+        List<RequiredAssessment> requiredAssessments
 ) {
     public record HistoryEntry(String status, Instant at) {}
 
     public record Claim(String requirement, String kind, String verdict, String quote) {}
+
+    public record RequiredAssessment(
+            UUID assessmentId,
+            String title,
+            int minScore,
+            Integer bestScore,
+            String status
+    ) {}
 }

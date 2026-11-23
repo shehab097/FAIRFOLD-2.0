@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,9 @@ public interface AssessmentAttemptRepository extends JpaRepository<AssessmentAtt
             UUID userId, UUID assessmentId, AttemptStatus status);
 
     List<AssessmentAttempt> findByUserIdAndAssessmentIdOrderByStartedAtDesc(UUID userId, UUID assessmentId);
+
+    List<AssessmentAttempt> findByUserIdAndAssessmentIdInAndStatusNot(
+            UUID userId, Collection<UUID> assessmentIds, AttemptStatus status);
 
     Page<AssessmentAttempt> findByUserIdAndStatusNotOrderBySubmittedAtDesc(
             UUID userId, AttemptStatus status, Pageable pageable);

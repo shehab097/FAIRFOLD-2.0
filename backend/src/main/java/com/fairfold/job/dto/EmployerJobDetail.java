@@ -33,7 +33,10 @@ public record EmployerJobDetail(
         String salaryCurrency,
         SalaryPeriod salaryPeriod,
         boolean salaryNegotiable,
-        List<String> screeningQuestions
+        List<String> screeningQuestions,
+        List<RequiredAssessmentRef> requiredAssessments
 ) {
     public record SkillRef(UUID id, String name, boolean mustHave) {}
+
+    public record RequiredAssessmentRef(UUID assessmentId, String title, int minScore) {}
 }

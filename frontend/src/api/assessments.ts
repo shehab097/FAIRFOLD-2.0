@@ -49,3 +49,35 @@ export async function listResources(skillId: string): Promise<CandidateResource[
   const { data } = await api.get<CandidateResource[]>('/api/resources', { params: { skillId } });
   return data;
 }
+
+export interface ProctorEventInput {
+  type: 'hidden' | 'blur';
+  occurredAt: string;
+  durationSeconds: number;
+}
+
+export async function consentAttempt(attemptId: string, given: boolean): Promise<boolean> {
+  const { data } = await api.post<{ given: boolean }>(`/api/attempts/${attemptId}/consent`, {
+    given,
+  });
+  return data.given;
+}
+
+export async function sendAttemptEvents(
+  attemptId: string,
+  events: ProctorEventInput[],
+): Promise<{ recorded: number; total: number }> {
+  const { data } = await api.post<{ recorded: number; total: number }>(
+    `/api/attempts/${attemptId}/events`,
+    events,
+  );
+  return data;
+}
+
+export async function saveExplanation(attemptId: string, text: string): Promise<string | null> {
+  const { data } = await api.put<{ text: string | null }>(
+    `/api/attempts/${attemptId}/explanation`,
+    { text },
+  );
+  return data.text;
+}

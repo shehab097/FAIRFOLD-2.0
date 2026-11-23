@@ -29,6 +29,8 @@ public record AttemptView(
         Integer totalQuestions,
         String status,
         Boolean skillVerified,
+        @JsonInclude(JsonInclude.Include.ALWAYS) Boolean proctoringConsent,
+        String explanation,
         Instant retryAvailableAt,
         List<CandidateResource> resources
 ) {

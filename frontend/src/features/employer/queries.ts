@@ -23,6 +23,7 @@ import {
   startScreening,
   suggestScreeningQuestions,
 } from '../../api/employerScreening';
+import { listEmployerAssessments } from '../../api/employerAssessments';
 import type { ApplicantFilters, JobStatus } from '../jobs/types';
 
 export function useCompany() {
@@ -66,6 +67,13 @@ export function useEmployerJob(id: string | undefined) {
     queryKey: ['employer', 'job', id],
     queryFn: () => getEmployerJob(id as string),
     enabled: Boolean(id),
+  });
+}
+
+export function useEmployerAssessments() {
+  return useQuery({
+    queryKey: ['employer', 'assessments'],
+    queryFn: listEmployerAssessments,
   });
 }
 

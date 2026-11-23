@@ -8,8 +8,19 @@ import com.fairfold.application.ApplicationStatusHistory;
 import com.fairfold.application.ApplicationStatusHistoryRepository;
 import com.fairfold.application.ApplicationStatusService;
 import com.fairfold.application.dto.EmployerApplicantListItem;
+import com.fairfold.assessment.Assessment;
+import com.fairfold.assessment.AssessmentAttempt;
+import com.fairfold.assessment.AssessmentAttemptRepository;
+import com.fairfold.assessment.AssessmentRepository;
+import com.fairfold.assessment.AttemptStatus;
+import com.fairfold.assessment.JobRequiredAssessment;
+import com.fairfold.assessment.JobRequiredAssessmentRepository;
+import com.fairfold.assessment.ProctorEvent;
+import com.fairfold.assessment.ProctorEventRepository;
 import com.fairfold.candidate.CandidateProfile;
 import com.fairfold.candidate.CandidateProfileRepository;
+import com.fairfold.candidate.CandidateSkill;
+import com.fairfold.candidate.CandidateSkillRepository;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
@@ -20,6 +31,8 @@ import com.fairfold.resume.ResumeRepository;
 import com.fairfold.screening.dto.DecisionRequest;
 import com.fairfold.screening.dto.EmployerReview;
 import com.fairfold.screening.dto.ScreeningStartResponse;
+import com.fairfold.skill.Skill;
+import com.fairfold.skill.SkillRepository;
 import com.fairfold.user.User;
 import com.fairfold.user.UserRepository;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +47,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 
 /**
  * Employer applicant list, review page, shortlist / reject / pull-back rules.
@@ -60,6 +75,12 @@ public class EmployerReviewService {
     private final ScreeningWorker worker;
     private final AiGateway aiGateway;
     private final AuditService auditService;
+    private final JobRequiredAssessmentRepository requiredAssessmentRepository;
+    private final AssessmentRepository assessmentRepository;
+    private final AssessmentAttemptRepository attemptRepository;
+    private final ProctorEventRepository proctorEventRepository;
+    private final CandidateSkillRepository candidateSkillRepository;
+    private final SkillRepository skillRepository;
     private final Clock clock;
 
     public EmployerReviewService(ApplicationRepository applicationRepository,
@@ -77,6 +98,12 @@ public class EmployerReviewService {
                                  ScreeningWorker worker,
                                  AiGateway aiGateway,
                                  AuditService auditService,
+                                 JobRequiredAssessmentRepository requiredAssessmentRepository,
+                                 AssessmentRepository assessmentRepository,
+                                 AssessmentAttemptRepository attemptRepository,
+                                 ProctorEventRepository proctorEventRepository,
+                                 CandidateSkillRepository candidateSkillRepository,
+                                 SkillRepository skillRepository,
                                  Clock clock) {
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
@@ -93,6 +120,12 @@ public class EmployerReviewService {
         this.worker = worker;
         this.aiGateway = aiGateway;
         this.auditService = auditService;
+        this.requiredAssessmentRepository = requiredAssessmentRepository;
+        this.assessmentRepository = assessmentRepository;
+        this.attemptRepository = attemptRepository;
+        this.proctorEventRepository = proctorEventRepository;
+        this.candidateSkillRepository = candidateSkillRepository;
+        this.skillRepository = skillRepository;
         this.clock = clock;
     }
 
@@ -290,7 +323,76 @@ public class EmployerReviewService {
                 application.getBiasNote(), application.getGateStatus().name(), job.getCutoffScore(),
                 application.getMissingSkills(), claims,
                 resume == null ? null : resume.getStrippedText(),
-                application.getNotMatchedRule(), history, identity);
+                application.getNotMatchedRule(), history, identity,
+                assessmentSummaries(application), verifiedSkills(application.getCandidateId()));
+    }
+
+    private List<EmployerReview.AssessmentSummary> assessmentSummaries(Application application) {
+        List<JobRequiredAssessment> requirements = requiredAssessmentRepository
+                .findByJobId(application.getJobId());
+        if (requirements.isEmpty()) {
+            return List.of();
+        }
+        List<UUID> assessmentIds = requirements.stream()
+                .map(JobRequiredAssessment::getAssessmentId).toList();
+        Map<UUID, Assessment> assessments = assessmentRepository.findAllById(assessmentIds).stream()
+                .collect(java.util.stream.Collectors.toMap(Assessment::getId, Function.identity()));
+        List<AssessmentAttempt> attempts = attemptRepository
+                .findByUserIdAndAssessmentIdInAndStatusNot(
+                        application.getCandidateId(), assessmentIds, AttemptStatus.in_progress);
+        return requirements.stream()
+                .sorted(java.util.Comparator.comparing(r -> assessments.containsKey(r.getAssessmentId())
+                        ? assessments.get(r.getAssessmentId()).getTitle() : ""))
+                .map(requirement -> {
+                    List<AssessmentAttempt> own = attempts.stream()
+                            .filter(a -> a.getAssessmentId().equals(requirement.getAssessmentId()))
+                            .toList();
+                    AssessmentAttempt best = own.stream()
+                            .filter(a -> a.getScore() != null)
+                            .max(java.util.Comparator.comparingInt(AssessmentAttempt::getScore)
+                                    .thenComparing(AssessmentAttempt::getSubmittedAt,
+                                            java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
+                            .orElse(null);
+                    Integer bestScore = best == null ? null : best.getScore();
+                    boolean passed = bestScore != null && bestScore >= requirement.getMinScore();
+                    Instant lastAttemptAt = own.stream()
+                            .map(AssessmentAttempt::getSubmittedAt)
+                            .filter(java.util.Objects::nonNull)
+                            .max(java.util.Comparator.naturalOrder()).orElse(null);
+                    EmployerReview.Focus focus = focus(best);
+                    return new EmployerReview.AssessmentSummary(
+                            assessments.containsKey(requirement.getAssessmentId())
+                                    ? assessments.get(requirement.getAssessmentId()).getTitle() : null,
+                            requirement.getMinScore(), bestScore, passed, lastAttemptAt, focus);
+                })
+                .toList();
+    }
+
+    private EmployerReview.Focus focus(AssessmentAttempt attempt) {
+        if (attempt == null || !Boolean.TRUE.equals(attempt.getProctoringConsent())) {
+            return new EmployerReview.Focus(false, 0, 0, null);
+        }
+        List<ProctorEvent> events = proctorEventRepository
+                .findByAttemptIdOrderByOccurredAtAsc(attempt.getId());
+        int totalSeconds = events.stream().mapToInt(ProctorEvent::getDurationSeconds).sum();
+        return new EmployerReview.Focus(true, events.size(), totalSeconds, attempt.getExplanation());
+    }
+
+    private List<String> verifiedSkills(UUID candidateId) {
+        List<CandidateSkill> verified = candidateSkillRepository
+                .findByUserIdOrderByCreatedAtAsc(candidateId).stream()
+                .filter(CandidateSkill::isVerified)
+                .toList();
+        if (verified.isEmpty()) {
+            return List.of();
+        }
+        Map<UUID, String> names = skillRepository.findAllById(verified.stream()
+                        .map(CandidateSkill::getSkillId).toList()).stream()
+                .collect(java.util.stream.Collectors.toMap(Skill::getId, Skill::getName));
+        return verified.stream()
+                .map(skill -> names.get(skill.getSkillId()))
+                .filter(java.util.Objects::nonNull)
+                .toList();
     }
 
     private EmployerReview.Identity identity(Application application) {

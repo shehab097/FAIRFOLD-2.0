@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { TriangleAlert } from 'lucide-react';
+import { TriangleAlert, Check } from 'lucide-react';
 import {
   useEmployerReview,
   usePullBackApplication,
@@ -29,6 +29,13 @@ function ModeBadge({ mode }: { mode: string | null }) {
     );
   }
   return <Badge tone="neutral">AI</Badge>;
+}
+
+function focusDuration(seconds: number): string {
+  if (seconds < 60) return `${seconds} s`;
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+  return rest === 0 ? `${minutes} min` : `${minutes} min ${rest} s`;
 }
 
 export function ApplicationReviewPage() {
@@ -265,6 +272,71 @@ export function ApplicationReviewPage() {
                     key={skill}
                     className="rounded-full border border-border bg-raised px-2.5 py-0.5 text-xs text-text-secondary"
                   >
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {review.assessments.length > 0 && (
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+              <h2 className="mb-1 text-base font-semibold">Assessments</h2>
+              <p className="mb-3 text-xs text-text-secondary">
+                Focus signals are neutral observations. Does not affect the score.
+              </p>
+              <div className="space-y-4">
+                {review.assessments.map((assessment, index) => (
+                  <div key={`${assessment.assessmentTitle}-${index}`} className="rounded-lg border border-border bg-bg p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-semibold text-text">
+                        {assessment.assessmentTitle ?? 'Assessment'}
+                      </span>
+                      <Badge
+                        status={
+                          assessment.passed
+                            ? 'passed'
+                            : assessment.bestScore === null
+                              ? 'pending'
+                              : 'failed'
+                        }
+                      />
+                    </div>
+                    <div className="mt-1 text-xs text-text-secondary">
+                      Best {assessment.bestScore === null ? '—' : `${assessment.bestScore}%`} ·
+                      minimum {assessment.minScore}%
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-raised px-2.5 py-0.5 text-xs text-text-secondary">
+                        {assessment.focus.recorded
+                          ? `Left the tab ${assessment.focus.leftCount} time${assessment.focus.leftCount === 1 ? '' : 's'}, ${focusDuration(assessment.focus.totalSeconds)} in total`
+                          : 'Not recorded'}
+                      </span>
+                      <span className="text-[11px] text-text-subtle">
+                        Does not affect the score
+                      </span>
+                    </div>
+                    {assessment.focus.explanation && (
+                      <p className="mt-2 rounded-md bg-highlight px-2 py-1 text-xs text-text">
+                        “{assessment.focus.explanation}”
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {review.verifiedSkills.length > 0 && (
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+              <h2 className="mb-2 text-base font-semibold">Verified skills</h2>
+              <div className="flex flex-wrap gap-1.5">
+                {review.verifiedSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="inline-flex items-center gap-1 rounded-full bg-primary-subtle px-2.5 py-0.5 text-xs font-medium text-primary-text"
+                  >
+                    <Check size={12} />
                     {skill}
                   </span>
                 ))}

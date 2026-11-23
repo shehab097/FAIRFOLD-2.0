@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 23 November 2026 · Updated by: implementation session (Part 3.2 assessment taking)
+Last updated: 23 November 2026 · Updated by: implementation session (Part 3.3 gate, proctoring, certifications)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -18,7 +18,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [x] | | 22 Nov 2026 |
 | 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [x] | | 23 Nov 2026 |
 | 3.2 | 03_skills_proof.md | Taking assessments, Verified badge | [x] | | 23 Nov 2026 |
-| 3.3 | 03_skills_proof.md | Gate, proctoring, certifications | [ ] | | |
+| 3.3 | 03_skills_proof.md | Gate, proctoring, certifications | [x] | | 23 Nov 2026 |
 | 4.1 | 04_interviews_growth.md | Team, interview pack, interviews, hire | [ ] | | |
 | 4.2 | 04_interviews_growth.md | Messaging, interview practice | [ ] | | |
 | 4.3 | 04_interviews_growth.md | Journey, job story | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 3.2 done (taking assessments, scoring, cooldown, Verified badge). Next: build Part 3.3 (job gates, light proctoring, certifications) from `docs/prompts/03_skills_proof.md`.
+**Current focus:** Part 3.3 done — **chunk 3 complete**. Next: build Part 4.1 (team, interview pack, interviews, hire) from `docs/prompts/04_interviews_growth.md`.
 
-**Next session start message:** `Build Part 3.3 from docs/prompts/03_skills_proof.md. Follow 00_context.md and read D-57 and D-60 first. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 4.1 from docs/prompts/04_interviews_growth.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -115,6 +115,9 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-61 | 23 Nov 2026 | 3.2 | 409 `COOLDOWN` carries a top-level `retryAvailableAt` (ISO instant): `ErrorResponse` has an optional `retryAvailableAt` field (omitted when null) and `ApiException.cooldown(...)` sets it. | The prompt requires the retry time in the error body so P17/P18 can show it without a second request. |
 | D-62 | 23 Nov 2026 | 3.2 | `application-local.yml` sets `app.assessment.cooldown-hours=0` for the demo; tests keep the 48-hour default and age `submitted_at` with SQL to check both the blocked and the elapsed case. Timed sweeper tests assert the outcome rather than the exact sweep count, so the 60 s scheduler cannot make them flaky. | Gives the required instant retake locally while still testing real cooldown arithmetic. |
 | D-63 | 23 Nov 2026 | 3.2 | Start/resume and result share one `AttemptView` DTO serialized with `@JsonInclude(NON_NULL)`; in-progress attempts carry questions/answers/endsAt, submitted attempts carry score/result/resources. Correct option ids are never present. | Keeps the API shapes from the prompt with one schema for springdoc and the frontend. |
+| D-64 | 23 Nov 2026 | 3.3 | Migration `V3_3_1` adds `job_required_assessments`, `proctor_events` and `certifications`. `GateService` uses the prompt's truth table (`not_required` / `passed` / `failed` / `pending`) and is recomputed on apply, attempt submit, and after a job duplicate. | Implements FR-051; the existing shortlist guard already returns `409 GATE_NOT_PASSED`. |
+| D-65 | 23 Nov 2026 | 3.3 | Consent is recorded on the already-started attempt: the P18 dialog opens immediately after the 3.2 start response, is non-dismissible, and both choices continue; the timer is already running. Focus signals under 1 s are dropped rather than stored, and the employer focus summary comes from the best-scoring submitted attempt (or “Not recorded” without consent). | Avoids changing the 3.2 start contract/countdown while keeping signals neutral and low-noise; consenting on the attempt the employer is judging is the clearest reading. |
+| D-66 | 23 Nov 2026 | 3.3 | Added `GET /api/employer/assessments` (active assessment options with skill, pass mark, duration) for P23. Required assessments are validated as active and unique and can only be changed while the job is a draft. | Employers cannot call the candidate/admin assessment lists, and the job editor needs a picker. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -154,10 +157,13 @@ Update after every part.
 
 | 3.2 | 150 passed (12 new) | 11 passed | passed | yes | Candidate assessment list/history; start or resume (one in-progress attempt), 2 s autosave with merged answers, submit (idempotent), scoring `round(100 × correct ÷ total)` with unanswered wrong, pass-mark boundary, 48 h cooldown with `retryAvailableAt`, auto-submit sweeper every 60 s, pass upserts `candidate_skills` (`verified`, `beginner`, no years) and keeps retakes open. `AttemptView` never exposes correct ids; failed results include active, not-broken resources. P17 cards + history; P18 FocusShell with server-offset timer, question navigator, save indicator, submit confirmation and result view. Local profile cooldown is 0. OpenAPI now 69 paths. Live smoke: demo assessment 10 questions, fail 0 with 5 resources, instant retake, pass 100, JavaScript verified. Decisions D-60–D-63. |
 
+| 3.3 | 161 passed (11 new) | 11 passed | passed | yes | Migration `V3_3_1` (`job_required_assessments`, `proctor_events`, `certifications`). `GateService` truth table and `gate_status` recompute on apply, attempt submit and job duplicate; required assessments on draft jobs (active/unique, min 1–100), copied on duplicate, exposed in employer job/review and candidate application DTOs. Shortlist stays `409 GATE_NOT_PASSED` for pending/failed. Proctoring: consent once, `hidden`/`blur` events with durations only under consent, 500-event cap, neutral focus summary (recorded, left count, total seconds, explanation) in P25; explanation only with consent. Certification CRUD. P23 required-assessment picker; P25 assessments + focus + verified skills panel; P16 required-assessment card with Take/Retake; P18 consent, focus recording, explanation box; P13 certifications section. `NoIdentityLeakTest` extended to the new employer fields. OpenAPI 75 paths. Live smoke: apply → gate pending → fail (5 resources) → gate failed → instant retake → pass 100 → gate passed → review best 100 with verified skills; certification create/list/delete. Decisions D-64–D-66. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 23 Nov 2026 | **Part 3.3 done (chunk 3 complete)**: assessment gate, light proctoring and certifications. Migration `V3_3_1`. `GateService` implements not_required/pending/failed/passed and recomputes on apply, attempt submit and duplicate; draft jobs carry required assessments with a minimum score and the shortlist API/button stay blocked while pending/failed. Proctoring consent (once), `hidden`/`blur` events with durations (consent only, 500 cap, never scored), employer neutral focus summary with explanation. Certification CRUD. Frontend: P23 requirement picker, P25 assessments/focus/verified-skills panel, P16 required-assessment card, P18 consent + focus recording + explanation, P13 certifications. `NoIdentityLeakTest` covers the new fields. 161 backend + 11 frontend tests green; design check and build pass; OpenAPI 75 paths. Live smoke: pending → fail → failed → retake → pass → passed, review shows 100/min 70 and verified skills; certificate CRUD. Decisions D-64–D-66. |
 | 23 Nov 2026 | **Part 3.2 done**: candidate assessments. Added `AttemptService` (start/resume, merged autosave, idempotent submit, scoring with unanswered wrong, cooldown, Verified badge upsert), `AutoSubmitSweeper` (60 s), a `GateService` submit hook stub for 3.3, and candidate endpoints (`GET /api/assessments`, history, start, answers, submit, get, `GET /api/resources`). `409 COOLDOWN` now returns `retryAvailableAt`; result responses include resources only after a fail and never the correct option ids. Frontend P17 cards/history and P18 FocusShell with server-time countdown, question navigator, 2 s autosave + saved indicator, submit confirmation, result/resources/retry view, and a Verified badge in the profile/status map. Local profile retake cooldown is 0. 150 backend + 11 frontend tests green; design check and build pass; OpenAPI 69 paths; live smoke fail→resources→retake→pass→verified. Decisions D-60–D-63. |
 | 23 Nov 2026 | **Part 3.1 done**: admin content. Migration `V3_1_1` adds `assessments`, `assessment_questions`, `resources` and (moved from 3.2) `assessment_attempts`. Admin CRUD for assessments validates 2–6 options with exactly one correct answer and at least one question; questions/skill lock once attempts exist (`409 ASSESSMENT_HAS_ATTEMPTS`) while title/duration/pass mark/active stay editable. Resources support cost/language/level/active, a manual "check links now" endpoint and a weekly SSRF-safe HEAD/GET check that marks broken links and records the check time. Added `DemoContentSeeder` (local only), admin nav/redirect, P34 Content (assessments + resources tables, dialogs, toggles, pagination) and P35 assessment editor (question/option ordering, correct answer, locked state). Also fixed method-security denials returning 500 instead of 403. 138 backend + 11 frontend tests green; design check and build pass; OpenAPI 62 paths. Decisions D-57–D-59. |
 | 22 Nov 2026 | **Employer dashboard expansion**: added pipeline counts by application status, the five newest applications (alias, job, score, status, bias, applied), and active-job applicant activity. P20 now shows a pipeline grid, recent-applications table and open-jobs table; it polls every 15s with a Refresh button. Decision D-56. |

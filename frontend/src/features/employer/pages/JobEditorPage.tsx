@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, Trash2, Wand2 } from 'lucide-react';
 import {
   useCreateJob,
+  useEmployerAssessments,
   useEmployerJob,
   useSaveScreeningQuestions,
   useSuggestScreeningQuestions,
@@ -15,6 +16,7 @@ import {
   SALARY_TYPES,
   type ExperienceLevel,
   type JobInput,
+  type RequiredAssessmentRef,
   type SalaryPeriod,
   type SalaryType,
 } from '../../jobs/types';
@@ -47,6 +49,7 @@ export function JobEditorPage() {
   const navigate = useNavigate();
 
   const { data: job, isLoading: loadingJob } = useEmployerJob(jobId);
+  const { data: assessmentOptions = [] } = useEmployerAssessments();
   const createJob = useCreateJob();
   const updateJob = useUpdateJob(jobId ?? '');
   const suggestQuestions = useSuggestScreeningQuestions();
@@ -71,6 +74,7 @@ export function JobEditorPage() {
   const [hfCountry, setHfCountry] = useState('');
   const [cutoffScore, setCutoffScore] = useState('');
   const [questions, setQuestions] = useState<string[]>([]);
+  const [requiredAssessments, setRequiredAssessments] = useState<RequiredAssessmentRef[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -94,6 +98,7 @@ export function JobEditorPage() {
       setHfCountry(job.hfCountry ?? '');
       setCutoffScore(job.cutoffScore?.toString() ?? '');
       setQuestions(job.screeningQuestions ?? []);
+      setRequiredAssessments(job.requiredAssessments ?? []);
     }
   }, [job]);
 
@@ -119,6 +124,10 @@ export function JobEditorPage() {
       hfMinYears: hfMinYears === '' ? null : Number(hfMinYears),
       hfCountry,
       cutoffScore: cutoffScore === '' ? null : Number(cutoffScore),
+      requiredAssessments: requiredAssessments.map((r) => ({
+        assessmentId: r.assessmentId,
+        minScore: r.minScore,
+      })),
     };
   }
 
@@ -367,6 +376,118 @@ export function JobEditorPage() {
           >
             <Plus size={16} />
             Add question
+          </Button>
+        </section>
+
+        <section className="space-y-4 border border-border bg-surface p-6">
+          <div>
+            <h2 className="text-xl font-semibold">Required assessments</h2>
+            <p className="text-sm text-text-secondary">
+              Applicants cannot be shortlisted until they pass each requirement. Jobs with no
+              requirement skip the assessment gate.
+            </p>
+          </div>
+          {requiredAssessments.length === 0 && (
+            <p className="text-sm text-text-subtle">No assessment required for this job.</p>
+          )}
+          <div className="space-y-3">
+            {requiredAssessments.map((requirement, index) => {
+              const known = assessmentOptions.some((o) => o.id === requirement.assessmentId);
+              return (
+                <div key={`${requirement.assessmentId}-${index}`} className="flex flex-wrap items-end gap-3">
+                  <div className="min-w-[240px] flex-1">
+                    <Field label="Assessment">
+                      <Select
+                        value={requirement.assessmentId}
+                        onChange={(e) => {
+                          const option = assessmentOptions.find((o) => o.id === e.target.value);
+                          setRequiredAssessments((current) =>
+                            current.map((row, i) =>
+                              i === index
+                                ? {
+                                    assessmentId: e.target.value,
+                                    title: option?.title ?? row.title,
+                                    minScore: row.minScore,
+                                  }
+                                : row,
+                            ),
+                          );
+                        }}
+                      >
+                        {!known && (
+                          <option value={requirement.assessmentId}>
+                            {requirement.title ?? 'Unavailable assessment'}
+                          </option>
+                        )}
+                        {assessmentOptions
+                          .filter(
+                            (option) =>
+                              option.id === requirement.assessmentId ||
+                              !requiredAssessments.some((r) => r.assessmentId === option.id),
+                          )
+                          .map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.title} ({option.skillName ?? 'Skill'}, pass {option.passMark}%)
+                            </option>
+                          ))}
+                      </Select>
+                    </Field>
+                  </div>
+                  <div className="w-32">
+                    <Field label="Minimum score">
+                      <Input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={requirement.minScore}
+                        onChange={(e) =>
+                          setRequiredAssessments((current) =>
+                            current.map((row, i) =>
+                              i === index ? { ...row, minScore: Number(e.target.value) } : row,
+                            ),
+                          )
+                        }
+                      />
+                    </Field>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="h-10 px-2"
+                    aria-label="Remove required assessment"
+                    onClick={() =>
+                      setRequiredAssessments((current) => current.filter((_, i) => i !== index))
+                    }
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={
+              assessmentOptions.length === 0 ||
+              assessmentOptions.every((option) =>
+                requiredAssessments.some((r) => r.assessmentId === option.id),
+              )
+            }
+            onClick={() => {
+              const next = assessmentOptions.find(
+                (option) => !requiredAssessments.some((r) => r.assessmentId === option.id),
+              );
+              if (next) {
+                setRequiredAssessments((current) => [
+                  ...current,
+                  { assessmentId: next.id, title: next.title, minScore: next.passMark },
+                ]);
+              }
+            }}
+          >
+            <Plus size={16} />
+            Add requirement
           </Button>
         </section>
 

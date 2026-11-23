@@ -4,6 +4,10 @@ import com.fairfold.assessment.dto.AttemptHistoryItem;
 import com.fairfold.assessment.dto.AttemptView;
 import com.fairfold.assessment.dto.CandidateAssessment;
 import com.fairfold.assessment.dto.CandidateResource;
+import com.fairfold.assessment.dto.ConsentRequest;
+import com.fairfold.assessment.dto.ExplanationRequest;
+import com.fairfold.assessment.dto.ProctorEventRequest;
+import com.fairfold.assessment.dto.ProctorEventsResponse;
 import com.fairfold.assessment.dto.SaveAnswersRequest;
 import com.fairfold.assessment.dto.SaveAnswersResponse;
 import com.fairfold.common.paging.PageResponse;
@@ -25,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Clock;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,10 +41,13 @@ import java.util.UUID;
 public class AssessmentAttemptController {
 
     private final AttemptService attemptService;
+    private final ProctoringService proctoringService;
     private final Clock clock;
 
-    public AssessmentAttemptController(AttemptService attemptService, Clock clock) {
+    public AssessmentAttemptController(AttemptService attemptService,
+                                       ProctoringService proctoringService, Clock clock) {
         this.attemptService = attemptService;
+        this.proctoringService = proctoringService;
         this.clock = clock;
     }
 
@@ -81,6 +89,31 @@ public class AssessmentAttemptController {
     @Operation(summary = "Get an in-progress attempt or its result")
     public AttemptView view(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
         return attemptService.view(user.id(), id);
+    }
+
+    @PostMapping("/attempts/{id}/consent")
+    @Operation(summary = "Record proctoring consent once, before answering")
+    public Map<String, Boolean> consent(@AuthenticationPrincipal CurrentUser user,
+                                        @PathVariable UUID id,
+                                        @Valid @RequestBody ConsentRequest request) {
+        return Map.of("given", proctoringService.consent(user.id(), id, request.given()));
+    }
+
+    @PostMapping("/attempts/{id}/events")
+    @Operation(summary = "Record focus signals (ignored without consent; max 500 per attempt)")
+    public ProctorEventsResponse events(@AuthenticationPrincipal CurrentUser user,
+                                        @PathVariable UUID id,
+                                        @Valid @RequestBody List<@Valid ProctorEventRequest> events) {
+        return proctoringService.addEvents(user.id(), id, events);
+    }
+
+    @PutMapping("/attempts/{id}/explanation")
+    @Operation(summary = "Set the candidate's explanation (only with consent)")
+    public Map<String, String> explanation(@AuthenticationPrincipal CurrentUser user,
+                                           @PathVariable UUID id,
+                                           @Valid @RequestBody ExplanationRequest request) {
+        return Collections.singletonMap("text",
+                proctoringService.explanation(user.id(), id, request.text()));
     }
 
     @GetMapping("/resources")

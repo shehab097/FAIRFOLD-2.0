@@ -21,7 +21,13 @@ import {
   updateWorkHistory,
   uploadResume,
 } from '../../api/candidate';
-import type { ApplicationStatus, WorkHistoryInput } from './types';
+import {
+  createCertification,
+  deleteCertification,
+  listCertifications,
+  updateCertification,
+} from '../../api/certifications';
+import type { ApplicationStatus, CertificationInput, WorkHistoryInput } from './types';
 
 export function useProfile() {
   return useQuery({ queryKey: ['candidate', 'profile'], queryFn: getProfile });
@@ -201,4 +207,33 @@ export function useApply(jobId: string) {
 
 export function useDashboard() {
   return useQuery({ queryKey: ['candidate', 'dashboard'], queryFn: getDashboard });
+}
+
+export function useCertifications() {
+  return useQuery({ queryKey: ['candidate', 'certifications'], queryFn: listCertifications });
+}
+
+export function useCreateCertification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createCertification,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['candidate', 'certifications'] }),
+  });
+}
+
+export function useUpdateCertification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: CertificationInput }) =>
+      updateCertification(id, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['candidate', 'certifications'] }),
+  });
+}
+
+export function useDeleteCertification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteCertification,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['candidate', 'certifications'] }),
+  });
 }

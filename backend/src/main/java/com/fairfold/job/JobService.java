@@ -1,5 +1,10 @@
 package com.fairfold.job;
 
+import com.fairfold.assessment.Assessment;
+import com.fairfold.assessment.AssessmentRepository;
+import com.fairfold.assessment.GateService;
+import com.fairfold.assessment.JobRequiredAssessment;
+import com.fairfold.assessment.JobRequiredAssessmentRepository;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
@@ -10,6 +15,7 @@ import com.fairfold.job.dto.EmployerJobListItem;
 import com.fairfold.job.dto.JobRequest;
 import com.fairfold.job.dto.PublicJobDetail;
 import com.fairfold.job.dto.PublicJobListItem;
+import com.fairfold.job.dto.RequiredAssessmentRequest;
 import com.fairfold.skill.Skill;
 import com.fairfold.skill.SkillRepository;
 import org.springframework.data.domain.Page;
@@ -36,16 +42,25 @@ public class JobService {
     private final CompanyRepository companyRepository;
     private final AuditService auditService;
     private final JobScreeningQuestionRepository questionRepository;
+    private final JobRequiredAssessmentRepository requiredAssessmentRepository;
+    private final AssessmentRepository assessmentRepository;
+    private final GateService gateService;
     private final Clock clock;
 
     public JobService(JobRepository jobRepository, SkillRepository skillRepository,
                       CompanyRepository companyRepository, AuditService auditService,
-                      JobScreeningQuestionRepository questionRepository, Clock clock) {
+                      JobScreeningQuestionRepository questionRepository,
+                      JobRequiredAssessmentRepository requiredAssessmentRepository,
+                      AssessmentRepository assessmentRepository,
+                      GateService gateService, Clock clock) {
         this.jobRepository = jobRepository;
         this.skillRepository = skillRepository;
         this.companyRepository = companyRepository;
         this.auditService = auditService;
         this.questionRepository = questionRepository;
+        this.requiredAssessmentRepository = requiredAssessmentRepository;
+        this.assessmentRepository = assessmentRepository;
+        this.gateService = gateService;
         this.clock = clock;
     }
 
@@ -108,6 +123,7 @@ public class JobService {
         job.setCreatedBy(userId);
         applyRequest(job, request);
         jobRepository.save(job);
+        replaceRequiredAssessments(job, request.requiredAssessments());
         auditService.record(userId, "job_created", "job", job.getId().toString(), "{}");
         return toEmployerDetail(job);
     }
@@ -119,6 +135,8 @@ public class JobService {
             throw ApiException.conflict("JOB_NOT_DRAFT", "Only draft jobs can be edited.");
         }
         applyRequest(job, request);
+        jobRepository.save(job);
+        replaceRequiredAssessments(job, request.requiredAssessments());
         auditService.record(userId, "job_updated", "job", job.getId().toString(), "{}");
         return toEmployerDetail(job);
     }
@@ -218,6 +236,14 @@ public class JobService {
         copy.setSkills(copiedSkills);
 
         jobRepository.save(copy);
+        for (JobRequiredAssessment sourceRequirement
+                : requiredAssessmentRepository.findByJobId(source.getId())) {
+            JobRequiredAssessment requirement = new JobRequiredAssessment();
+            requirement.setJobId(copy.getId());
+            requirement.setAssessmentId(sourceRequirement.getAssessmentId());
+            requirement.setMinScore(sourceRequirement.getMinScore());
+            requiredAssessmentRepository.save(requirement);
+        }
         int position = 0;
         for (JobScreeningQuestion sourceQuestion
                 : questionRepository.findByJobIdOrderByPositionAsc(source.getId())) {
@@ -228,6 +254,7 @@ public class JobService {
             questionRepository.save(question);
         }
         auditService.record(userId, "job_duplicated", "job", copy.getId().toString(), "{}");
+        gateService.recomputeForJob(copy.getId());
         return toEmployerDetail(copy);
     }
 
@@ -242,6 +269,40 @@ public class JobService {
         if (job.getStatus() != expected) {
             throw ApiException.conflict("JOB_ILLEGAL_TRANSITION",
                     "A job in status '" + job.getStatus().name() + "' cannot be " + action + "d.");
+        }
+    }
+
+    private void replaceRequiredAssessments(Job job, List<RequiredAssessmentRequest> requests) {
+        List<RequiredAssessmentRequest> items = requests == null ? List.of() : requests;
+        Set<UUID> seen = new HashSet<>();
+        for (RequiredAssessmentRequest item : items) {
+            if (item == null || item.assessmentId() == null || item.minScore() == null) {
+                throw ApiException.badRequest("INVALID_ASSESSMENT_REQUIREMENT",
+                        "Every required assessment needs an assessment and a minimum score.");
+            }
+            if (!seen.add(item.assessmentId())) {
+                throw ApiException.badRequest("DUPLICATE_ASSESSMENT",
+                        "The same assessment cannot be required twice.");
+            }
+            Assessment assessment = assessmentRepository.findById(item.assessmentId())
+                    .orElseThrow(() -> ApiException.badRequest("ASSESSMENT_NOT_FOUND",
+                            "One or more assessments do not exist."));
+            if (!assessment.isActive()) {
+                throw ApiException.badRequest("ASSESSMENT_INACTIVE",
+                        "Only active assessments can be required.");
+            }
+            if (item.minScore() < 1 || item.minScore() > 100) {
+                throw ApiException.badRequest("INVALID_ASSESSMENT_REQUIREMENT",
+                        "The minimum score must be between 1 and 100.");
+            }
+        }
+        requiredAssessmentRepository.deleteByJobId(job.getId());
+        for (RequiredAssessmentRequest item : items) {
+            JobRequiredAssessment requirement = new JobRequiredAssessment();
+            requirement.setJobId(job.getId());
+            requirement.setAssessmentId(item.assessmentId());
+            requirement.setMinScore(item.minScore());
+            requiredAssessmentRepository.save(requirement);
         }
     }
 
@@ -377,6 +438,21 @@ public class JobService {
                         js.getSkill().getId(), js.getSkill().getName(), false));
             }
         }
+        List<JobRequiredAssessment> requirements = requiredAssessmentRepository.findByJobId(job.getId());
+        Map<UUID, Assessment> assessments = requirements.isEmpty() ? Map.of()
+                : assessmentRepository.findAllById(requirements.stream()
+                        .map(JobRequiredAssessment::getAssessmentId).toList()).stream()
+                .collect(Collectors.toMap(Assessment::getId, Function.identity()));
+        List<EmployerJobDetail.RequiredAssessmentRef> requiredAssessments = requirements.stream()
+                .sorted(java.util.Comparator.comparing(
+                        r -> assessments.containsKey(r.getAssessmentId())
+                                ? assessments.get(r.getAssessmentId()).getTitle() : ""))
+                .map(r -> new EmployerJobDetail.RequiredAssessmentRef(
+                        r.getAssessmentId(),
+                        assessments.containsKey(r.getAssessmentId())
+                                ? assessments.get(r.getAssessmentId()).getTitle() : null,
+                        r.getMinScore()))
+                .toList();
         return new EmployerJobDetail(
                 job.getId(), job.getTitle(), job.getDescription(), job.getRequirements(),
                 job.getExperienceLevel(), job.getCity(), job.getAddress(), job.getCountry(), job.isRemote(),
@@ -387,7 +463,8 @@ public class JobService {
                 job.getSalaryCurrency(), job.getSalaryPeriod(), job.isSalaryNegotiable(),
                 questionRepository.findByJobIdOrderByPositionAsc(job.getId()).stream()
                         .map(JobScreeningQuestion::getText)
-                        .toList());
+                        .toList(),
+                requiredAssessments);
     }
 
     private PublicJobListItem toPublicListItem(Job job) {

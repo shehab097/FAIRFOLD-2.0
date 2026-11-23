@@ -6,6 +6,7 @@ import {
   useStartAttempt,
   useSubmitAttempt,
 } from '../queries';
+import { consentAttempt, saveExplanation } from '../../../api/assessments';
 import { extractApiError, getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
 import { Badge } from '../../../components/ui/Badge';
@@ -19,7 +20,59 @@ import { useToast } from '../../../components/ui/Toast';
 import { QuestionNavigator } from '../components/QuestionNavigator';
 import { SaveIndicator } from '../components/SaveIndicator';
 import { formatRemaining, useCountdown } from '../hooks/useCountdown';
+import { useProctorEvents } from '../hooks/useProctorEvents';
 import type { AttemptView } from '../types';
+
+function ExplanationCard({ attemptId, initial }: { attemptId: string; initial: string | null }) {
+  const [text, setText] = useState(initial ?? '');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function save() {
+    setSaving(true);
+    setError(null);
+    try {
+      await saveExplanation(attemptId, text.trim());
+      setSaved(true);
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+      <h2 className="text-lg font-semibold">Add an explanation</h2>
+      <p className="text-sm text-text-secondary">
+        Optional. Your employer sees this next to the neutral focus signals. It does not change
+        your score.
+      </p>
+      <textarea
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value.slice(0, 500));
+          setSaved(false);
+        }}
+        rows={3}
+        maxLength={500}
+        className="mt-3 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:outline-none"
+        placeholder="For example: my connection dropped for a minute."
+      />
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <span className="text-xs text-text-secondary">{text.length}/500</span>
+        <div className="flex items-center gap-3">
+          {saved && <span className="text-sm text-primary-text">Saved</span>}
+          <Button variant="secondary" loading={saving} onClick={save}>
+            Save explanation
+          </Button>
+        </div>
+      </div>
+      {error && <p className="mt-1 text-sm text-accent">{error}</p>}
+    </section>
+  );
+}
 
 function ResultView({
   result,
@@ -110,6 +163,10 @@ function ResultView({
           <Button onClick={() => window.location.reload()}>Retake now</Button>
         )}
       </div>
+
+      {result.proctoringConsent === true && (
+        <ExplanationCard attemptId={result.attemptId} initial={result.explanation ?? null} />
+      )}
     </div>
   );
 }
@@ -136,6 +193,9 @@ export function AttemptPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [consentOpen, setConsentOpen] = useState(false);
+  const [consentSaving, setConsentSaving] = useState(false);
+  const [consentError, setConsentError] = useState<string | null>(null);
 
   const startedRef = useRef(false);
   const submittedRef = useRef(false);
@@ -143,6 +203,11 @@ export function AttemptPage() {
   const oneWarned = useRef(false);
   const answersRef = useRef(answers);
   answersRef.current = answers;
+
+  const proctor = useProctorEvents(
+    view?.attemptId ?? null,
+    view?.proctoringConsent === true && !result,
+  );
 
   useEffect(() => {
     if (startedRef.current || !assessmentId) return;
@@ -155,6 +220,8 @@ export function AttemptPage() {
         setAnswers(data.answers ?? {});
         if (data.status !== 'in_progress') {
           setResult(data);
+        } else if (data.proctoringConsent === null || data.proctoringConsent === undefined) {
+          setConsentOpen(true);
         }
       })
       .catch((err) => {
@@ -216,6 +283,7 @@ export function AttemptPage() {
         await saveMutation.mutateAsync({ attemptId: view.attemptId, answers: answersRef.current });
         setDirty(false);
       }
+      await proctor.flush();
       const submitted = await submitMutation.mutateAsync(view.attemptId);
       setResult(submitted);
       setSaved(true);
@@ -234,6 +302,21 @@ export function AttemptPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining, view, result]);
+
+  async function chooseConsent(given: boolean) {
+    if (!view) return;
+    setConsentSaving(true);
+    setConsentError(null);
+    try {
+      await consentAttempt(view.attemptId, given);
+      setView({ ...view, proctoringConsent: given });
+      setConsentOpen(false);
+    } catch (err) {
+      setConsentError(getApiErrorMessage(err));
+    } finally {
+      setConsentSaving(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -388,6 +471,32 @@ export function AttemptPage() {
           <Button onClick={handleSubmit} loading={submitting}>
             Submit assessment
           </Button>
+        </div>
+      </Dialog>
+
+      <Dialog open={consentOpen} title="Focus signals" onClose={() => {}}>
+        <div className="space-y-4">
+          <p className="text-sm text-text">
+            FairFold can record when you leave the tab or the window loses focus during this
+            attempt. These signals are shown to the employer as neutral notes, with your optional
+            explanation. They never fail your attempt and never change your score.
+          </p>
+          <p className="text-sm text-text-secondary">
+            You can decline; the assessment works the same. Your choice is recorded once.
+          </p>
+          {consentError && <p className="text-sm text-accent">{consentError}</p>}
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              loading={consentSaving}
+              onClick={() => chooseConsent(false)}
+            >
+              No thanks
+            </Button>
+            <Button loading={consentSaving} onClick={() => chooseConsent(true)}>
+              I agree
+            </Button>
+          </div>
         </div>
       </Dialog>
     </div>

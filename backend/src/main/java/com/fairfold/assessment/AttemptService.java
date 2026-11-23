@@ -335,7 +335,8 @@ public class AttemptService {
                 questions,
                 attempt.getAnswers(),
                 null, null, assessment.getPassMark(), null, questions.size(),
-                attempt.getStatus().name(), null, null, null);
+                attempt.getStatus().name(), null,
+                attempt.getProctoringConsent(), attempt.getExplanation(), null, null);
     }
 
     private AttemptView submittedView(AssessmentAttempt attempt, Assessment assessment) {
@@ -358,6 +359,8 @@ public class AttemptService {
                 questions.size(),
                 attempt.getStatus().name(),
                 passed,
+                attempt.getProctoringConsent(),
+                attempt.getExplanation(),
                 retryAt(attempt),
                 passed ? null : resources(assessment.getSkillId()));
     }

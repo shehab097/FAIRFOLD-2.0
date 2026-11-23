@@ -4,6 +4,7 @@ import com.fairfold.assessment.dto.ActiveRequest;
 import com.fairfold.assessment.dto.AssessmentDetail;
 import com.fairfold.assessment.dto.AssessmentListItem;
 import com.fairfold.assessment.dto.AssessmentRequest;
+import com.fairfold.assessment.dto.EmployerAssessmentOption;
 import com.fairfold.assessment.dto.QuestionOption;
 import com.fairfold.assessment.dto.QuestionRequest;
 import com.fairfold.common.audit.AuditService;
@@ -69,6 +70,18 @@ public class AssessmentService {
         Assessment assessment = require(id);
         Map<UUID, Skill> skills = skillsFor(List.of(assessment.getSkillId()));
         return toDetail(assessment, skills);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployerAssessmentOption> listActiveOptions() {
+        List<Assessment> assessments = assessmentRepository.findByActiveTrueOrderByCreatedAtDesc();
+        Map<UUID, Skill> skills = skillsFor(assessments.stream()
+                .map(Assessment::getSkillId).toList());
+        return assessments.stream()
+                .map(a -> new EmployerAssessmentOption(
+                        a.getId(), a.getTitle(), skillName(skills, a.getSkillId()),
+                        a.getPassMark(), a.getDurationMinutes()))
+                .toList();
     }
 
     @Transactional

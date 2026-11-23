@@ -1,5 +1,6 @@
 package com.fairfold.job.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -29,6 +30,7 @@ public record JobRequest(
         BigDecimal salaryMax,
         String salaryCurrency,
         String salaryPeriod,
-        Boolean salaryNegotiable
+        Boolean salaryNegotiable,
+        List<@Valid RequiredAssessmentRequest> requiredAssessments
 ) {
 }
