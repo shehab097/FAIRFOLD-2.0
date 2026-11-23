@@ -18,10 +18,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 public class AttemptService {
 
     private static final int ANSWER_GRACE_SECONDS = 5;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final AssessmentRepository assessmentRepository;
     private final AssessmentQuestionRepository questionRepository;
@@ -100,6 +103,7 @@ public class AttemptService {
             }
             result.add(new CandidateAssessment(
                     assessment.getId(),
+                    assessment.getSkillId(),
                     assessment.getTitle(),
                     skillNames.get(assessment.getSkillId()),
                     (int) questionRepository.countByAssessmentId(assessment.getId()),
@@ -184,6 +188,10 @@ public class AttemptService {
         attempt.setEndsAt(now.plus(Duration.ofMinutes(assessment.getDurationMinutes())));
         attempt.setStatus(AttemptStatus.in_progress);
         attempt.setAnswers(new LinkedHashMap<>());
+        List<AssessmentQuestion> pool = questionRepository
+                .findByAssessmentIdOrderByPositionAsc(assessment.getId());
+        attempt.setQuestionIds(draw(pool, assessment.getQuestionsPerAttempt()).stream()
+                .map(question -> question.getId().toString()).toList());
         attemptRepository.save(attempt);
         return inProgressView(attempt, assessment);
     }
@@ -196,8 +204,7 @@ public class AttemptService {
             throw ApiException.conflict("ATTEMPT_CLOSED",
                     "This attempt is closed and no longer accepts answers.");
         }
-        List<AssessmentQuestion> questions = questionRepository
-                .findByAssessmentIdOrderByPositionAsc(attempt.getAssessmentId());
+        List<AssessmentQuestion> questions = drawnQuestions(attempt);
         Set<String> questionIds = questions.stream()
                 .map(q -> q.getId().toString()).collect(Collectors.toCollection(HashSet::new));
         Map<String, Set<String>> options = questions.stream()
@@ -264,8 +271,7 @@ public class AttemptService {
     // --- scoring and badges ------------------------------------------------
 
     private void finish(AssessmentAttempt attempt, Assessment assessment, Instant now, boolean auto) {
-        List<AssessmentQuestion> questions = questionRepository
-                .findByAssessmentIdOrderByPositionAsc(assessment.getId());
+        List<AssessmentQuestion> questions = drawnQuestions(attempt);
         int total = questions.size();
         int correct = correctCount(questions, attempt.getAnswers());
         int score = total == 0 ? 0 : (int) Math.round(100.0 * correct / total);
@@ -299,6 +305,33 @@ public class AttemptService {
         candidateSkillRepository.save(skill);
     }
 
+    private List<AssessmentQuestion> drawnQuestions(AssessmentAttempt attempt) {
+        List<AssessmentQuestion> all = questionRepository
+                .findByAssessmentIdOrderByPositionAsc(attempt.getAssessmentId());
+        if (attempt.getQuestionIds().isEmpty()) {
+            return all;
+        }
+        Map<String, AssessmentQuestion> byId = all.stream()
+                .collect(Collectors.toMap(q -> q.getId().toString(), Function.identity()));
+        List<AssessmentQuestion> drawn = new ArrayList<>();
+        for (String id : attempt.getQuestionIds()) {
+            AssessmentQuestion question = byId.get(id);
+            if (question != null) {
+                drawn.add(question);
+            }
+        }
+        return drawn.isEmpty() ? all : drawn;
+    }
+
+    private List<AssessmentQuestion> draw(List<AssessmentQuestion> pool, int requested) {
+        if (pool.isEmpty() || requested <= 0 || requested >= pool.size()) {
+            return pool;
+        }
+        List<AssessmentQuestion> copy = new ArrayList<>(pool);
+        Collections.shuffle(copy, RANDOM);
+        return copy.subList(0, requested);
+    }
+
     private int correctCount(List<AssessmentQuestion> questions, Map<String, String> answers) {
         int correct = 0;
         for (AssessmentQuestion question : questions) {
@@ -321,8 +354,7 @@ public class AttemptService {
     // --- views -------------------------------------------------------------
 
     private AttemptView inProgressView(AssessmentAttempt attempt, Assessment assessment) {
-        List<AttemptQuestion> questions = questionRepository
-                .findByAssessmentIdOrderByPositionAsc(assessment.getId()).stream()
+        List<AttemptQuestion> questions = drawnQuestions(attempt).stream()
                 .map(q -> new AttemptQuestion(q.getId().toString(), q.getPosition(), q.getText(), q.getOptions()))
                 .toList();
         return new AttemptView(
@@ -340,8 +372,7 @@ public class AttemptService {
     }
 
     private AttemptView submittedView(AssessmentAttempt attempt, Assessment assessment) {
-        List<AssessmentQuestion> questions = questionRepository
-                .findByAssessmentIdOrderByPositionAsc(assessment.getId());
+        List<AssessmentQuestion> questions = drawnQuestions(attempt);
         boolean passed = Boolean.TRUE.equals(attempt.getPassed());
         return new AttemptView(
                 attempt.getId(),

@@ -19,4 +19,6 @@ public interface AiProvider {
                                                            List<String> screeningQuestions);
 
     AiResult<StarFeedback> gradeStar(String question, String anonymisedAnswer);
+
+    AiResult<List<AiResult.GeneratedQuestion>> generateAssessmentQuestions(String skillName, int count);
 }

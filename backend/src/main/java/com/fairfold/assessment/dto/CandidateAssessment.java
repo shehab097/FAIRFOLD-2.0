@@ -6,6 +6,7 @@ import java.util.UUID;
 /** Active assessment card for a candidate (P17). */
 public record CandidateAssessment(
         UUID id,
+        UUID skillId,
         String title,
         String skillName,
         int questionCount,

@@ -1,6 +1,7 @@
 package com.fairfold.resume;
 
 import com.fairfold.ai.ProfileSuggestions;
+import com.fairfold.assessment.AssessmentQueueService;
 import com.fairfold.candidate.CandidateProfile;
 import com.fairfold.candidate.CandidateProfileRepository;
 import com.fairfold.candidate.CandidateSkill;
@@ -38,6 +39,7 @@ public class ResumeSuggestionService {
     private final CandidateSkillRepository candidateSkillRepository;
     private final SkillCanonicalizer canonicalizer;
     private final WorkHistoryRepository workHistoryRepository;
+    private final AssessmentQueueService assessmentQueueService;
     private final ObjectMapper objectMapper;
 
     public ResumeSuggestionService(ResumeRepository resumeRepository,
@@ -48,6 +50,7 @@ public class ResumeSuggestionService {
                                    CandidateSkillRepository candidateSkillRepository,
                                    SkillCanonicalizer canonicalizer,
                                    WorkHistoryRepository workHistoryRepository,
+                                   AssessmentQueueService assessmentQueueService,
                                    ObjectMapper objectMapper) {
         this.resumeRepository = resumeRepository;
         this.suggestionRepository = suggestionRepository;
@@ -57,6 +60,7 @@ public class ResumeSuggestionService {
         this.candidateSkillRepository = candidateSkillRepository;
         this.canonicalizer = canonicalizer;
         this.workHistoryRepository = workHistoryRepository;
+        this.assessmentQueueService = assessmentQueueService;
         this.objectMapper = objectMapper;
     }
 
@@ -140,6 +144,7 @@ public class ResumeSuggestionService {
                 row.setLevel(parseLevel(skill.level()));
                 row.setYears(validateSkillYears(skill.years()));
                 candidateSkillRepository.save(row);
+                assessmentQueueService.ensureTopicForSkill(canonical.getId());
             }
         }
 

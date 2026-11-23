@@ -302,4 +302,33 @@ public class RuleBasedFallbackProvider implements AiProvider {
     public AiResult<StarFeedback> gradeStar(String question, String anonymisedAnswer) {
         throw new AiProviderException("STAR grading requires an AI provider", null);
     }
+
+    @Override
+    public AiResult<List<AiResult.GeneratedQuestion>> generateAssessmentQuestions(
+            String skillName, int count) {
+        List<AiResult.GeneratedQuestion> questions = new ArrayList<>();
+        int safeCount = Math.max(1, count);
+        String skill = skillName == null ? "this skill" : skillName;
+        String[] stems = {
+                "Which practice is most appropriate for " + skill + "?",
+                "Which statement about " + skill + " is most accurate?",
+                "A team is using " + skill + ". What should happen next?",
+                "Which answer best reflects safe " + skill + " work?"
+        };
+        for (int i = 0; i < safeCount; i++) {
+            char correct = (char) ('a' + (i % 4));
+            List<AiResult.GeneratedOption> options = new ArrayList<>();
+            for (int o = 0; o < 4; o++) {
+                char id = (char) ('a' + o);
+                String text = id == correct
+                        ? "Follow the documented, tested approach for " + skill + "."
+                        : "Use an unrelated shortcut " + (o + 1) + " without checking " + skill + ".";
+                options.add(new AiResult.GeneratedOption(String.valueOf(id), text));
+            }
+            questions.add(new AiResult.GeneratedQuestion(
+                    stems[i % stems.length] + " (question " + (i + 1) + ")",
+                    options, String.valueOf(correct)));
+        }
+        return AiResult.ruleBased(questions);
+    }
 }

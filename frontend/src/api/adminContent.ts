@@ -7,6 +7,7 @@ import type {
   LearningResource,
   LinkCheckResult,
   ResourceInput,
+  SkillMergeResult,
 } from '../features/admin/types';
 
 export async function listAssessments(page: number): Promise<PageResponse<AssessmentListItem>> {
@@ -41,6 +42,27 @@ export async function setAssessmentActive(
   const { data } = await api.patch<AssessmentDetail>(`/api/admin/assessments/${id}/active`, {
     active,
   });
+  return data;
+}
+
+export async function generateAssessment(id: string): Promise<AssessmentDetail> {
+  const { data } = await api.post<AssessmentDetail>(`/api/admin/assessments/${id}/generate`);
+  return data;
+}
+
+export async function approveAssessment(id: string): Promise<AssessmentDetail> {
+  const { data } = await api.post<AssessmentDetail>(`/api/admin/assessments/${id}/approve`);
+  return data;
+}
+
+export async function mergeSkill(
+  sourceSkillId: string,
+  targetSkillId: string,
+): Promise<SkillMergeResult> {
+  const { data } = await api.post<SkillMergeResult>(
+    `/api/admin/skills/${sourceSkillId}/merge`,
+    { targetSkillId },
+  );
   return data;
 }
 

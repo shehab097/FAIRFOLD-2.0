@@ -17,6 +17,7 @@ public record AssessmentRequest(
         @NotNull @Min(5) @Max(180) Integer durationMinutes,
         @NotNull @Min(1) @Max(100) Integer passMark,
         Boolean active,
+        @Min(1) @Max(50) Integer questionsPerAttempt,
         @NotEmpty List<@Valid QuestionRequest> questions
 ) {
 }

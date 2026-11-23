@@ -2,6 +2,7 @@ package com.fairfold.candidate;
 
 import com.fairfold.application.Application;
 import com.fairfold.application.ApplicationRepository;
+import com.fairfold.assessment.AssessmentQueueService;
 import com.fairfold.candidate.dto.AddSkillRequest;
 import com.fairfold.candidate.dto.CandidateSkillResponse;
 import com.fairfold.candidate.dto.DashboardResponse;
@@ -13,6 +14,7 @@ import com.fairfold.job.Job;
 import com.fairfold.job.JobRepository;
 import com.fairfold.resume.ResumeRepository;
 import com.fairfold.skill.Skill;
+import com.fairfold.skill.SkillCanonicalizer;
 import com.fairfold.skill.SkillRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,19 +35,25 @@ public class CandidateService {
     private final ResumeRepository resumeRepository;
     private final ApplicationRepository applicationRepository;
     private final JobRepository jobRepository;
+    private final SkillCanonicalizer canonicalizer;
+    private final AssessmentQueueService assessmentQueueService;
 
     public CandidateService(CandidateProfileRepository profileRepository,
                             CandidateSkillRepository candidateSkillRepository,
                             SkillRepository skillRepository,
                             ResumeRepository resumeRepository,
                             ApplicationRepository applicationRepository,
-                            JobRepository jobRepository) {
+                            JobRepository jobRepository,
+                            SkillCanonicalizer canonicalizer,
+                            AssessmentQueueService assessmentQueueService) {
         this.profileRepository = profileRepository;
         this.candidateSkillRepository = candidateSkillRepository;
         this.skillRepository = skillRepository;
         this.resumeRepository = resumeRepository;
         this.applicationRepository = applicationRepository;
         this.jobRepository = jobRepository;
+        this.canonicalizer = canonicalizer;
+        this.assessmentQueueService = assessmentQueueService;
     }
 
     // --- profile -----------------------------------------------------------
@@ -93,8 +101,9 @@ public class CandidateService {
         if (request.skillId() == null) {
             throw ApiException.badRequest("SKILL_NOT_FOUND", "Choose a skill.");
         }
-        Skill skill = skillRepository.findById(request.skillId())
+        Skill requested = skillRepository.findById(request.skillId())
                 .orElseThrow(() -> ApiException.badRequest("SKILL_NOT_FOUND", "Skill not found."));
+        Skill skill = canonicalizer.resolve(requested.getName()).orElse(requested);
         if (candidateSkillRepository.existsByUserIdAndSkillId(userId, skill.getId())) {
             throw ApiException.conflict("SKILL_EXISTS", "You already have this skill.");
         }
@@ -104,6 +113,7 @@ public class CandidateService {
         candidateSkill.setLevel(parseLevel(request.level()));
         candidateSkill.setYears(validateYears(request.years()));
         candidateSkillRepository.save(candidateSkill);
+        assessmentQueueService.ensureTopicForSkill(skill.getId());
         return toSkillResponse(candidateSkill, skill.getName());
     }
 

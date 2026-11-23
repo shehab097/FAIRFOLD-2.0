@@ -12,6 +12,10 @@ public record AssessmentDetail(
         int passMark,
         boolean active,
         long attemptCount,
+        String reviewStatus,
+        int poolSize,
+        int questionsPerAttempt,
+        long candidateDemandCount,
         List<QuestionDto> questions
 ) {
     public record QuestionDto(

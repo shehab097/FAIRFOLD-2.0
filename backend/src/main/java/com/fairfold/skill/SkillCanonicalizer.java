@@ -54,12 +54,12 @@ public class SkillCanonicalizer {
         if (name.isBlank()) {
             return Optional.empty();
         }
-        Optional<Skill> exact = skillRepository.findByNameIgnoreCase(name);
-        if (exact.isPresent()) {
-            return exact;
+        Optional<Skill> alias = aliasRepository.findByAliasIgnoreCase(name)
+                .flatMap(entry -> skillRepository.findById(entry.getSkillId()));
+        if (alias.isPresent()) {
+            return alias;
         }
-        return aliasRepository.findByAliasIgnoreCase(name)
-                .flatMap(alias -> skillRepository.findById(alias.getSkillId()));
+        return skillRepository.findByNameIgnoreCase(name);
     }
 
     @Transactional

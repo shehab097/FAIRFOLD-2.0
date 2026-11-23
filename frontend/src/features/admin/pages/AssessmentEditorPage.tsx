@@ -2,10 +2,13 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import {
+  useApproveAssessment,
   useAssessment,
   useCreateAssessment,
+  useGenerateAssessment,
   useUpdateAssessment,
 } from '../queries';
+import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -62,12 +65,15 @@ export function AssessmentEditorPage() {
   const { data: detail, isLoading, isError, refetch } = useAssessment(assessmentId);
   const create = useCreateAssessment();
   const update = useUpdateAssessment(assessmentId ?? '');
+  const generate = useGenerateAssessment();
+  const approve = useApproveAssessment();
   const { toast } = useToast();
 
   const [title, setTitle] = useState('');
   const [skill, setSkill] = useState<SelectedSkillRef | null>(null);
   const [durationMinutes, setDurationMinutes] = useState('30');
   const [passMark, setPassMark] = useState('70');
+  const [questionsPerAttempt, setQuestionsPerAttempt] = useState('10');
   const [active, setActive] = useState(true);
   const [questions, setQuestions] = useState<EditQuestion[]>([emptyQuestion()]);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +89,7 @@ export function AssessmentEditorPage() {
     setSkill({ id: detail.skillId, name: detail.skillName ?? 'Skill' });
     setDurationMinutes(String(detail.durationMinutes));
     setPassMark(String(detail.passMark));
+    setQuestionsPerAttempt(String(detail.questionsPerAttempt));
     setActive(detail.active);
     setQuestions(toEditQuestions(detail));
   }, [detail]);
@@ -149,6 +156,10 @@ export function AssessmentEditorPage() {
     if (!Number.isInteger(pass) || pass < 1 || pass > 100) {
       errors.passMark = 'Pass mark must be between 1 and 100.';
     }
+    const perAttempt = Number(questionsPerAttempt);
+    if (!Number.isInteger(perAttempt) || perAttempt < 1 || perAttempt > 50) {
+      errors.questionsPerAttempt = 'Questions per attempt must be between 1 and 50.';
+    }
     questions.forEach((question, qi) => {
       if (!question.text.trim()) errors[`questions[${qi}].text`] = 'Enter the question text.';
       question.options.forEach((option, oi) => {
@@ -166,6 +177,7 @@ export function AssessmentEditorPage() {
       durationMinutes: duration,
       passMark: pass,
       active,
+      questionsPerAttempt: perAttempt,
       questions: questions.map((question) => ({
         text: question.text.trim(),
         options: question.options.map((option, index) => ({
@@ -193,6 +205,26 @@ export function AssessmentEditorPage() {
       }
       setFieldErrors(getFieldErrors(err));
       setError(getApiErrorMessage(err));
+    }
+  }
+
+  async function generatePool() {
+    if (!assessmentId) return;
+    try {
+      await generate.mutateAsync(assessmentId);
+      toast('30 questions generated. Review and edit them, then approve.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    }
+  }
+
+  async function approvePool() {
+    if (!assessmentId) return;
+    try {
+      await approve.mutateAsync(assessmentId);
+      toast('Assessment approved and activated.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
     }
   }
 
@@ -230,11 +262,49 @@ export function AssessmentEditorPage() {
           <p className="text-text-secondary">
             Multiple-choice only. Candidates see the questions in this order.
           </p>
+          {detail && (
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
+              <Badge
+                tone={
+                  detail.reviewStatus === 'approved'
+                    ? 'success'
+                    : detail.reviewStatus === 'pending_review'
+                      ? 'progress'
+                      : 'warning'
+                }
+              >
+                {detail.reviewStatus.replace('_', ' ')}
+              </Badge>
+              <span>
+                Pool {detail.poolSize} · {detail.questionsPerAttempt} per attempt
+              </span>
+              <span>· Demand {detail.candidateDemandCount}</span>
+            </div>
+          )}
         </div>
-        <Button onClick={save} loading={busy}>
-          Save
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {detail?.reviewStatus === 'pending_generation' && (
+            <Button variant="secondary" loading={generate.isPending} onClick={generatePool}>
+              Generate 30 questions
+            </Button>
+          )}
+          {detail?.reviewStatus === 'pending_review' && (
+            <Button variant="secondary" loading={approve.isPending} onClick={approvePool}>
+              Approve &amp; Activate
+            </Button>
+          )}
+          <Button onClick={save} loading={busy}>
+            Save
+          </Button>
+        </div>
       </div>
+
+      {detail?.reviewStatus === 'pending_review' && (
+        <Banner tone="info">
+          The generated pool is ready for review. Check all questions, set how many each candidate
+          sees, then approve and activate.
+        </Banner>
+      )}
 
       {locked && (
         <Banner tone="warning">
@@ -287,6 +357,15 @@ export function AssessmentEditorPage() {
               max={100}
               value={passMark}
               onChange={(e) => setPassMark(e.target.value)}
+            />
+          </Field>
+          <Field label="Questions per attempt" error={fieldErrors.questionsPerAttempt}>
+            <Input
+              type="number"
+              min={1}
+              max={50}
+              value={questionsPerAttempt}
+              onChange={(e) => setQuestionsPerAttempt(e.target.value)}
             />
           </Field>
           <div className="flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 sm:col-span-2">

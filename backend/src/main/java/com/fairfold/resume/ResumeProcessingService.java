@@ -1,6 +1,7 @@
 package com.fairfold.resume;
 
 import com.fairfold.ai.AiGateway;
+import com.fairfold.assessment.AssessmentQueueService;
 import com.fairfold.ai.IdentifierLeakException;
 import com.fairfold.ai.ProfileSuggestions;
 import com.fairfold.candidate.CandidateProfile;
@@ -39,6 +40,7 @@ public class ResumeProcessingService {
     private final StorageService storageService;
     private final UserRepository userRepository;
     private final CandidateProfileRepository profileRepository;
+    private final AssessmentQueueService assessmentQueueService;
     private final ObjectMapper objectMapper;
 
     public ResumeProcessingService(ResumeRepository resumeRepository,
@@ -51,6 +53,7 @@ public class ResumeProcessingService {
                                    StorageService storageService,
                                    UserRepository userRepository,
                                    CandidateProfileRepository profileRepository,
+                                   AssessmentQueueService assessmentQueueService,
                                    ObjectMapper objectMapper) {
         this.resumeRepository = resumeRepository;
         this.suggestionRepository = suggestionRepository;
@@ -62,6 +65,7 @@ public class ResumeProcessingService {
         this.storageService = storageService;
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
+        this.assessmentQueueService = assessmentQueueService;
         this.objectMapper = objectMapper;
     }
 
@@ -116,6 +120,11 @@ public class ResumeProcessingService {
             saved.setProvider("rule_based".equals(extraction.provider()) ? "rule_based" : "ai");
             saved.setData(objectMapper.writeValueAsString(suggestions));
             suggestionRepository.save(saved);
+            for (ProfileSuggestions.SuggestedSkill skill : suggestions.skills()) {
+                if (skill != null && skill.name() != null) {
+                    assessmentQueueService.ensureTopicForName(skill.name());
+                }
+            }
 
             resume.setStatus(ResumeStatus.ready);
             resume.setFailureReason(null);

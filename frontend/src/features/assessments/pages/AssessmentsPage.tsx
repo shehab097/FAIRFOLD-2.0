@@ -26,6 +26,7 @@ export function AssessmentsPage() {
   const navigate = useNavigate();
 
   const verifiedSkills = (skills ?? []).filter((skill) => skill.verified);
+  const profileSkillIds = new Set((skills ?? []).map((skill) => skill.skillId));
 
   function setPage(next: number) {
     const copy = new URLSearchParams(params);
@@ -119,16 +120,26 @@ export function AssessmentsPage() {
           )}
           {assessments.data?.map((assessment) => {
             const blocked = cooldownActive(assessment);
+            const recommended = profileSkillIds.has(assessment.skillId);
             return (
               <div
                 key={assessment.id}
-                className="flex flex-col justify-between rounded-xl border border-border bg-surface p-5 shadow-sm"
+                className={
+                  recommended
+                    ? 'flex flex-col justify-between rounded-xl border border-primary bg-surface p-5 shadow-sm'
+                    : 'flex flex-col justify-between rounded-xl border border-border bg-surface p-5 shadow-sm'
+                }
               >
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h2 className="text-lg font-semibold text-text">{assessment.title}</h2>
                       <p className="text-sm text-text-secondary">{assessment.skillName ?? 'Skill'}</p>
+                      {recommended && (
+                        <div className="mt-1.5">
+                          <Badge tone="progress">Recommended from your CV</Badge>
+                        </div>
+                      )}
                     </div>
                     {assessment.inProgressAttemptId ? (
                       <Badge tone="progress">In progress</Badge>

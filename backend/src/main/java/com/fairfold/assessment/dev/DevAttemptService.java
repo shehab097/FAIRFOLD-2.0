@@ -49,6 +49,13 @@ public class DevAttemptService {
         }
         List<AssessmentQuestion> questions = questionRepository
                 .findByAssessmentIdOrderByPositionAsc(attempt.getAssessmentId());
+        if (!attempt.getQuestionIds().isEmpty()) {
+            java.util.Map<String, AssessmentQuestion> byId = questions.stream()
+                    .collect(java.util.stream.Collectors.toMap(
+                            q -> q.getId().toString(), q -> q));
+            questions = attempt.getQuestionIds().stream()
+                    .map(byId::get).filter(java.util.Objects::nonNull).toList();
+        }
         int correct = correctCount == null ? questions.size()
                 : Math.max(0, Math.min(correctCount, questions.size()));
         Map<String, String> answers = new LinkedHashMap<>();

@@ -1,11 +1,14 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  approveAssessment,
   checkResourceLinks,
   createAssessment,
   createResource,
+  generateAssessment,
   getAssessment,
   listAssessments,
   listResources,
+  mergeSkill,
   setAssessmentActive,
   setResourceActive,
   updateAssessment,
@@ -59,8 +62,43 @@ export function useSetAssessmentActive() {
   });
 }
 
-export function useResources(page: number, skillId?: string) {
-  return useQuery({
+export function useGenerateAssessment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: generateAssessment,
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'assessments'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'assessment', id] });
+    },
+  });
+}
+
+export function useApproveAssessment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: approveAssessment,
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: ['admin', 'assessments'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'assessment', id] });
+    },
+  });
+}
+
+export function useMergeSkill() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ sourceSkillId, targetSkillId }: { sourceSkillId: string; targetSkillId: string }) =>
+      mergeSkill(sourceSkillId, targetSkillId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'assessments'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'resources'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'assessment'] });
+      qc.invalidateQueries({ queryKey: ['skills'] });
+    },
+  });
+}
+
+export function useResources(page: number, skillId?: string) {  return useQuery({
     queryKey: ['admin', 'resources', page, skillId ?? 'all'],
     queryFn: () => listResources(page, skillId),
     placeholderData: keepPreviousData,

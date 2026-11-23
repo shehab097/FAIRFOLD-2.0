@@ -12,7 +12,9 @@ import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -66,6 +68,10 @@ public class AssessmentAttempt {
 
     @Column(columnDefinition = "text")
     private String explanation;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "question_ids", columnDefinition = "json", nullable = false)
+    private List<String> questionIds = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -157,5 +163,13 @@ public class AssessmentAttempt {
 
     public void setExplanation(String explanation) {
         this.explanation = explanation;
+    }
+
+    public List<String> getQuestionIds() {
+        return questionIds;
+    }
+
+    public void setQuestionIds(List<String> questionIds) {
+        this.questionIds = questionIds == null ? new ArrayList<>() : questionIds;
     }
 }

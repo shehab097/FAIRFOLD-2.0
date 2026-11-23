@@ -11,8 +11,15 @@ export interface AssessmentQuestion {
   correctOptionId: string;
 }
 
+export type AssessmentReviewStatus =
+  | 'pending_generation'
+  | 'pending_review'
+  | 'approved'
+  | 'ignored';
+
 export interface AssessmentListItem {
   id: string;
+  skillId: string;
   title: string;
   skillName: string | null;
   questionCount: number;
@@ -20,6 +27,10 @@ export interface AssessmentListItem {
   passMark: number;
   active: boolean;
   attemptCount: number;
+  reviewStatus: AssessmentReviewStatus;
+  poolSize: number;
+  questionsPerAttempt: number;
+  candidateDemandCount: number;
 }
 
 export interface AssessmentDetail {
@@ -31,6 +42,10 @@ export interface AssessmentDetail {
   passMark: number;
   active: boolean;
   attemptCount: number;
+  reviewStatus: AssessmentReviewStatus;
+  poolSize: number;
+  questionsPerAttempt: number;
+  candidateDemandCount: number;
   questions: AssessmentQuestion[];
 }
 
@@ -46,7 +61,20 @@ export interface AssessmentInput {
   durationMinutes: number;
   passMark: number;
   active: boolean;
+  questionsPerAttempt: number;
   questions: AssessmentQuestionInput[];
+}
+
+export interface SkillMergeResult {
+  sourceSkillId: string;
+  targetSkillId: string;
+  movedCandidateSkills: number;
+  removedCandidateSkills: number;
+  movedJobSkills: number;
+  removedJobSkills: number;
+  movedResources: number;
+  removedAssessments: number;
+  movedAssessment: boolean;
 }
 
 export type ResourceCost = 'free' | 'paid';

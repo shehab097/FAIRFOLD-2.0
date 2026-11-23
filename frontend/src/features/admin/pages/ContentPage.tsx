@@ -2,9 +2,12 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Check, ExternalLink, Pencil, Plus, RefreshCw } from 'lucide-react';
 import {
+  useApproveAssessment,
   useAssessments,
   useCheckResourceLinks,
   useCreateResource,
+  useGenerateAssessment,
+  useMergeSkill,
   useResources,
   useSetAssessmentActive,
   useSetResourceActive,
@@ -35,6 +38,7 @@ import { formatDate } from '../../../lib/format';
 import { SkillSelect, type SelectedSkillRef } from '../components/SkillSelect';
 import type {
   AssessmentListItem,
+  AssessmentReviewStatus,
   LearningResource,
   ResourceCost,
   ResourceInput,
@@ -47,6 +51,25 @@ const LEVEL_LABELS: Record<ResourceLevel, string> = {
   intermediate: 'Intermediate',
   advanced: 'Advanced',
 };
+
+const REVIEW_LABELS: Record<AssessmentReviewStatus, string> = {
+  pending_generation: 'Pending generation',
+  pending_review: 'Pending review',
+  approved: 'Approved',
+  ignored: 'Ignored',
+};
+
+function ReviewBadge({ status }: { status: AssessmentReviewStatus }) {
+  const tone =
+    status === 'approved'
+      ? 'success'
+      : status === 'pending_review'
+        ? 'progress'
+        : status === 'pending_generation'
+          ? 'warning'
+          : 'neutral';
+  return <Badge tone={tone}>{REVIEW_LABELS[status] ?? status}</Badge>;
+}
 
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
   return (
@@ -292,12 +315,17 @@ export function ContentPage() {
   const setAssessmentActive = useSetAssessmentActive();
   const setResourceActive = useSetResourceActive();
   const setPracticeActive = useSetAdminPracticeQuestionActive();
+  const generateAssessment = useGenerateAssessment();
+  const approveAssessment = useApproveAssessment();
+  const mergeSkill = useMergeSkill();
   const checkLinks = useCheckResourceLinks();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<LearningResource | null>(null);
   const [practiceDialogOpen, setPracticeDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<AdminPracticeQuestion | null>(null);
+  const [mergeSource, setMergeSource] = useState<AssessmentListItem | null>(null);
+  const [mergeTarget, setMergeTarget] = useState<SelectedSkillRef | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   function changeTab(next: string) {
@@ -360,6 +388,51 @@ export function ContentPage() {
     }
   }
 
+  async function generatePool(row: AssessmentListItem) {
+    setBusyId(row.id);
+    try {
+      await generateAssessment.mutateAsync(row.id);
+      toast('30 questions generated. Review them, then approve.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function approvePool(row: AssessmentListItem) {
+    setBusyId(row.id);
+    try {
+      await approveAssessment.mutateAsync(row.id);
+      toast('Assessment approved and activated.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function confirmMerge() {
+    if (!mergeSource || !mergeTarget) return;
+    setBusyId(mergeSource.id);
+    try {
+      const result = await mergeSkill.mutateAsync({
+        sourceSkillId: mergeSource.skillId,
+        targetSkillId: mergeTarget.id,
+      });
+      toast(
+        `Merged into ${mergeTarget.name}. Moved ${result.movedCandidateSkills} candidate skill(s), ${result.movedJobSkills} job skill(s), ${result.movedResources} resource(s).`,
+        'success',
+      );
+      setMergeSource(null);
+      setMergeTarget(null);
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const assessmentColumns: Column<AssessmentListItem>[] = [
     {
       header: 'Title',
@@ -373,7 +446,19 @@ export function ContentPage() {
       ),
     },
     { header: 'Skill', render: (row) => row.skillName ?? '—' },
-    { header: 'Questions', render: (row) => String(row.questionCount) },
+    {
+      header: 'Review',
+      render: (row) => <ReviewBadge status={row.reviewStatus} />,
+    },
+    {
+      header: 'Pool',
+      render: (row) => (
+        <span className="tabular-nums">
+          {row.questionsPerAttempt} / {row.poolSize} questions
+        </span>
+      ),
+    },
+    { header: 'Demand', render: (row) => String(row.candidateDemandCount) },
     { header: 'Duration', render: (row) => `${row.durationMinutes} min` },
     { header: 'Pass mark', render: (row) => `${row.passMark}%` },
     { header: 'Attempts', render: (row) => String(row.attemptCount) },
@@ -390,14 +475,46 @@ export function ContentPage() {
     },
     {
       header: '',
-      className: 'w-24',
+      className: 'w-[300px]',
       render: (row) => (
-        <Link
-          to={`/admin/assessments/${row.id}`}
-          className="inline-flex items-center gap-1 text-sm font-semibold text-primary-text hover:underline"
-        >
-          <Icon icon={Pencil} size={14} /> Edit
-        </Link>
+        <div className="flex flex-wrap justify-end gap-1">
+          <Link
+            to={`/admin/assessments/${row.id}`}
+            className="inline-flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold text-primary-text hover:bg-raised"
+          >
+            <Icon icon={Pencil} size={14} /> Edit
+          </Link>
+          {row.reviewStatus === 'pending_generation' && (
+            <Button
+              variant="secondary"
+              className="h-8 px-2 text-xs"
+              loading={busyId === row.id}
+              onClick={() => generatePool(row)}
+            >
+              Generate 30 questions
+            </Button>
+          )}
+          {row.reviewStatus === 'pending_review' && (
+            <Button
+              variant="secondary"
+              className="h-8 px-2 text-xs"
+              loading={busyId === row.id}
+              onClick={() => approvePool(row)}
+            >
+              Approve &amp; Activate
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            className="h-8 px-2 text-xs"
+            onClick={() => {
+              setMergeSource(row);
+              setMergeTarget(null);
+            }}
+          >
+            Merge skill
+          </Button>
+        </div>
       ),
     },
   ];
@@ -658,6 +775,44 @@ export function ContentPage() {
         question={editingQuestion}
         onClose={() => setPracticeDialogOpen(false)}
       />
+
+      <Dialog
+        open={Boolean(mergeSource)}
+        title={`Merge skill: ${mergeSource?.skillName ?? ''}`}
+        onClose={() => {
+          setMergeSource(null);
+          setMergeTarget(null);
+        }}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-secondary">
+            Candidate skills, job skills and resources move to the target skill. Conflicting rows are
+            removed, the source name becomes an alias of the target, and the duplicate draft
+            assessment/skill is deleted.
+          </p>
+          <Field label="Target skill">
+            <SkillSelect value={mergeTarget} onChange={setMergeTarget} />
+          </Field>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setMergeSource(null);
+                setMergeTarget(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              loading={mergeSkill.isPending}
+              disabled={!mergeTarget}
+              onClick={confirmMerge}
+            >
+              Merge skill
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

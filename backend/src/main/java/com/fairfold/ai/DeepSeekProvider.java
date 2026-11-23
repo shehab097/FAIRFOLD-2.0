@@ -133,6 +133,34 @@ public class DeepSeekProvider implements AiProvider {
         return result(root, feedback);
     }
 
+    @Override
+    public AiResult<List<AiResult.GeneratedQuestion>> generateAssessmentQuestions(
+            String skillName, int count) {
+        String user = "Skill: " + nullSafe(skillName) + "\nGenerate exactly " + count
+                + " multiple-choice questions.";
+        JsonNode root = chat("assessment_questions_system.txt", user);
+        List<AiResult.GeneratedQuestion> questions = new ArrayList<>();
+        for (JsonNode node : readJson(content(root)).path("questions")) {
+            String text = node.path("text").asText("").strip();
+            if (text.isEmpty()) {
+                continue;
+            }
+            List<AiResult.GeneratedOption> options = new ArrayList<>();
+            for (JsonNode option : node.path("options")) {
+                String id = option.path("id").asText("").strip();
+                String optionText = option.path("text").asText("").strip();
+                if (!id.isEmpty() && !optionText.isEmpty()) {
+                    options.add(new AiResult.GeneratedOption(id, optionText));
+                }
+            }
+            String correct = node.path("correctOptionId").asText("").strip();
+            if (options.size() >= 2 && options.stream().anyMatch(o -> o.id().equals(correct))) {
+                questions.add(new AiResult.GeneratedQuestion(text, options, correct));
+            }
+        }
+        return result(root, questions);
+    }
+
     private StarFeedback.Component component(JsonNode root, String name) {
         JsonNode node = root.path(name);
         List<StarFeedback.Point> points = new ArrayList<>();

@@ -29,6 +29,12 @@ public class Assessment extends BaseEntity {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(name = "questions_per_attempt", nullable = false)
+    private int questionsPerAttempt = 10;
+
+    @Column(name = "review_status", nullable = false, length = 20)
+    private String reviewStatus = "approved";
+
     public String getTitle() {
         return title;
     }
@@ -67,5 +73,21 @@ public class Assessment extends BaseEntity {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public int getQuestionsPerAttempt() {
+        return questionsPerAttempt;
+    }
+
+    public void setQuestionsPerAttempt(int questionsPerAttempt) {
+        this.questionsPerAttempt = questionsPerAttempt;
+    }
+
+    public String getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public void setReviewStatus(String reviewStatus) {
+        this.reviewStatus = reviewStatus;
     }
 }

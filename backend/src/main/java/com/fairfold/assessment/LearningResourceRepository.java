@@ -12,4 +12,6 @@ public interface LearningResourceRepository extends JpaRepository<LearningResour
     Page<LearningResource> findBySkillId(UUID skillId, Pageable pageable);
 
     List<LearningResource> findBySkillIdAndActiveTrueAndBrokenFalseOrderByCreatedAtDesc(UUID skillId);
+
+    List<LearningResource> findBySkillId(UUID skillId);
 }

@@ -7,6 +7,7 @@ import com.fairfold.assessment.dto.AssessmentRequest;
 import com.fairfold.assessment.dto.LinkCheckResult;
 import com.fairfold.assessment.dto.LearningResourceDto;
 import com.fairfold.assessment.dto.ResourceRequest;
+import com.fairfold.assessment.dto.SkillMergeRequest;
 import com.fairfold.common.paging.PageResponse;
 import com.fairfold.common.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,13 +40,16 @@ public class AdminContentController {
     private final AssessmentService assessmentService;
     private final LearningResourceService resourceService;
     private final ResourceLinkChecker linkChecker;
+    private final SkillMergeService mergeService;
 
     public AdminContentController(AssessmentService assessmentService,
                                   LearningResourceService resourceService,
-                                  ResourceLinkChecker linkChecker) {
+                                  ResourceLinkChecker linkChecker,
+                                  SkillMergeService mergeService) {
         this.assessmentService = assessmentService;
         this.resourceService = resourceService;
         this.linkChecker = linkChecker;
+        this.mergeService = mergeService;
     }
 
     // --- assessments -------------------------------------------------------
@@ -86,6 +90,26 @@ public class AdminContentController {
                                                 @PathVariable UUID id,
                                                 @Valid @RequestBody ActiveRequest request) {
         return assessmentService.setActive(user.id(), id, request);
+    }
+
+    @PostMapping("/assessments/{id}/generate")
+    @Operation(summary = "Generate a 30-question pool and move to pending review")
+    public AssessmentDetail generate(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
+        return assessmentService.generate(user.id(), id);
+    }
+
+    @PostMapping("/assessments/{id}/approve")
+    @Operation(summary = "Approve an assessment and activate it")
+    public AssessmentDetail approve(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
+        return assessmentService.approve(user.id(), id);
+    }
+
+    @PostMapping("/skills/{sourceSkillId}/merge")
+    @Operation(summary = "Merge a duplicate skill into a canonical skill")
+    public SkillMergeService.MergeResult mergeSkill(@AuthenticationPrincipal CurrentUser user,
+                                                    @PathVariable UUID sourceSkillId,
+                                                    @Valid @RequestBody SkillMergeRequest request) {
+        return mergeService.merge(sourceSkillId, request.targetSkillId(), user.id());
     }
 
     // --- resources ---------------------------------------------------------

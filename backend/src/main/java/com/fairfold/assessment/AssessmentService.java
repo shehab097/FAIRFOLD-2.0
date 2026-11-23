@@ -7,9 +7,13 @@ import com.fairfold.assessment.dto.AssessmentRequest;
 import com.fairfold.assessment.dto.EmployerAssessmentOption;
 import com.fairfold.assessment.dto.QuestionOption;
 import com.fairfold.assessment.dto.QuestionRequest;
+import com.fairfold.ai.AiGateway;
+import com.fairfold.ai.AiResult;
+import com.fairfold.candidate.CandidateSkillRepository;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
+import com.fairfold.job.JobSkillRepository;
 import com.fairfold.skill.Skill;
 import com.fairfold.skill.SkillRepository;
 import org.springframework.data.domain.Page;
@@ -33,17 +37,26 @@ public class AssessmentService {
     private final AssessmentQuestionRepository questionRepository;
     private final AssessmentAttemptRepository attemptRepository;
     private final SkillRepository skillRepository;
+    private final CandidateSkillRepository candidateSkillRepository;
+    private final JobSkillRepository jobSkillRepository;
+    private final AiGateway aiGateway;
     private final AuditService auditService;
 
     public AssessmentService(AssessmentRepository assessmentRepository,
                              AssessmentQuestionRepository questionRepository,
                              AssessmentAttemptRepository attemptRepository,
                              SkillRepository skillRepository,
+                             CandidateSkillRepository candidateSkillRepository,
+                             JobSkillRepository jobSkillRepository,
+                             AiGateway aiGateway,
                              AuditService auditService) {
         this.assessmentRepository = assessmentRepository;
         this.questionRepository = questionRepository;
         this.attemptRepository = attemptRepository;
         this.skillRepository = skillRepository;
+        this.candidateSkillRepository = candidateSkillRepository;
+        this.jobSkillRepository = jobSkillRepository;
+        this.aiGateway = aiGateway;
         this.auditService = auditService;
     }
 
@@ -54,13 +67,18 @@ public class AssessmentService {
         List<AssessmentListItem> items = page.getContent().stream()
                 .map(a -> new AssessmentListItem(
                         a.getId(),
+                        a.getSkillId(),
                         a.getTitle(),
                         skillName(skills, a.getSkillId()),
                         (int) questionRepository.countByAssessmentId(a.getId()),
                         a.getDurationMinutes(),
                         a.getPassMark(),
                         a.isActive(),
-                        attemptRepository.countByAssessmentId(a.getId())))
+                        attemptRepository.countByAssessmentId(a.getId()),
+                        a.getReviewStatus(),
+                        (int) questionRepository.countByAssessmentId(a.getId()),
+                        a.getQuestionsPerAttempt(),
+                        demandCount(a.getSkillId())))
                 .toList();
         return PageResponse.of(items, page.getNumber(), page.getSize(), page.getTotalElements());
     }
@@ -95,6 +113,9 @@ public class AssessmentService {
         assessment.setDurationMinutes(request.durationMinutes());
         assessment.setPassMark(request.passMark());
         assessment.setActive(request.active() == null || request.active());
+        assessment.setQuestionsPerAttempt(request.questionsPerAttempt() == null
+                ? 10 : request.questionsPerAttempt());
+        assessment.setReviewStatus("approved");
         assessmentRepository.save(assessment);
 
         saveQuestions(assessment.getId(), questions);
@@ -120,6 +141,8 @@ public class AssessmentService {
         assessment.setDurationMinutes(request.durationMinutes());
         assessment.setPassMark(request.passMark());
         assessment.setActive(request.active() == null ? assessment.isActive() : request.active());
+        assessment.setQuestionsPerAttempt(request.questionsPerAttempt() == null
+                ? assessment.getQuestionsPerAttempt() : request.questionsPerAttempt());
         assessment.setSkillId(skill.getId());
         assessmentRepository.save(assessment);
 
@@ -144,6 +167,55 @@ public class AssessmentService {
         return toDetail(assessment, skills);
     }
 
+    @Transactional
+    public AssessmentDetail generate(UUID actorId, UUID id) {
+        Assessment assessment = require(id);
+        if (attemptRepository.countByAssessmentId(id) > 0) {
+            throw ApiException.conflict("ASSESSMENT_HAS_ATTEMPTS",
+                    "Questions can no longer be regenerated because candidates have attempted this assessment.");
+        }
+        Skill skill = requireSkill(assessment.getSkillId());
+        AiResult<List<AiResult.GeneratedQuestion>> result = aiGateway.generateAssessmentQuestions(
+                actorId, skill.getName(), 30);
+        if (result.value() == null || result.value().isEmpty()) {
+            throw ApiException.conflict("AI_UNAVAILABLE",
+                    "The question generator returned no questions. Try again.");
+        }
+        List<QuestionRequest> questions = result.value().stream()
+                .map(generated -> new QuestionRequest(
+                        generated.text(),
+                        generated.options().stream()
+                                .map(option -> new QuestionOption(option.id(), option.text()))
+                                .toList(),
+                        generated.correctOptionId()))
+                .toList();
+        validateQuestions(questions);
+        questionRepository.deleteByAssessmentId(id);
+        questionRepository.flush();
+        saveQuestions(id, questions);
+        assessment.setReviewStatus("pending_review");
+        assessment.setActive(false);
+        assessmentRepository.save(assessment);
+        auditService.record(actorId, "assessment_generated", "assessment", id.toString(),
+                "{\"poolSize\":" + questions.size() + "}");
+        return toDetail(assessment, Map.of(skill.getId(), skill));
+    }
+
+    @Transactional
+    public AssessmentDetail approve(UUID actorId, UUID id) {
+        Assessment assessment = require(id);
+        if (questionRepository.countByAssessmentId(id) == 0) {
+            throw ApiException.conflict("ASSESSMENT_EMPTY",
+                    "Generate questions before approving this assessment.");
+        }
+        assessment.setReviewStatus("approved");
+        assessment.setActive(true);
+        assessmentRepository.save(assessment);
+        auditService.record(actorId, "assessment_approved", "assessment", id.toString(), "{}");
+        Map<UUID, Skill> skills = skillsFor(List.of(assessment.getSkillId()));
+        return toDetail(assessment, skills);
+    }
+
     // --- helpers -----------------------------------------------------------
 
     private Assessment require(UUID id) {
@@ -157,10 +229,14 @@ public class AssessmentService {
     }
 
     private List<QuestionRequest> validate(AssessmentRequest request) {
-        if (request.questions() == null || request.questions().isEmpty()) {
+        return validateQuestions(request.questions());
+    }
+
+    private List<QuestionRequest> validateQuestions(List<QuestionRequest> requested) {
+        if (requested == null || requested.isEmpty()) {
             throw ApiException.badRequest("INVALID_ASSESSMENT", "An assessment needs at least one question.");
         }
-        for (QuestionRequest question : request.questions()) {
+        for (QuestionRequest question : requested) {
             if (question == null || question.text() == null || question.text().isBlank()) {
                 throw ApiException.badRequest("INVALID_QUESTION", "Every question needs text.");
             }
@@ -185,7 +261,7 @@ public class AssessmentService {
                         "Exactly one correct option must be chosen.");
             }
         }
-        return request.questions();
+        return requested;
     }
 
     private boolean contentChanged(Assessment assessment, UUID skillId, List<QuestionRequest> questions) {
@@ -264,6 +340,15 @@ public class AssessmentService {
                 assessment.getPassMark(),
                 assessment.isActive(),
                 attemptRepository.countByAssessmentId(assessment.getId()),
+                assessment.getReviewStatus(),
+                questions.size(),
+                assessment.getQuestionsPerAttempt(),
+                demandCount(assessment.getSkillId()),
                 questions);
+    }
+
+    private long demandCount(UUID skillId) {
+        return candidateSkillRepository.countBySkillId(skillId)
+                + jobSkillRepository.countBySkillId(skillId);
     }
 }

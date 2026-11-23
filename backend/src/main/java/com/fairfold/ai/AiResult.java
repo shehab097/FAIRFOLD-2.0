@@ -25,4 +25,10 @@ public record AiResult<T>(T value, String model, int promptTokens, int completio
 
     /** Structured interview pack generated from a job. */
     public record InterviewPack(List<String> questions, List<RubricItem> rubric) {}
+
+    /** One generated multiple-choice question for an assessment pool. */
+    public record GeneratedQuestion(String text, List<GeneratedOption> options,
+                                    String correctOptionId) {}
+
+    public record GeneratedOption(String id, String text) {}
 }

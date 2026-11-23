@@ -1,5 +1,6 @@
 export interface CandidateAssessment {
   id: string;
+  skillId: string;
   title: string;
   skillName: string | null;
   questionCount: number;

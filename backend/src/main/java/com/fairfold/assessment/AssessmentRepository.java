@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface AssessmentRepository extends JpaRepository<Assessment, UUID> {
 
     List<Assessment> findByActiveTrueOrderByCreatedAtDesc();
+
+    List<Assessment> findBySkillIdOrderByCreatedAtAsc(UUID skillId);
 }
