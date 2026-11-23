@@ -64,10 +64,10 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },
   ],
   ADMIN: [
-    { label: 'Dashboard', to: '/admin', enabled: false, icon: LayoutDashboard, end: true },
+    { label: 'Dashboard', to: '/admin', enabled: true, icon: LayoutDashboard, end: true },
     { label: 'Content', to: '/admin/content', enabled: true, icon: FileText },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
-    { label: 'Users', to: '/admin/users', enabled: false, icon: Users },
-    { label: 'Audit log', to: '/admin/audit', enabled: false, icon: Shield },
+    { label: 'Users', to: '/admin/users', enabled: true, icon: Users },
+    { label: 'Audit log', to: '/admin/audit', enabled: true, icon: Shield },
   ],
 };

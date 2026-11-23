@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { PublicShell } from './components/layout/PublicShell';
 import { AuthShell } from './components/layout/AuthShell';
 import { PortalShell } from './components/layout/PortalShell';
@@ -29,6 +29,9 @@ import { NotificationsPage } from './features/notifications/pages/NotificationsP
 import { AccountPage } from './features/account/pages/AccountPage';
 import { ChangePasswordPage } from './features/account/pages/ChangePasswordPage';
 import { ContentPage } from './features/admin/pages/ContentPage';
+import { AdminDashboardPage } from './features/admin/pages/AdminDashboardPage';
+import { AdminUsersPage } from './features/admin/pages/AdminUsersPage';
+import { AdminAuditPage } from './features/admin/pages/AdminAuditPage';
 import { AssessmentEditorPage } from './features/admin/pages/AssessmentEditorPage';
 import { AssessmentsPage } from './features/assessments/pages/AssessmentsPage';
 import { AttemptPage } from './features/assessments/pages/AttemptPage';
@@ -230,7 +233,23 @@ export default function App() {
           path="/admin"
           element={
             <RequireRole roles={['ADMIN']}>
-              <Navigate to="/admin/content" replace />
+              <AdminDashboardPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <AdminUsersPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/audit"
+          element={
+            <RequireRole roles={['ADMIN']}>
+              <AdminAuditPage />
             </RequireRole>
           }
         />

@@ -5,6 +5,7 @@ import { useTheme } from '../../../app/theme/ThemeContext';
 import { useProfile, useResume, useSkills } from '../../candidate/queries';
 import { useCompany } from '../../employer/queries';
 import { ProfilePhotoCard } from '../components/ProfilePhotoCard';
+import { AccountDataCard } from '../components/AccountDataCard';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -269,6 +270,8 @@ export function AccountPage() {
           </div>
         </div>
       </div>
+
+      <AccountDataCard />
 
       {user?.role === 'CANDIDATE' && <CandidateSnapshot />}
       {user?.role === 'EMPLOYER_HR' && <EmployerCompanySnapshot />}

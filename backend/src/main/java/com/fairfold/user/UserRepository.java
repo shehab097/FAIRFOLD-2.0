@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByIdAndCompanyIdAndDisabledAtIsNull(UUID id, UUID companyId);
 
     long countByCompanyIdAndRoleAndDisabledAtIsNull(UUID companyId, Role role);
+
+    long countByRole(Role role);
 }

@@ -291,6 +291,23 @@ public class AuthService {
         auditService.record(user.getId(), "password_changed", "user", user.getId().toString(), "{}");
     }
 
+    @Transactional
+    public void adminSendPasswordReset(java.util.UUID actorId, java.util.UUID targetId) {
+        User user = userRepository.findById(targetId)
+                .orElseThrow(() -> ApiException.notFound("USER_NOT_FOUND", "User not found."));
+        String raw = generateToken();
+        PasswordResetToken token = new PasswordResetToken();
+        token.setUserId(user.getId());
+        token.setTokenHash(hash(raw));
+        token.setExpiresAt(clock.instant().plus(RESET_TOKEN_TTL));
+        passwordResetTokenRepository.save(token);
+
+        String link = properties.baseUrl() + "/reset-password?token=" + raw;
+        mailService.send(user.getEmail(), "Reset your FairFold password",
+                "Use this link to reset your password (valid for 1 hour): " + link);
+        auditService.record(actorId, "admin_password_reset", "user", targetId.toString(), "{}");
+    }
+
     // --- helpers ----------------------------------------------------------
 
     private Role resolveRole(String role) {
