@@ -7,6 +7,7 @@ interface AuthContextValue {
   initializing: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   register: (input: authApi.RegisterInput) => Promise<void>;
+  acceptInvite: (input: authApi.AcceptInviteInput) => Promise<void>;
   signOut: () => Promise<void>;
   updateUser: (user: UserDto) => void;
 }
@@ -46,6 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(session.user);
   }, []);
 
+  const acceptInvite = useCallback(async (input: authApi.AcceptInviteInput) => {
+    const session = await authApi.acceptInvite(input);
+    setUser(session.user);
+  }, []);
+
   const signOut = useCallback(async () => {
     await authApi.logout();
     setUser(null);
@@ -56,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, initializing, signIn, register, signOut, updateUser }}>
+    <AuthContext.Provider value={{ user, initializing, signIn, register, acceptInvite, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

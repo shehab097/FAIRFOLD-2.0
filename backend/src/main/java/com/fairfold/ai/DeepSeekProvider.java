@@ -89,6 +89,35 @@ public class DeepSeekProvider implements AiProvider {
         return result(root, questions);
     }
 
+    @Override
+    public AiResult<AiResult.InterviewPack> generateInterviewPack(
+            AiResult.JobText job, List<String> screeningQuestions) {
+        String user = "Job title: " + nullSafe(job.title())
+                + "\nDescription: " + nullSafe(job.description())
+                + "\nRequirements: " + nullSafe(job.requirements())
+                + "\nSkills: " + String.join(", ", job.skills())
+                + "\nExisting screening questions:\n- "
+                + String.join("\n- ", screeningQuestions == null ? List.of() : screeningQuestions);
+        JsonNode root = chat("interview_pack_system.txt", user);
+        JsonNode json = readJson(content(root));
+        List<String> questions = new ArrayList<>();
+        for (JsonNode node : json.path("questions")) {
+            if (node.isTextual() && !node.asText().isBlank()) {
+                questions.add(node.asText().strip());
+            }
+        }
+        List<AiResult.RubricItem> rubric = new ArrayList<>();
+        for (JsonNode node : json.path("rubric")) {
+            String criterion = node.path("criterion").asText("").strip();
+            if (criterion.isEmpty()) {
+                continue;
+            }
+            rubric.add(new AiResult.RubricItem(criterion,
+                    node.path("description").asText("").strip()));
+        }
+        return result(root, new AiResult.InterviewPack(questions, rubric));
+    }
+
     private String nullSafe(String value) {
         return value == null ? "" : value;
     }

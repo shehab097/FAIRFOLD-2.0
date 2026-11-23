@@ -30,6 +30,7 @@ import { formatDate } from '../../../lib/format';
 import { formatSalary } from '../../../lib/salary';
 import { useQueryClient } from '@tanstack/react-query';
 import { TriangleAlert } from 'lucide-react';
+import { InterviewPackTab } from '../../interviews/components/InterviewPackTab';
 import type {
   ApplicantFilters,
   EmployerApplicantListItem,
@@ -550,6 +551,7 @@ export function JobWorkspacePage() {
         tabs={[
           { key: 'overview', label: 'Overview' },
           { key: 'applicants', label: 'Applicants' },
+          { key: 'pack', label: 'Interview pack' },
         ]}
         active={tab}
         onChange={setTab}
@@ -558,8 +560,10 @@ export function JobWorkspacePage() {
       <div className="mt-6">
         {tab === 'overview' ? (
           <Overview job={job} applicantCount={applicantPage?.totalItems ?? 0} />
-        ) : (
+        ) : tab === 'applicants' ? (
           <ApplicantsTab job={job} isHr={isHr} />
+        ) : (
+          <InterviewPackTab jobId={job.id} screeningQuestions={job.screeningQuestions} />
         )}
       </div>
     </div>

@@ -257,4 +257,44 @@ public class RuleBasedFallbackProvider implements AiProvider {
         }
         return AiResult.ruleBased(questions);
     }
+
+    @Override
+    public AiResult<AiResult.InterviewPack> generateInterviewPack(
+            AiResult.JobText job, List<String> screeningQuestions) {
+        List<String> questions = new ArrayList<>();
+        for (String skill : job.skills()) {
+            if (questions.size() >= 8) {
+                break;
+            }
+            if (skill != null && !skill.isBlank()) {
+                questions.add("Tell us about your experience with " + skill.strip()
+                        + " and a problem you solved with it.");
+            }
+        }
+        List<String> generic = List.of(
+                "Describe a challenging project you finished.",
+                "How do you handle disagreement in a team?",
+                "Why are you interested in this role?",
+                "Walk us through a recent technical decision you made.",
+                "How do you keep your skills current?");
+        for (String question : generic) {
+            if (questions.size() >= 6) {
+                break;
+            }
+            questions.add(question);
+        }
+        while (questions.size() < 6) {
+            questions.add("Tell us about a result you are proud of in this kind of role.");
+        }
+        List<AiResult.RubricItem> rubric = List.of(
+                new AiResult.RubricItem("Technical skills",
+                        "Depth and accuracy of job-relevant technical knowledge."),
+                new AiResult.RubricItem("Problem solving",
+                        "How the candidate breaks down problems and weighs trade-offs."),
+                new AiResult.RubricItem("Communication",
+                        "Clear, structured answers and attentive listening."),
+                new AiResult.RubricItem("Role fit",
+                        "Motivation and evidence of working at this level and scope."));
+        return AiResult.ruleBased(new AiResult.InterviewPack(questions, rubric));
+    }
 }

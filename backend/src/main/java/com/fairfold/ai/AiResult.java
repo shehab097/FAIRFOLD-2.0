@@ -19,4 +19,10 @@ public record AiResult<T>(T value, String model, int promptTokens, int completio
 
     /** Job text used to suggest screening questions. */
     public record JobText(String title, String description, String requirements, List<String> skills) {}
+
+    /** One rubric row generated for an interview pack. */
+    public record RubricItem(String criterion, String description) {}
+
+    /** Structured interview pack generated from a job. */
+    public record InterviewPack(List<String> questions, List<RubricItem> rubric) {}
 }

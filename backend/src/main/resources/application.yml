@@ -56,6 +56,8 @@ app:
     link-check-cron: "${RESOURCE_LINK_CHECK_CRON:0 0 3 * * SUN}"
   assessment:
     cooldown-hours: ${ASSESSMENT_COOLDOWN_HOURS:48}
+  invite:
+    valid-days: ${INVITE_VALID_DAYS:7}
 
 springdoc:
   swagger-ui:

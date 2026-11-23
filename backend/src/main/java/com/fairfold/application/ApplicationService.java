@@ -16,6 +16,7 @@ import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
 import com.fairfold.company.Company;
 import com.fairfold.company.CompanyRepository;
+import com.fairfold.interview.InterviewRepository;
 import com.fairfold.job.Job;
 import com.fairfold.job.JobRepository;
 import com.fairfold.job.JobStatus;
@@ -53,6 +54,7 @@ public class ApplicationService {
     private final AssessmentRepository assessmentRepository;
     private final AssessmentAttemptRepository attemptRepository;
     private final GateService gateService;
+    private final InterviewRepository interviewRepository;
 
     public ApplicationService(ApplicationRepository applicationRepository,
                               ApplicationStatusHistoryRepository historyRepository,
@@ -66,7 +68,8 @@ public class ApplicationService {
                               JobRequiredAssessmentRepository requiredAssessmentRepository,
                               AssessmentRepository assessmentRepository,
                               AssessmentAttemptRepository attemptRepository,
-                              GateService gateService) {
+                              GateService gateService,
+                              InterviewRepository interviewRepository) {
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
         this.jobRepository = jobRepository;
@@ -80,6 +83,7 @@ public class ApplicationService {
         this.assessmentRepository = assessmentRepository;
         this.attemptRepository = attemptRepository;
         this.gateService = gateService;
+        this.interviewRepository = interviewRepository;
     }
 
     @Transactional
@@ -187,7 +191,12 @@ public class ApplicationService {
                 application.getScoringMode() == null ? null : application.getScoringMode().name(),
                 claims, application.getMissingSkills(), application.getNotMatchedRule(),
                 application.getGateStatus().name(),
-                requiredAssessments(application,job));
+                requiredAssessments(application,job),
+                interviewRepository.findByApplicationIdOrderByScheduledAtAsc(application.getId())
+                        .stream()
+                        .map(i -> new CandidateApplicationDetail.InterviewRef(
+                                i.getScheduledAt(), i.getDurationMinutes(), i.getMeetingLink()))
+                        .toList());
     }
 
     private List<CandidateApplicationDetail.RequiredAssessment> requiredAssessments(

@@ -6,11 +6,11 @@ import { FocusShell } from './components/layout/FocusShell';
 import { GuestOnly, RequireAuth, RequireRole } from './app/guards';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './features/auth/pages/LoginPage';
 import { RegisterPage } from './features/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from './features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './features/auth/pages/ResetPasswordPage';
+import { AcceptInvitePage } from './features/auth/pages/AcceptInvitePage';
 import { JobBoardPage } from './features/jobs/pages/JobBoardPage';
 import { JobDetailPage } from './features/jobs/pages/JobDetailPage';
 import { CompanyProfilePage } from './features/companies/pages/CompanyProfilePage';
@@ -32,6 +32,9 @@ import { ContentPage } from './features/admin/pages/ContentPage';
 import { AssessmentEditorPage } from './features/admin/pages/AssessmentEditorPage';
 import { AssessmentsPage } from './features/assessments/pages/AssessmentsPage';
 import { AttemptPage } from './features/assessments/pages/AttemptPage';
+import { TeamPage } from './features/team/pages/TeamPage';
+import { InterviewsPage } from './features/interviews/pages/InterviewsPage';
+import { InterviewDetailPage } from './features/interviews/pages/InterviewDetailPage';
 
 export default function App() {
   return (
@@ -55,6 +58,7 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
       </Route>
 
       <Route
@@ -175,7 +179,23 @@ export default function App() {
           path="/employer/interviews"
           element={
             <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER', 'INTERVIEWER']}>
-              <WelcomePage />
+              <InterviewsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employer/interviews/:interviewId"
+          element={
+            <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER', 'INTERVIEWER']}>
+              <InterviewDetailPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employer/team"
+          element={
+            <RequireRole roles={['EMPLOYER_HR']}>
+              <TeamPage />
             </RequireRole>
           }
         />

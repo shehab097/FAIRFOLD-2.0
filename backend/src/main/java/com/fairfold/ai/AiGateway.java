@@ -120,6 +120,29 @@ public class AiGateway {
         }
     }
 
+    public AiResult<AiResult.InterviewPack> generateInterviewPack(
+            UUID userId, AiResult.JobText job, List<String> screeningQuestions) {
+        AiProvider primary = primaryProvider();
+        try {
+            AiResult<AiResult.InterviewPack> result =
+                    primary.generateInterviewPack(job, screeningQuestions);
+            record(userId, null, "interview_pack", result.model(),
+                    result.promptTokens(), result.completionTokens(), "ok");
+            return result;
+        } catch (RuntimeException e) {
+            log.warn("AI interview pack failed via {}: {}", primary.name(), e.getMessage());
+            record(userId, null, "interview_pack", primary.name(), 0, 0, "error");
+            if ("rule_based".equals(primary.name())) {
+                throw e;
+            }
+            AiResult<AiResult.InterviewPack> fallback =
+                    ruleBasedProvider().generateInterviewPack(job, screeningQuestions);
+            record(userId, null, "interview_pack", fallback.model(),
+                    fallback.promptTokens(), fallback.completionTokens(), "ok");
+            return fallback;
+        }
+    }
+
     public String activeProviderName() {
         return primaryProvider().name();
     }

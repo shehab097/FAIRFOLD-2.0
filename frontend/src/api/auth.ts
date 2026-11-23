@@ -10,6 +10,20 @@ export interface RegisterInput {
   consent: boolean;
 }
 
+export interface AcceptInviteInput {
+  token: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  consent: boolean;
+}
+
+export interface InviteInfo {
+  companyName: string | null;
+  role: string;
+  email: string;
+}
+
 export interface ForgotPasswordInput {
   email: string;
 }
@@ -26,6 +40,17 @@ export async function login(email: string, password: string): Promise<AuthRespon
 
 export async function register(input: RegisterInput): Promise<AuthResponse> {
   const { data } = await api.post<AuthResponse>('/api/auth/register', input);
+  setAccessToken(data.accessToken);
+  return data;
+}
+
+export async function getInviteInfo(token: string): Promise<InviteInfo> {
+  const { data } = await api.get<InviteInfo>(`/api/auth/invites/${token}`);
+  return data;
+}
+
+export async function acceptInvite(input: AcceptInviteInput): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>('/api/auth/accept-invite', input);
   setAccessToken(data.accessToken);
   return data;
 }

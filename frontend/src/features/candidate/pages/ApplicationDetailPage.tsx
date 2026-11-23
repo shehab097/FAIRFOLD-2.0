@@ -135,6 +135,33 @@ export function ApplicationDetailPage() {
         </Card>
       )}
 
+      {application.interviews.length > 0 && (
+        <Card>
+          <h2 className="text-xl font-semibold">Interview</h2>
+          <p className="mt-1 text-sm text-text-secondary">
+            Your interview details for this application.
+          </p>
+          <ul className="mt-4 divide-y divide-border">
+            {application.interviews.map((interview, index) => (
+              <li key={index} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div>
+                  <div className="font-medium text-text">{formatDate(interview.scheduledAt)}</div>
+                  <div className="text-sm text-text-secondary">
+                    {interview.durationMinutes} minutes
+                  </div>
+                </div>
+                <a href={interview.meetingLink} target="_blank" rel="noreferrer">
+                  <Button variant="secondary" className="h-8 px-3 text-xs">
+                    <Icon icon={ExternalLink} size={14} />
+                    Open meeting link
+                  </Button>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
       <Card>
         <h2 className="mb-4 text-xl font-semibold">Status timeline</h2>
         <ol className="space-y-0">

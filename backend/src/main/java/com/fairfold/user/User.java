@@ -51,6 +51,9 @@ public class User extends BaseEntity {
     @Column(name = "consent_at", nullable = false)
     private Instant consentAt;
 
+    @Column(name = "disabled_at")
+    private Instant disabledAt;
+
     public String getEmail() {
         return email;
     }
@@ -137,5 +140,13 @@ public class User extends BaseEntity {
 
     public void setConsentAt(Instant consentAt) {
         this.consentAt = consentAt;
+    }
+
+    public Instant getDisabledAt() {
+        return disabledAt;
+    }
+
+    public void setDisabledAt(Instant disabledAt) {
+        this.disabledAt = disabledAt;
     }
 }

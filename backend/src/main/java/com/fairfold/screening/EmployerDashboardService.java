@@ -3,6 +3,7 @@ package com.fairfold.screening;
 import com.fairfold.application.Application;
 import com.fairfold.application.ApplicationRepository;
 import com.fairfold.application.ApplicationStatus;
+import com.fairfold.interview.InterviewRepository;
 import com.fairfold.job.Job;
 import com.fairfold.job.JobRepository;
 import com.fairfold.job.JobStatus;
@@ -27,15 +28,18 @@ public class EmployerDashboardService {
     private final JobRepository jobRepository;
     private final ApplicationRepository applicationRepository;
     private final AliasService aliasService;
+    private final InterviewRepository interviewRepository;
     private final Clock clock;
 
     public EmployerDashboardService(JobRepository jobRepository,
                                     ApplicationRepository applicationRepository,
                                     AliasService aliasService,
+                                    InterviewRepository interviewRepository,
                                     Clock clock) {
         this.jobRepository = jobRepository;
         this.applicationRepository = applicationRepository;
         this.aliasService = aliasService;
+        this.interviewRepository = interviewRepository;
         this.clock = clock;
     }
 
@@ -48,6 +52,8 @@ public class EmployerDashboardService {
                 companyId, ApplicationStatus.applied);
         long biasFlags = applicationRepository.countByCompanyStatusAndBias(
                 companyId, ApplicationStatus.screened, BiasStatus.flagged);
+        long interviewsThisWeek = interviewRepository.countForCompanyBetween(
+                companyId, clock.instant(), clock.instant().plus(7, ChronoUnit.DAYS));
 
         Map<ApplicationStatus, Long> counts = new EnumMap<>(ApplicationStatus.class);
         for (Object[] row : applicationRepository.countByStatusForCompany(companyId)) {
@@ -94,7 +100,7 @@ public class EmployerDashboardService {
                 .toList();
 
         return new EmployerDashboardResponse(
-                openJobs, newApplications, awaiting, biasFlags, null, null,
+                openJobs, newApplications, awaiting, biasFlags, Math.toIntExact(interviewsThisWeek), null,
                 pipeline, recentApplications, jobs);
     }
 

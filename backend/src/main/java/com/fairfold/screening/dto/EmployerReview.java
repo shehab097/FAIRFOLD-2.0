@@ -23,7 +23,8 @@ public record EmployerReview(
         List<HistoryEntry> history,
         Identity identity,
         List<AssessmentSummary> assessments,
-        List<String> verifiedSkills
+        List<String> verifiedSkills,
+        List<InterviewSummary> interviews
 ) {
     public record Claim(String requirement, String kind, String verdict, String quote, String source) {}
 
@@ -42,4 +43,15 @@ public record EmployerReview(
 
     /** Neutral proctoring summary. Never affects the score or the gate. */
     public record Focus(boolean recorded, int leftCount, int totalSeconds, String explanation) {}
+
+    public record InterviewSummary(
+            UUID id,
+            Instant scheduledAt,
+            int durationMinutes,
+            String meetingLink,
+            List<Interviewer> interviewers,
+            long feedbackCount
+    ) {}
+
+    public record Interviewer(UUID id, String name) {}
 }

@@ -14,4 +14,7 @@ public interface AiProvider {
     AiResult<List<AiResult.Verdict>> screen(AiResult.ScreeningRequest request);
 
     AiResult<List<String>> suggestQuestions(AiResult.JobText job);
+
+    AiResult<AiResult.InterviewPack> generateInterviewPack(AiResult.JobText job,
+                                                           List<String> screeningQuestions);
 }

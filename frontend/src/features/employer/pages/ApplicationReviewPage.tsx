@@ -7,12 +7,17 @@ import {
   useRejectApplication,
   useShortlistApplication,
 } from '../queries';
+import { useHireApplication, useScheduleInterview } from '../../interviews/queries';
+import { useInterviewers } from '../../team/queries';
+import { teamRoleLabel } from '../../team/types';
 import { StrippedResume } from '../components/StrippedResume';
 import type { EmployerIdentity } from '../../jobs/types';
 import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { Checkbox } from '../../../components/ui/Checkbox';
 import { Dialog } from '../../../components/ui/Dialog';
+import { Input } from '../../../components/ui/Input';
 import { ScoreMeter } from '../../../components/ui/ScoreMeter';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { useToast } from '../../../components/ui/Toast';
@@ -44,12 +49,22 @@ export function ApplicationReviewPage() {
   const shortlist = useShortlistApplication();
   const reject = useRejectApplication();
   const pullBack = usePullBackApplication();
+  const schedule = useScheduleInterview();
+  const hire = useHireApplication();
+  const { data: interviewers } = useInterviewers();
   const { toast } = useToast();
   const [activeClaim, setActiveClaim] = useState<number | null>(null);
   const [shortlistOpen, setShortlistOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [hireOpen, setHireOpen] = useState(false);
   const [reason, setReason] = useState('');
   const [identity, setIdentity] = useState<EmployerIdentity | null>(null);
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [duration, setDuration] = useState('45');
+  const [meetingLink, setMeetingLink] = useState('');
+  const [selectedInterviewers, setSelectedInterviewers] = useState<string[]>([]);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
 
   useEffect(() => {
     if (review?.identity) setIdentity(review.identity);
@@ -64,8 +79,16 @@ export function ApplicationReviewPage() {
     review.score !== null && review.cutoffScore !== null && review.score >= review.cutoffScore;
   const gateBlocked = review.gateStatus === 'pending' || review.gateStatus === 'failed';
   const canShortlist = review.status === 'screened' && !gateBlocked;
-  const canReject = review.status === 'screened' || review.status === 'not_matched';
+  const canReject =
+    review.status === 'screened' ||
+    review.status === 'not_matched' ||
+    review.status === 'shortlisted' ||
+    review.status === 'interview';
   const canPullBack = review.status === 'not_matched';
+  const canSchedule = review.status === 'shortlisted' || review.status === 'interview';
+  const canHire = review.status === 'interview';
+  const cutoffReasonRules =
+    review.status === 'screened' || review.status === 'not_matched';
   const reviewId = review.id;
 
   function revealClaim(index: number) {
@@ -98,8 +121,12 @@ export function ApplicationReviewPage() {
   }
 
   async function confirmReject() {
-    if ((aboveCutoff || reason.trim().length > 0) && reason.trim().length < 10) {
+    if (cutoffReasonRules && (aboveCutoff || reason.trim().length > 0) && reason.trim().length < 10) {
       toast('Write a reason of at least 10 characters.', 'error');
+      return;
+    }
+    if (!cutoffReasonRules && reason.trim().length > 0 && reason.trim().length < 10) {
+      toast('Write a reason of at least 10 characters, or leave it empty.', 'error');
       return;
     }
     try {
@@ -107,6 +134,50 @@ export function ApplicationReviewPage() {
       setRejectOpen(false);
       setReason('');
       toast('Application rejected.', 'success');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    }
+  }
+
+  async function confirmSchedule() {
+    setScheduleError(null);
+    if (selectedInterviewers.length === 0) {
+      setScheduleError('Choose at least one interviewer.');
+      return;
+    }
+    if (!scheduledAt) {
+      setScheduleError('Choose a date and time.');
+      return;
+    }
+    if (!meetingLink.trim().startsWith('https://')) {
+      setScheduleError('The meeting link must start with https://.');
+      return;
+    }
+    try {
+      await schedule.mutateAsync({
+        applicationId: reviewId,
+        input: {
+          scheduledAt: new Date(scheduledAt).toISOString(),
+          durationMinutes: Number(duration),
+          meetingLink: meetingLink.trim(),
+          interviewerIds: selectedInterviewers,
+        },
+      });
+      setScheduleOpen(false);
+      setScheduledAt('');
+      setMeetingLink('');
+      setSelectedInterviewers([]);
+      toast('Interview scheduled. The candidate and interviewers were notified.', 'success');
+    } catch (err) {
+      setScheduleError(getApiErrorMessage(err));
+    }
+  }
+
+  async function confirmHire() {
+    try {
+      await hire.mutateAsync(reviewId);
+      setHireOpen(false);
+      toast('Candidate marked as hired.', 'success');
     } catch (err) {
       toast(getApiErrorMessage(err), 'error');
     }
@@ -212,6 +283,12 @@ export function ApplicationReviewPage() {
                   Shortlist
                 </Button>
               )}
+              {canSchedule && (
+                <Button variant="secondary" onClick={() => setScheduleOpen(true)}>
+                  Schedule interview
+                </Button>
+              )}
+              {canHire && <Button onClick={() => setHireOpen(true)}>Mark hired</Button>}
               {canReject && (
                 <Button variant="danger" onClick={() => { setReason(''); setRejectOpen(true); }}>
                   Reject
@@ -344,6 +421,43 @@ export function ApplicationReviewPage() {
             </div>
           )}
 
+          {canSchedule && (
+            <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+              <h2 className="mb-3 text-base font-semibold">Interviews</h2>
+              {review.interviews.length === 0 ? (
+                <p className="text-sm text-text-subtle">No interview scheduled yet.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {review.interviews.map((interview) => (
+                    <li key={interview.id} className="rounded-lg border border-border bg-bg p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <div className="text-sm font-semibold text-text">
+                            {formatDate(interview.scheduledAt)}
+                          </div>
+                          <div className="text-xs text-text-secondary">
+                            {interview.durationMinutes} minutes ·{' '}
+                            {interview.interviewers.map((person) => person.name).join(', ')}
+                          </div>
+                          <div className="mt-1 text-xs text-text-secondary">
+                            Feedback: {interview.feedbackCount} of{' '}
+                            {interview.interviewers.length}
+                          </div>
+                        </div>
+                        <Link
+                          to={`/employer/interviews/${interview.id}`}
+                          className="text-sm font-semibold text-primary-text hover:underline"
+                        >
+                          Open
+                        </Link>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
             <h2 className="mb-3 text-base font-semibold">History</h2>
             <ol className="space-y-2">
@@ -417,7 +531,7 @@ export function ApplicationReviewPage() {
 
       <Dialog open={rejectOpen} title="Reject application" onClose={() => setRejectOpen(false)}>
         <div className="space-y-4">
-          {aboveCutoff && (
+          {cutoffReasonRules && aboveCutoff && (
             <div className="rounded-lg bg-accent-subtle p-3 text-sm text-accent">
               This score ({review.score}) is at or above the cut-off ({review.cutoffScore}). A written
               reason of at least 10 characters is required.
@@ -425,7 +539,7 @@ export function ApplicationReviewPage() {
           )}
           <div>
             <label className="mb-1 block text-xs text-text-secondary">
-              {aboveCutoff ? 'Reason (required)' : 'Reason (optional)'}
+              {cutoffReasonRules && aboveCutoff ? 'Reason (required)' : 'Reason (optional)'}
             </label>
             <textarea
               value={reason}
@@ -443,6 +557,98 @@ export function ApplicationReviewPage() {
               Reject
             </Button>
           </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={scheduleOpen}
+        title="Schedule interview"
+        onClose={() => setScheduleOpen(false)}
+      >
+        <div className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-1 block text-xs text-text-secondary">Date and time</span>
+              <Input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs text-text-secondary">Duration (minutes)</span>
+              <Input
+                type="number"
+                min={15}
+                max={240}
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+              />
+            </label>
+          </div>
+          <label className="block">
+            <span className="mb-1 block text-xs text-text-secondary">Meeting link</span>
+            <Input
+              type="url"
+              value={meetingLink}
+              onChange={(e) => setMeetingLink(e.target.value)}
+              placeholder="https://meet.example.com/…"
+            />
+          </label>
+          <div>
+            <div className="mb-1 text-xs text-text-secondary">Interviewers</div>
+            <div className="space-y-2 rounded-lg border border-border bg-bg p-3">
+              {(interviewers ?? []).length === 0 && (
+                <p className="text-sm text-text-subtle">
+                  No active team members. Invite an interviewer first.
+                </p>
+              )}
+              {(interviewers ?? []).map((person) => {
+                const checked = selectedInterviewers.includes(person.id);
+                return (
+                  <Checkbox
+                    key={person.id}
+                    checked={checked}
+                    onChange={(next) =>
+                      setSelectedInterviewers((current) =>
+                        next
+                          ? [...current, person.id]
+                          : current.filter((id) => id !== person.id),
+                      )
+                    }
+                    label={`${person.name} · ${teamRoleLabel(person.role)}`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+          {scheduleError && <p className="text-sm text-accent">{scheduleError}</p>}
+          <p className="text-xs text-text-secondary">
+            The candidate and every interviewer get an in-app notification and an email.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setScheduleOpen(false)}>
+              Cancel
+            </Button>
+            <Button loading={schedule.isPending} onClick={confirmSchedule}>
+              Schedule
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog open={hireOpen} title="Mark candidate as hired" onClose={() => setHireOpen(false)}>
+        <p className="text-sm text-text">
+          This moves the application to <strong>hired</strong> and notifies the candidate. The
+          status is final.
+        </p>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="secondary" onClick={() => setHireOpen(false)}>
+            Cancel
+          </Button>
+          <Button loading={hire.isPending} onClick={confirmHire}>
+            Mark hired
+          </Button>
         </div>
       </Dialog>
     </div>

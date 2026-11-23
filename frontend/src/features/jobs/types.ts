@@ -245,6 +245,16 @@ export interface EmployerReview {
   identity: EmployerIdentity | null;
   assessments: EmployerAssessmentSummary[];
   verifiedSkills: string[];
+  interviews: EmployerInterviewSummary[];
+}
+
+export interface EmployerInterviewSummary {
+  id: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  meetingLink: string;
+  interviewers: { id: string; name: string }[];
+  feedbackCount: number;
 }
 
 export interface EmployerAssessmentFocus {

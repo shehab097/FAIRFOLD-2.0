@@ -160,6 +160,13 @@ export interface CandidateApplicationDetail {
   notMatchedRule: string | null;
   gateStatus: string;
   requiredAssessments: CandidateRequiredAssessment[];
+  interviews: CandidateInterviewRef[];
+}
+
+export interface CandidateInterviewRef {
+  scheduledAt: string;
+  durationMinutes: number;
+  meetingLink: string;
 }
 
 export interface CandidateRequiredAssessment {

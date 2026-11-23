@@ -21,7 +21,8 @@ public record CandidateApplicationDetail(
         List<String> missingSkills,
         String notMatchedRule,
         String gateStatus,
-        List<RequiredAssessment> requiredAssessments
+        List<RequiredAssessment> requiredAssessments,
+        List<InterviewRef> interviews
 ) {
     public record HistoryEntry(String status, Instant at) {}
 
@@ -34,4 +35,6 @@ public record CandidateApplicationDetail(
             Integer bestScore,
             String status
     ) {}
+
+    public record InterviewRef(Instant scheduledAt, int durationMinutes, String meetingLink) {}
 }

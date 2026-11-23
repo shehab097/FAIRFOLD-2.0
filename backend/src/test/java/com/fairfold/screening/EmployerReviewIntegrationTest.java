@@ -321,7 +321,7 @@ class EmployerReviewIntegrationTest extends ScreeningTestSupport {
                 .andExpect(jsonPath("$.newApplications").value(2))
                 .andExpect(jsonPath("$.awaitingScreening").value(1))
                 .andExpect(jsonPath("$.biasFlags").value(1))
-                .andExpect(jsonPath("$.interviewsThisWeek").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.interviewsThisWeek").value(0))
                 .andExpect(jsonPath("$.quota").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.pipeline.applied").value(1))
                 .andExpect(jsonPath("$.pipeline.screened").value(2))

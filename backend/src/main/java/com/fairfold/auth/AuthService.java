@@ -1,8 +1,10 @@
 package com.fairfold.auth;
 
+import com.fairfold.auth.dto.AcceptInviteRequest;
 import com.fairfold.auth.dto.AuthResponse;
 import com.fairfold.auth.dto.ChangePasswordRequest;
 import com.fairfold.auth.dto.ForgotPasswordRequest;
+import com.fairfold.auth.dto.InviteInfo;
 import com.fairfold.auth.dto.LoginRequest;
 import com.fairfold.auth.dto.RegisterRequest;
 import com.fairfold.auth.dto.ResetPasswordRequest;
@@ -14,9 +16,12 @@ import com.fairfold.common.security.JwtService;
 import com.fairfold.company.Company;
 import com.fairfold.company.CompanyRepository;
 import com.fairfold.config.AppProperties;
+import com.fairfold.team.TeamInvite;
+import com.fairfold.team.TeamInviteRepository;
 import com.fairfold.user.Role;
 import com.fairfold.user.User;
 import com.fairfold.user.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +54,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuditService auditService;
     private final AppProperties properties;
+    private final TeamInviteRepository teamInviteRepository;
     private final Clock clock;
 
     public AuthService(
@@ -61,6 +67,7 @@ public class AuthService {
             MailService mailService,
             AuditService auditService,
             AppProperties properties,
+            TeamInviteRepository teamInviteRepository,
             Clock clock) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
@@ -71,6 +78,7 @@ public class AuthService {
         this.mailService = mailService;
         this.auditService = auditService;
         this.properties = properties;
+        this.teamInviteRepository = teamInviteRepository;
         this.clock = clock;
     }
 
@@ -112,6 +120,11 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> ApiException.unauthorized("INVALID_CREDENTIALS", "Invalid email or password."));
 
+        if (user.getDisabledAt() != null) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "ACCOUNT_DISABLED",
+                    "This account has been disabled.");
+        }
+
         // Lock is checked before the password.
         if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(clock.instant())) {
             throw ApiException.locked(minutesUntil(user.getLockedUntil()));
@@ -150,6 +163,9 @@ public class AuthService {
             }
             User user = userRepository.findById(token.getUserId())
                     .orElseThrow(() -> ApiException.unauthorized("UNAUTHORIZED", "Authentication required."));
+            if (user.getDisabledAt() != null) {
+                throw ApiException.unauthorized("UNAUTHORIZED", "Authentication required.");
+            }
 
             token.setRevokedAt(clock.instant());
             refreshTokenRepository.save(token);
@@ -212,8 +228,54 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public UserDto me(java.util.UUID userId) {
-        User user = userRepository.findById(userId)
+    public InviteInfo inviteInfo(String rawToken) {
+        TeamInvite invite = requireInvite(rawToken);
+        Company company = companyRepository.findById(invite.getCompanyId()).orElse(null);
+        return new InviteInfo(company == null ? null : company.getName(),
+                invite.getRole().name(), invite.getEmail());
+    }
+
+    @Transactional
+    public AuthSession acceptInvite(AcceptInviteRequest request) {
+        if (request.consent() == null || !request.consent()) {
+            throw ApiException.badRequest("CONSENT_REQUIRED", "You must agree to the terms to continue.");
+        }
+        TeamInvite invite = requireInvite(request.token());
+        if (userRepository.existsByEmail(invite.getEmail())) {
+            throw ApiException.conflict("EMAIL_TAKEN", "An account with this email already exists.");
+        }
+
+        User user = new User();
+        user.setEmail(invite.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setFirstName(request.firstName().trim());
+        user.setLastName(request.lastName().trim());
+        user.setRole(invite.getRole().toUserRole());
+        user.setCompanyId(invite.getCompanyId());
+        user.setEmailVerified(true);
+        user.setConsentAt(clock.instant());
+        userRepository.save(user);
+
+        invite.setAcceptedAt(clock.instant());
+        teamInviteRepository.save(invite);
+        auditService.record(user.getId(), "user_registered", "user", user.getId().toString(), "{}");
+
+        String refreshToken = issueRefreshToken(user);
+        return new AuthSession(jwtService.generateAccessToken(user), refreshToken, UserDto.from(user));
+    }
+
+    private TeamInvite requireInvite(String rawToken) {
+        if (rawToken == null || rawToken.isBlank()) {
+            throw ApiException.notFound("INVITE_INVALID", "This invite link is invalid or has expired.");
+        }
+        return teamInviteRepository
+                .findByTokenHashAndAcceptedAtIsNullAndExpiresAtAfter(hash(rawToken), clock.instant())
+                .orElseThrow(() -> ApiException.notFound("INVITE_INVALID",
+                        "This invite link is invalid or has expired."));
+    }
+
+    @Transactional(readOnly = true)
+    public UserDto me(java.util.UUID userId) {        User user = userRepository.findById(userId)
                 .orElseThrow(() -> ApiException.unauthorized("UNAUTHORIZED", "Authentication required."));
         return UserDto.from(user);
     }

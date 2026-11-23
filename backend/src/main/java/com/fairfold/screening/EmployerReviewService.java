@@ -24,6 +24,12 @@ import com.fairfold.candidate.CandidateSkillRepository;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
+import com.fairfold.interview.Interview;
+import com.fairfold.interview.InterviewFeedback;
+import com.fairfold.interview.InterviewFeedbackRepository;
+import com.fairfold.interview.InterviewInterviewer;
+import com.fairfold.interview.InterviewInterviewerRepository;
+import com.fairfold.interview.InterviewRepository;
 import com.fairfold.job.Job;
 import com.fairfold.job.JobRepository;
 import com.fairfold.resume.Resume;
@@ -81,6 +87,9 @@ public class EmployerReviewService {
     private final ProctorEventRepository proctorEventRepository;
     private final CandidateSkillRepository candidateSkillRepository;
     private final SkillRepository skillRepository;
+    private final InterviewRepository interviewRepository;
+    private final InterviewInterviewerRepository interviewInterviewerRepository;
+    private final InterviewFeedbackRepository interviewFeedbackRepository;
     private final Clock clock;
 
     public EmployerReviewService(ApplicationRepository applicationRepository,
@@ -104,6 +113,9 @@ public class EmployerReviewService {
                                  ProctorEventRepository proctorEventRepository,
                                  CandidateSkillRepository candidateSkillRepository,
                                  SkillRepository skillRepository,
+                                 InterviewRepository interviewRepository,
+                                 InterviewInterviewerRepository interviewInterviewerRepository,
+                                 InterviewFeedbackRepository interviewFeedbackRepository,
                                  Clock clock) {
         this.applicationRepository = applicationRepository;
         this.historyRepository = historyRepository;
@@ -126,6 +138,9 @@ public class EmployerReviewService {
         this.proctorEventRepository = proctorEventRepository;
         this.candidateSkillRepository = candidateSkillRepository;
         this.skillRepository = skillRepository;
+        this.interviewRepository = interviewRepository;
+        this.interviewInterviewerRepository = interviewInterviewerRepository;
+        this.interviewFeedbackRepository = interviewFeedbackRepository;
         this.clock = clock;
     }
 
@@ -228,14 +243,18 @@ public class EmployerReviewService {
     public void reject(UUID companyId, UUID actorId, UUID applicationId, DecisionRequest request) {
         Application application = loadApplication(companyId, applicationId);
         if (application.getStatus() != ApplicationStatus.screened
-                && application.getStatus() != ApplicationStatus.not_matched) {
+                && application.getStatus() != ApplicationStatus.not_matched
+                && application.getStatus() != ApplicationStatus.shortlisted
+                && application.getStatus() != ApplicationStatus.interview) {
             throw ApiException.conflict("INVALID_STATUS",
-                    "Only screened or not-matched applications can be rejected.");
+                    "Only screened, not-matched, shortlisted or interview applications can be rejected.");
         }
         Job job = jobRepository.findById(application.getJobId())
                 .orElseThrow(() -> ApiException.notFound("JOB_NOT_FOUND", "Job not found."));
         String reason = reason(request);
-        boolean above = aboveCutoff(application, job);
+        boolean cutoffRules = application.getStatus() == ApplicationStatus.screened
+                || application.getStatus() == ApplicationStatus.not_matched;
+        boolean above = cutoffRules && aboveCutoff(application, job);
         if (above && !validReason(reason)) {
             throw reasonRequired("A written reason is required when rejecting at or above the cut-off.");
         }
@@ -324,7 +343,29 @@ public class EmployerReviewService {
                 application.getMissingSkills(), claims,
                 resume == null ? null : resume.getStrippedText(),
                 application.getNotMatchedRule(), history, identity,
-                assessmentSummaries(application), verifiedSkills(application.getCandidateId()));
+                assessmentSummaries(application), verifiedSkills(application.getCandidateId()),
+                interviewSummaries(application));
+    }
+
+    private List<EmployerReview.InterviewSummary> interviewSummaries(Application application) {
+        List<Interview> interviews = interviewRepository
+                .findByApplicationIdOrderByScheduledAtAsc(application.getId());
+        List<EmployerReview.InterviewSummary> result = new ArrayList<>();
+        for (Interview interview : interviews) {
+            List<EmployerReview.Interviewer> interviewers = new ArrayList<>();
+            for (InterviewInterviewer row : interviewInterviewerRepository
+                    .findByIdInterviewId(interview.getId())) {
+                userRepository.findById(row.getId().getUserId()).ifPresent(user ->
+                        interviewers.add(new EmployerReview.Interviewer(
+                                user.getId(),
+                                (user.getFirstName() + " " + user.getLastName()).trim())));
+            }
+            result.add(new EmployerReview.InterviewSummary(
+                    interview.getId(), interview.getScheduledAt(),
+                    interview.getDurationMinutes(), interview.getMeetingLink(), interviewers,
+                    interviewFeedbackRepository.countByInterviewId(interview.getId())));
+        }
+        return result;
     }
 
     private List<EmployerReview.AssessmentSummary> assessmentSummaries(Application application) {

@@ -15,13 +15,16 @@ public record AppProperties(
         Admin admin,
         Ai ai,
         Resources resources,
-        Assessment assessment
+        Assessment assessment,
+        Invite invite
 ) {
     public record Auth(boolean requireEmailVerification) {}
 
     public record Resources(String linkCheckCron) {}
 
     public record Assessment(int cooldownHours) {}
+
+    public record Invite(int validDays) {}
 
     public record Jwt(String secret, long accessTokenMinutes) {}
 
