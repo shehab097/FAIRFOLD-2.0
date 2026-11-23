@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useDashboard } from '../queries';
+import { useDashboard, useRequiredAssessments } from '../queries';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Card } from '../../../components/ui/Card';
@@ -35,9 +35,13 @@ function Step({ done, label, to }: { done: boolean; label: string; to: string })
 
 export function DashboardPage() {
   const { data, isLoading, isError } = useDashboard();
+  const { data: requiredAssessments } = useRequiredAssessments();
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (isError || !data) return <Banner tone="error">Could not load your dashboard.</Banner>;
+
+  const requirements = requiredAssessments ?? [];
+  const pendingRequirements = requirements.filter((row) => row.status !== 'passed');
 
   const setupComplete =
     data.checklist.profileSaved && data.checklist.resumeUploaded && data.checklist.skillsAdded;
@@ -65,6 +69,48 @@ export function DashboardPage() {
             : 'Complete your profile to start applying.'}
         </p>
       </div>
+
+      {requirements.length > 0 && (
+        <Card className="p-0">
+          <div className="border-b border-border px-4 py-4">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
+              Assessments required for your applications
+            </h2>
+            <p className="mt-1 text-sm text-text-secondary">
+              Pass every required assessment before the employer can shortlist you.
+              {pendingRequirements.length > 0
+                ? ` ${pendingRequirements.length} still need your attention.`
+                : ' All required assessments are passed.'}
+            </p>
+          </div>
+          <ul className="divide-y divide-border">
+            {requirements.map((row) => (
+              <li
+                key={`${row.applicationId}-${row.assessmentId}`}
+                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+              >
+                <div>
+                  <div className="text-sm font-medium text-text">
+                    {row.assessmentTitle ?? 'Assessment'}
+                  </div>
+                  <div className="text-xs text-text-secondary">
+                    {row.jobTitle} · best {row.bestScore === null ? '—' : `${row.bestScore}%`} ·
+                    minimum {row.minScore}%
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge status={row.status} />
+                  <Link to={`/candidate/assessments/${row.assessmentId}/attempt`}>
+                    <Button className="h-8 px-3 text-xs">
+                      {row.status === 'passed' ? 'Retake' : row.status === 'failed' ? 'Retake' : 'Take'}
+                    </Button>
+                  </Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <div className={setupComplete ? 'grid gap-6' : 'grid gap-6 lg:grid-cols-2'}>
         {!setupComplete && (

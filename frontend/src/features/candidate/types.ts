@@ -169,6 +169,17 @@ export interface CandidateInterviewRef {
   meetingLink: string;
 }
 
+export interface CandidateAssessmentRequirement {
+  applicationId: string;
+  jobId: string;
+  jobTitle: string;
+  assessmentId: string;
+  assessmentTitle: string | null;
+  minScore: number;
+  bestScore: number | null;
+  status: 'pending' | 'failed' | 'passed';
+}
+
 export interface CandidateRequiredAssessment {
   assessmentId: string;
   title: string | null;

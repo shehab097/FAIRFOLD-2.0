@@ -226,8 +226,40 @@ class GateIntegrationTest extends ScreeningTestSupport {
     }
 
     @Test
-    void Fr051_duplicate_copies_required_assessments() throws Exception {
-        String admin = loginAdmin("gate-admin-4@example.com");
+    void Fr051_candidate_required_assessments_endpoint_tracks_pending_and_passed() throws Exception {
+        String admin = loginAdmin("gate-admin-5@example.com");
+        TestEmployer employer = registerEmployer("gate5.hr@acme.com");
+        completeCompany(employer.token());
+        UUID jobId = createScreeningJob(employer.token());
+        Candidate candidate = insertApplicant(jobId, "gate5.candidate@example.com", "Gate", "Five",
+                "Dhaka, Bangladesh", new BigDecimal("5"), true);
+        Fixture fixture = createAssessment(admin);
+        requireAssessment(jobId, fixture.assessmentId(), 70);
+        gateService.recompute(candidate.applicationId());
+
+        mockMvc.perform(get("/api/candidate/required-assessments")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + candidate.token()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].applicationId").value(candidate.applicationId().toString()))
+                .andExpect(jsonPath("$[0].jobId").value(jobId.toString()))
+                .andExpect(jsonPath("$[0].assessmentId").value(fixture.assessmentId().toString()))
+                .andExpect(jsonPath("$[0].minScore").value(70))
+                .andExpect(jsonPath("$[0].bestScore").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$[0].status").value("pending"));
+
+        insertAttempt(fixture.assessmentId(), candidate.userId(), 80);
+        gateService.recompute(candidate.applicationId());
+
+        mockMvc.perform(get("/api/candidate/required-assessments")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + candidate.token()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].bestScore").value(80))
+                .andExpect(jsonPath("$[0].status").value("passed"));
+    }
+
+    @Test
+    void Fr051_duplicate_copies_required_assessments() throws Exception {        String admin = loginAdmin("gate-admin-4@example.com");
         TestEmployer employer = registerEmployer("gate4.hr@acme.com");
         completeCompany(employer.token());
         Fixture fixture = createAssessment(admin);

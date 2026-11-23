@@ -65,4 +65,12 @@ public class ApplicationController {
     public CandidateApplicationDetail get(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
         return applicationService.getForCandidate(user.id(), id);
     }
+
+    @GetMapping("/candidate/required-assessments")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Assessments required across the candidate's applications")
+    public java.util.List<com.fairfold.application.dto.CandidateAssessmentRequirement> requiredAssessments(
+            @AuthenticationPrincipal CurrentUser user) {
+        return applicationService.requiredAssessmentsForCandidate(user.id());
+    }
 }

@@ -10,6 +10,7 @@ import {
   getDashboard,
   getMyApplication,
   getProfile,
+  getRequiredAssessments,
   getResume,
   getResumeSuggestions,
   listApplications,
@@ -181,6 +182,13 @@ export function useApplication(id: string | undefined) {
     queryKey: ['candidate', 'application', id],
     queryFn: () => getApplication(id as string),
     enabled: Boolean(id),
+  });
+}
+
+export function useRequiredAssessments() {
+  return useQuery({
+    queryKey: ['candidate', 'required-assessments'],
+    queryFn: getRequiredAssessments,
   });
 }
 

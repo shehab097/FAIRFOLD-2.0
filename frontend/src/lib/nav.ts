@@ -11,6 +11,7 @@ import {
   Shield,
   Sparkles,
   User,
+  UserCheck,
   Users,
   Video,
   type LucideIcon,
@@ -43,6 +44,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
   EMPLOYER_HR: [
     { label: 'Dashboard', to: '/employer', enabled: true, icon: LayoutDashboard, end: true },
     { label: 'Jobs', to: '/employer/jobs', enabled: true, icon: Briefcase },
+    { label: 'Shortlisted', to: '/employer/shortlisted', enabled: true, icon: UserCheck },
     { label: 'Company', to: '/employer/company', enabled: true, icon: Building2 },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },
@@ -53,6 +55,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
   EMPLOYER_MANAGER: [
     { label: 'Dashboard', to: '/employer', enabled: true, icon: LayoutDashboard, end: true },
     { label: 'Jobs', to: '/employer/jobs', enabled: true, icon: Briefcase },
+    { label: 'Shortlisted', to: '/employer/shortlisted', enabled: true, icon: UserCheck },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },
     { label: 'Analytics', to: '/employer/analytics', enabled: false, icon: BarChart3 },

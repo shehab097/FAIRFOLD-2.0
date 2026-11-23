@@ -3,6 +3,7 @@ import type { PageResponse } from './types';
 import type {
   CandidateApplicationDetail,
   CandidateApplicationListItem,
+  CandidateAssessmentRequirement,
   CandidateProfile,
   CandidateProfileInput,
   CandidateSkill,
@@ -141,6 +142,13 @@ export async function listApplications(params: {
 
 export async function getApplication(id: string): Promise<CandidateApplicationDetail> {
   const { data } = await api.get<CandidateApplicationDetail>(`/api/candidate/applications/${id}`);
+  return data;
+}
+
+export async function getRequiredAssessments(): Promise<CandidateAssessmentRequirement[]> {
+  const { data } = await api.get<CandidateAssessmentRequirement[]>(
+    '/api/candidate/required-assessments',
+  );
   return data;
 }
 

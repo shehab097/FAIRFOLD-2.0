@@ -7,6 +7,7 @@ import {
   useSubmitAttempt,
 } from '../queries';
 import { consentAttempt, saveExplanation } from '../../../api/assessments';
+import { devCompleteAttempt } from '../../../api/dev';
 import { extractApiError, getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
 import { Badge } from '../../../components/ui/Badge';
@@ -14,6 +15,7 @@ import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
 import { Icon } from '../../../components/ui/Icon';
+import { Input } from '../../../components/ui/Input';
 import { ScoreMeter } from '../../../components/ui/ScoreMeter';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { useToast } from '../../../components/ui/Toast';
@@ -196,6 +198,8 @@ export function AttemptPage() {
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentSaving, setConsentSaving] = useState(false);
   const [consentError, setConsentError] = useState<string | null>(null);
+  const [devCorrect, setDevCorrect] = useState('2');
+  const [devBusy, setDevBusy] = useState(false);
 
   const startedRef = useRef(false);
   const submittedRef = useRef(false);
@@ -303,8 +307,23 @@ export function AttemptPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remaining, view, result]);
 
-  async function chooseConsent(given: boolean) {
+  async function devComplete(count: number) {
     if (!view) return;
+    setDevBusy(true);
+    try {
+      const submitted = await devCompleteAttempt(view.attemptId, count);
+      setResult(submitted);
+      setAnswers(submitted.answers ?? answers);
+      setSaved(true);
+      toast('Dev shortcut submitted the attempt.', 'info');
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
+    } finally {
+      setDevBusy(false);
+    }
+  }
+
+  async function chooseConsent(given: boolean) {    if (!view) return;
     setConsentSaving(true);
     setConsentError(null);
     try {
@@ -396,6 +415,49 @@ export function AttemptPage() {
         />
         <SaveIndicator saving={saving} saved={saved} error={saveError} />
       </div>
+
+      {import.meta.env.DEV && (
+        <div className="rounded-xl border border-dashed border-accent bg-accent-subtle p-3">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.06em] text-accent">
+            Dev tools — development build only
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              className="h-8 px-3 text-xs"
+              loading={devBusy}
+              onClick={() => devComplete(questions.length)}
+            >
+              All correct
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-8 px-3 text-xs"
+              loading={devBusy}
+              onClick={() => devComplete(0)}
+            >
+              All wrong
+            </Button>
+            <Input
+              type="number"
+              min={0}
+              max={questions.length}
+              value={devCorrect}
+              onChange={(e) => setDevCorrect(e.target.value)}
+              className="h-8 w-20 text-xs"
+              aria-label="Number of correct answers"
+            />
+            <Button
+              variant="secondary"
+              className="h-8 px-3 text-xs"
+              loading={devBusy}
+              onClick={() => devComplete(Math.min(questions.length, Math.max(0, Number(devCorrect) || 0)))}
+            >
+              Submit with {Math.min(questions.length, Math.max(0, Number(devCorrect) || 0))} correct
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
         <div className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">

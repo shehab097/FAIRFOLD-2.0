@@ -58,4 +58,10 @@ public interface ApplicationRepository extends JpaRepository<Application, UUID> 
     long countByJobId(UUID jobId);
 
     long countByJobIdAndStatus(UUID jobId, ApplicationStatus status);
+
+    @Query("select a from Application a, com.fairfold.job.Job j where a.jobId = j.id "
+            + "and j.companyId = :companyId and a.shortlistedAt is not null "
+            + "order by a.shortlistedAt desc")
+    Page<Application> findShortlistedForCompany(@Param("companyId") UUID companyId,
+                                                Pageable pageable);
 }

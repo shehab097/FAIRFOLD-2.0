@@ -35,6 +35,7 @@ import { AttemptPage } from './features/assessments/pages/AttemptPage';
 import { TeamPage } from './features/team/pages/TeamPage';
 import { InterviewsPage } from './features/interviews/pages/InterviewsPage';
 import { InterviewDetailPage } from './features/interviews/pages/InterviewDetailPage';
+import { ShortlistedPage } from './features/shortlist/pages/ShortlistedPage';
 
 export default function App() {
   return (
@@ -156,6 +157,14 @@ export default function App() {
           element={
             <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER']}>
               <JobWorkspacePage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employer/shortlisted"
+          element={
+            <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER']}>
+              <ShortlistedPage />
             </RequireRole>
           }
         />

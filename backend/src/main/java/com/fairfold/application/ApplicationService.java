@@ -2,6 +2,7 @@ package com.fairfold.application;
 
 import com.fairfold.application.dto.CandidateApplicationDetail;
 import com.fairfold.application.dto.CandidateApplicationListItem;
+import com.fairfold.application.dto.CandidateAssessmentRequirement;
 import com.fairfold.application.dto.MyApplicationResponse;
 import com.fairfold.assessment.Assessment;
 import com.fairfold.assessment.AssessmentAttempt;
@@ -156,6 +157,53 @@ public class ApplicationService {
         Job job = jobRepository.findById(application.getJobId())
                 .orElseThrow(() -> ApiException.notFound("JOB_NOT_FOUND", "Job not found."));
         return toDetail(application, job);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CandidateAssessmentRequirement> requiredAssessmentsForCandidate(UUID candidateId) {
+        List<CandidateAssessmentRequirement> result = new java.util.ArrayList<>();
+        for (Application application : applicationRepository.findByCandidateId(candidateId)) {
+            if (application.getStatus() == ApplicationStatus.rejected
+                    || application.getStatus() == ApplicationStatus.hired) {
+                continue;
+            }
+            Job job = jobRepository.findById(application.getJobId()).orElse(null);
+            if (job == null) {
+                continue;
+            }
+            List<JobRequiredAssessment> requirements = requiredAssessmentRepository
+                    .findByJobId(job.getId());
+            if (requirements.isEmpty()) {
+                continue;
+            }
+            List<UUID> ids = requirements.stream()
+                    .map(JobRequiredAssessment::getAssessmentId).toList();
+            Map<UUID, Assessment> assessments = assessmentRepository.findAllById(ids).stream()
+                    .collect(Collectors.toMap(Assessment::getId, Function.identity()));
+            List<AssessmentAttempt> attempts = attemptRepository
+                    .findByUserIdAndAssessmentIdInAndStatusNot(
+                            candidateId, ids, AttemptStatus.in_progress);
+            for (JobRequiredAssessment requirement : requirements) {
+                List<AssessmentAttempt> own = attempts.stream()
+                        .filter(a -> a.getAssessmentId().equals(requirement.getAssessmentId()))
+                        .toList();
+                Integer best = own.stream().map(AssessmentAttempt::getScore)
+                        .filter(score -> score != null).max(Integer::compareTo).orElse(null);
+                String status = best != null && best >= requirement.getMinScore()
+                        ? "passed" : own.isEmpty() ? "pending" : "failed";
+                Assessment assessment = assessments.get(requirement.getAssessmentId());
+                result.add(new CandidateAssessmentRequirement(
+                        application.getId(), job.getId(), job.getTitle(),
+                        requirement.getAssessmentId(),
+                        assessment == null ? null : assessment.getTitle(),
+                        requirement.getMinScore(), best, status));
+            }
+        }
+        result.sort(java.util.Comparator
+                .comparing((CandidateAssessmentRequirement r) -> "passed".equals(r.status()))
+                .thenComparing(CandidateAssessmentRequirement::assessmentTitle,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())));
+        return result;
     }
 
     // --- helpers -----------------------------------------------------------
