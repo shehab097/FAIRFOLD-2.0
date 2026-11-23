@@ -1,11 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { UserDto } from '../../features/auth/types';
 import * as authApi from '../../api/auth';
+import type { LoginResult } from '../../features/auth/types';
 
 interface AuthContextValue {
   user: UserDto | null;
   initializing: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<LoginResult>;
+  verifyMfa: (mfaToken: string, code: string) => Promise<void>;
   register: (input: authApi.RegisterInput) => Promise<void>;
   acceptInvite: (input: authApi.AcceptInviteInput) => Promise<void>;
   signOut: () => Promise<void>;
@@ -38,7 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const session = await authApi.login(email, password);
+    const result = await authApi.login(email, password);
+    if ('accessToken' in result) {
+      setUser(result.user);
+    }
+    return result;
+  }, []);
+
+  const verifyMfa = useCallback(async (mfaToken: string, code: string) => {
+    const session = await authApi.verifyMfa(mfaToken, code);
     setUser(session.user);
   }, []);
 
@@ -62,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, initializing, signIn, register, acceptInvite, signOut, updateUser }}>
+    <AuthContext.Provider value={{ user, initializing, signIn, verifyMfa, register, acceptInvite, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

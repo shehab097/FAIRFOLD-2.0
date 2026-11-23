@@ -1,5 +1,5 @@
 import { api, requestTokenRefresh, setAccessToken } from './client';
-import type { AuthResponse } from '../features/auth/types';
+import type { AuthResponse, LoginResult } from '../features/auth/types';
 
 export interface RegisterInput {
   email: string;
@@ -32,8 +32,16 @@ export async function bootstrapSession(): Promise<AuthResponse | null> {
   return requestTokenRefresh();
 }
 
-export async function login(email: string, password: string): Promise<AuthResponse> {
-  const { data } = await api.post<AuthResponse>('/api/auth/login', { email, password });
+export async function login(email: string, password: string): Promise<LoginResult> {
+  const { data } = await api.post<LoginResult>('/api/auth/login', { email, password });
+  if ('accessToken' in data) {
+    setAccessToken(data.accessToken);
+  }
+  return data;
+}
+
+export async function verifyMfa(mfaToken: string, code: string): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>('/api/auth/mfa/verify', { mfaToken, code });
   setAccessToken(data.accessToken);
   return data;
 }

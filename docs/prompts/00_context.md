@@ -33,7 +33,7 @@ Non-goals: Bangla resumes, local ML or vector search, video or audio interviews,
 | Database | MariaDB (verified on 13.0.2; InnoDB, `utf8mb4`, collation `utf8mb4_0900_as_ci`), Flyway migrations. Installed locally for now; Docker comes after chunk 6. |
 | Frontend | React 18, TypeScript, Vite, React Router, Axios, TanStack Query, React Hook Form (built-in rules only), Tailwind (dark only), react-chartjs-2 with chart.js, lucide-react, `@fontsource-variable/inter` |
 | AI | DeepSeek (OpenAI-compatible chat API) behind `AiProvider`, plus `RuleBasedFallbackProvider` |
-| Payments | bKash sandbox behind `PaymentProvider`, plus `FakePaymentProvider` |
+| Payments | Stripe Checkout (test mode) behind `PaymentProvider`, plus `FakePaymentProvider` |
 | Files | Local disk behind `StorageService` |
 | Tests | JUnit 5, Mockito, Spring Boot Test + MockMvc on a local MariaDB database `fairfold_test` (Testcontainers with `mariadb:13.0` only in chunk 6), Vitest for key frontend logic |
 
@@ -327,4 +327,4 @@ Full column definitions are in the chunk prompt that creates each table. This ma
 
 ## 12. Environment variables (grow as chunks add them)
 
-`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` (at least 32 bytes), `STORAGE_DIR`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (chunk 1) · `AI_PROVIDER` (`fallback` or `deepseek`), `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `AI_PRICE_INPUT_PER_M`, `AI_PRICE_OUTPUT_PER_M` (chunk 2) · `ASSESSMENT_COOLDOWN_HOURS` (chunk 3) · `MFA_ENCRYPTION_KEY`, `BKASH_BASE_URL`, `BKASH_APP_KEY`, `BKASH_APP_SECRET`, `BKASH_USERNAME`, `BKASH_PASSWORD`, `PAYMENT_PROVIDER` (`fake` or `bkash`), `APP_BASE_URL` (chunk 5) · `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `DB_POOL_MAX`, `DEMO_PASSWORD` (chunk 6) · `DB_ROOT_PASSWORD` (Docker only, chunk 6). Keep `.env.example` current.
+`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET` (at least 32 bytes), `STORAGE_DIR`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (chunk 1) · `AI_PROVIDER` (`fallback` or `deepseek`), `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, `AI_PRICE_INPUT_PER_M`, `AI_PRICE_OUTPUT_PER_M` (chunk 2) · `ASSESSMENT_COOLDOWN_HOURS` (chunk 3) · `MFA_ENCRYPTION_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_BASE_URL`, `PAYMENT_CURRENCY`, `PAYMENT_PROVIDER` (`fake` or `stripe`), `APP_BASE_URL` (chunk 5) · `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, `MAIL_FROM`, `DB_POOL_MAX`, `DEMO_PASSWORD` (chunk 6) · `DB_ROOT_PASSWORD` (Docker only, chunk 6). Keep `.env.example` current.

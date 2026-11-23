@@ -11,7 +11,8 @@ public record UserDto(
         String lastName,
         String role,
         UUID companyId,
-        String avatarUrl
+        String avatarUrl,
+        boolean mfaEnabled
 ) {
     public static UserDto from(User user) {
         return new UserDto(
@@ -21,6 +22,7 @@ public record UserDto(
                 user.getLastName(),
                 user.getRole().name(),
                 user.getCompanyId(),
-                user.getAvatarUrl());
+                user.getAvatarUrl(),
+                user.isMfaEnabled());
     }
 }

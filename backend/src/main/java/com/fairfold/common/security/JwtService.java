@@ -43,6 +43,17 @@ public class JwtService {
         return builder.signWith(key).compact();
     }
 
+    public String generateMfaToken(User user) {
+        var now = clock.instant();
+        return Jwts.builder()
+                .subject(user.getId().toString())
+                .claim("mfa", true)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plus(Duration.ofMinutes(5))))
+                .signWith(key)
+                .compact();
+    }
+
     public Claims parse(String token) {
         return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }

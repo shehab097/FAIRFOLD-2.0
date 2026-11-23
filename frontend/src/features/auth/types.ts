@@ -13,9 +13,17 @@ export interface UserDto {
   role: Role;
   companyId: string | null;
   avatarUrl: string | null;
+  mfaEnabled: boolean;
 }
 
 export interface AuthResponse {
   accessToken: string;
   user: UserDto;
 }
+
+export interface MfaChallenge {
+  mfaRequired: true;
+  mfaToken: string;
+}
+
+export type LoginResult = AuthResponse | MfaChallenge;

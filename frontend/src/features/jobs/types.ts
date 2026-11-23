@@ -324,13 +324,20 @@ export interface EmployerDashboardJob {
   screened: number;
 }
 
+export interface EmployerQuota {
+  used: number;
+  quota: number;
+  planName: string;
+  endsAt: string | null;
+}
+
 export interface EmployerDashboard {
   openJobs: number;
   newApplications: number;
   awaitingScreening: number;
   biasFlags: number;
   interviewsThisWeek: number | null;
-  quota: unknown | null;
+  quota: EmployerQuota | null;
   pipeline: EmployerDashboardPipeline;
   recentApplications: EmployerDashboardApplication[];
   jobs: EmployerDashboardJob[];

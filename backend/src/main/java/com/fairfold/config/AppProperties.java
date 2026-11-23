@@ -16,7 +16,9 @@ public record AppProperties(
         Ai ai,
         Resources resources,
         Assessment assessment,
-        Invite invite
+        Invite invite,
+        Payment payment,
+        Mfa mfa
 ) {
     public record Auth(boolean requireEmailVerification) {}
 
@@ -25,6 +27,12 @@ public record AppProperties(
     public record Assessment(int cooldownHours) {}
 
     public record Invite(int validDays) {}
+
+    public record Payment(String provider, String currency, Stripe stripe) {}
+
+    public record Stripe(String secretKey, String publishableKey, String baseUrl) {}
+
+    public record Mfa(String encryptionKey) {}
 
     public record Jwt(String secret, long accessTokenMinutes) {}
 

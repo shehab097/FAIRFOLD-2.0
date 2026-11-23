@@ -5,6 +5,8 @@ import com.fairfold.auth.dto.AcceptInviteRequest;
 import com.fairfold.auth.dto.ForgotPasswordRequest;
 import com.fairfold.auth.dto.InviteInfo;
 import com.fairfold.auth.dto.LoginRequest;
+import com.fairfold.auth.dto.MfaChallengeResponse;
+import com.fairfold.auth.dto.MfaVerifyRequest;
 import com.fairfold.auth.dto.RegisterRequest;
 import com.fairfold.auth.dto.ResetPasswordRequest;
 import com.fairfold.auth.dto.UserDto;
@@ -60,9 +62,24 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Log in")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
         rateLimitService.check("login:" + ip(http), 10, Duration.ofMinutes(1), 60);
-        AuthSession session = authService.login(request);
+        LoginOutcome outcome = authService.login(request);
+        if (outcome.mfaRequired()) {
+            return ResponseEntity.ok(new MfaChallengeResponse(true, outcome.mfaToken()));
+        }
+        AuthSession session = outcome.session();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, buildRefreshCookie(session.refreshToken()))
+                .body(new AuthResponse(session.accessToken(), session.user()));
+    }
+
+    @PostMapping("/mfa/verify")
+    @Operation(summary = "Finish login with a TOTP code")
+    public ResponseEntity<AuthResponse> verifyMfa(@Valid @RequestBody MfaVerifyRequest request,
+                                                  HttpServletRequest http) {
+        rateLimitService.check("mfa:" + ip(http), 10, Duration.ofMinutes(1), 60);
+        AuthSession session = authService.verifyMfa(request);
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, buildRefreshCookie(session.refreshToken()))
                 .body(new AuthResponse(session.accessToken(), session.user()));

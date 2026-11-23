@@ -11,6 +11,7 @@ export interface ApiError {
   message: string;
   errors?: FieldError[];
   retryAvailableAt?: string | null;
+  details?: Record<string, unknown> | null;
 }
 
 export function isApiError(value: unknown): value is ApiError {
@@ -41,6 +42,10 @@ export function getApiErrorMessage(error: unknown): string {
 
 export function getApiErrorCode(error: unknown): string | null {
   return extractApiError(error)?.code ?? null;
+}
+
+export function getApiErrorDetails(error: unknown): Record<string, unknown> {
+  return extractApiError(error)?.details ?? {};
 }
 
 export function getFieldErrors(error: unknown): Record<string, string> {

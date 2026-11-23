@@ -59,7 +59,7 @@ public abstract class AbstractIntegrationTest {
         List<String> tables = jdbcTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables "
                         + "WHERE table_schema = DATABASE() AND table_name NOT IN "
-                        + "('flyway_schema_history', 'skills', 'skill_aliases', 'strip_terms')",
+                        + "('flyway_schema_history', 'skills', 'skill_aliases', 'strip_terms', 'plans')",
                 String.class);
         for (String table : tables) {
             jdbcTemplate.execute("TRUNCATE TABLE `" + table + "`");

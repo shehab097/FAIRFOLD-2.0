@@ -25,7 +25,7 @@ import { Skeleton } from '../../../components/ui/Skeleton';
 import { Table, type Column } from '../../../components/ui/Table';
 import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
-import { getApiErrorMessage } from '../../../lib/errors';
+import { getApiErrorCode, getApiErrorDetails, getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
 import { formatSalary } from '../../../lib/salary';
 import { useQueryClient } from '@tanstack/react-query';
@@ -180,6 +180,7 @@ function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean })
     size: 10,
   });
   const [screenOpen, setScreenOpen] = useState(false);
+  const [quotaError, setQuotaError] = useState<{ used: number; quota: number } | null>(null);
   const { data: applicants, isLoading } = useApplicants(jobId, filters);
   const { data: progress } = useScreeningProgress(jobId);
   const { data: estimate, isLoading: estimating } = useScreeningEstimate(jobId, screenOpen);
@@ -216,7 +217,15 @@ function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean })
       toast('Screening started.', 'success');
       qc.invalidateQueries({ queryKey: ['employer', 'job', jobId, 'screening'] });
     } catch (err) {
-      toast(getApiErrorMessage(err), 'error');
+      if (getApiErrorCode(err) === 'QUOTA_EXCEEDED') {
+        const details = getApiErrorDetails(err);
+        setQuotaError({
+          used: Number(details.used ?? 0),
+          quota: Number(details.quota ?? 0),
+        });
+      } else {
+        toast(getApiErrorMessage(err), 'error');
+      }
     }
   }
 
@@ -362,7 +371,14 @@ function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean })
           </div>
         </div>
         {isHr && (
-          <Button onClick={() => setScreenOpen(true)}>Screen All</Button>
+          <Button
+            onClick={() => {
+              setQuotaError(null);
+              setScreenOpen(true);
+            }}
+          >
+            Screen All
+          </Button>
         )}
       </div>
 
@@ -438,6 +454,14 @@ function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean })
             Every new applicant with a ready resume will be scored. Scores are advisory and identities
             stay hidden until you shortlist.
           </p>
+          {quotaError && (
+            <Banner tone="warning">
+              Monthly AI screening quota reached ({quotaError.used} of {quotaError.quota} used).{' '}
+              <Link to="/employer/billing" className="font-semibold underline">
+                Buy a plan
+              </Link>
+            </Banner>
+          )}
           {estimating && <Skeleton className="h-20 w-full" />}
           {estimate && (
             <div className="divide-y divide-border rounded-xl border border-border bg-bg px-4">
@@ -455,7 +479,13 @@ function ApplicantsTab({ job, isHr }: { job: EmployerJobDetail; isHr: boolean })
             </div>
           )}
           <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setScreenOpen(false)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setScreenOpen(false);
+                setQuotaError(null);
+              }}
+            >
               Cancel
             </Button>
             <Button

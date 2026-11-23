@@ -30,3 +30,22 @@ export async function exportAccountData(): Promise<{ blob: Blob; filename: strin
 export async function deleteAccount(password: string, confirmation: string): Promise<void> {
   await api.delete('/api/account', { data: { password, confirmation } });
 }
+
+export interface MfaSetup {
+  secret: string;
+  otpauthUri: string;
+  qrDataUri: string;
+}
+
+export async function setupMfa(): Promise<MfaSetup> {
+  const { data } = await api.post<MfaSetup>('/api/account/mfa/setup');
+  return data;
+}
+
+export async function enableMfa(code: string): Promise<void> {
+  await api.post('/api/account/mfa/enable', { code });
+}
+
+export async function disableMfa(password: string, code: string): Promise<void> {
+  await api.post('/api/account/mfa/disable', { password, code });
+}

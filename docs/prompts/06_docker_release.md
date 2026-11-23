@@ -35,7 +35,7 @@ Containers: `postgres` (PostgreSQL 17), `backend` (Spring Boot, port 8080, inter
 | `app.storage-dir` | `${STORAGE_DIR:/data/resumes}` |
 | `app.cookie-secure` | `${COOKIE_SECURE:true}` (**set `false` only when testing over plain `http://localhost`**; browsers drop Secure cookies on plain HTTP in some browsers, which breaks login) |
 | `app.mail.mode` | `smtp` with `spring.mail.host/port/username/password` from `MAIL_HOST`, `MAIL_PORT`, `MAIL_USER`, `MAIL_PASSWORD`, and the sender `MAIL_FROM` |
-| `app.base-url` / `APP_BASE_URL` | public URL, used in links and bKash redirects |
+| `app.base-url` / `APP_BASE_URL` | public URL, used in links and Stripe redirects |
 | `app.ai.provider` | `${AI_PROVIDER:fallback}` |
 | Springdoc | `springdoc.api-docs.enabled=false`, `springdoc.swagger-ui.enabled=false` |
 | JPA | `spring.jpa.hibernate.ddl-auto=validate`, `spring.jpa.open-in-view=false` |
@@ -77,11 +77,12 @@ AI_PRICE_INPUT_PER_M=
 AI_PRICE_OUTPUT_PER_M=
 # Payments
 PAYMENT_PROVIDER=fake
-BKASH_BASE_URL=
-BKASH_APP_KEY=
-BKASH_APP_SECRET=
-BKASH_USERNAME=
-BKASH_PASSWORD=
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_BASE_URL=https://api.stripe.com
+PAYMENT_CURRENCY=bdt
+PAYMENT_PROVIDER=fake
+MFA_ENCRYPTION_KEY=
 ```
 
 Never commit a real `.env`. Confirm `.gitignore` excludes it.
@@ -257,7 +258,7 @@ Do not publish the Postgres or backend ports.
 1. **Testcontainers:** add `org.testcontainers:postgresql` and `org.testcontainers:junit-jupiter` (test scope). Create `AbstractIntegrationTest` with a shared `PostgreSQLContainer<>("postgres:17")` (static, reused across the test class hierarchy) using Spring Boot's `@ServiceConnection`. Switch all integration tests to it and remove the dependency on the local `fairfold_test` database. Docker must be running for tests; note it in the README.
 2. **Smoke test** `scripts/smoke.sh` (curl and jq; `BASE_URL` defaults to `http://localhost`): health check through Nginx → register an employer and a candidate with timestamped emails → employer completes the company and creates and activates a job → candidate uploads `scripts/sample.pdf` (a small valid PDF with a few sentences of resume text) and waits until the resume is `ready` → candidate applies → employer starts screening with the fallback provider and polls until finished → employer lists applicants and checks that no response contains the candidate's name or email → employer shortlists and checks the identity appears → print PASS or FAIL per step and exit non-zero on any failure.
 3. **Backup scripts:** `scripts/backup.sh` (`docker compose exec -T postgres pg_dump -U "$DB_USER" "$DB_NAME" | gzip > backups/db-$(date +%F).sql.gz` and a tar of the `resumes` volume via a throwaway `alpine` container) and `scripts/restore.sh` (the reverse). Test a restore into a fresh stack once.
-4. **README.md** at the repository root: what FairFold is, requirements (Docker, Docker Compose), first run (`cp .env.example .env`, edit secrets, `docker compose up --build`), first admin login, how to run locally without Docker (reference to 00_context section 3), how to run tests, how to back up and restore, how to enable email verification later (it is deferred), and a short production checklist: HTTPS in front of the stack (set `COOKIE_SECURE=true`), real SMTP, real keys, bKash merchant approval, backups scheduled, Swagger off.
+4. **README.md** at the repository root: what FairFold is, requirements (Docker, Docker Compose), first run (`cp .env.example .env`, edit secrets, `docker compose up --build`), first admin login, how to run locally without Docker (reference to 00_context section 3), how to run tests, how to back up and restore, how to enable email verification later (it is deferred), and a short production checklist: HTTPS in front of the stack (set `COOKIE_SECURE=true`), real SMTP, live Stripe keys and webhook verification, backups scheduled, Swagger off.
 5. Update `docs/progress.md` with the final status and any open issues.
 
 **Definition of done (whole chunk):** `docker compose up --build` from a clean clone with a copied `.env` brings the app up; `scripts/smoke.sh` prints PASS for every step; `./mvnw test` passes using Testcontainers; a backup can be restored into a fresh stack; the README is accurate. After this chunk, the first version is complete; remaining work (email verification, GitHub Actions, polish) is in the roadmap.

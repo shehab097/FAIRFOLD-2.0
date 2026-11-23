@@ -4,15 +4,19 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
+import { CodeInput } from '../../../components/ui/CodeInput';
 import { Icon } from '../../../components/ui/Icon';
 import { Input } from '../../../components/ui/Input';
-import { getApiErrorCode, getApiErrorMessage } from '../../../lib/errors';
+import { getApiErrorCode, getApiErrorDetails, getApiErrorMessage } from '../../../lib/errors';
 
 export function LoginPage() {
-  const { signIn } = useAuth();
+  const { signIn, verifyMfa } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [code, setCode] = useState('');
+  const [triesLeft, setTriesLeft] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,13 +27,76 @@ export function LoginPage() {
     setErrorCode(null);
     setLoading(true);
     try {
-      await signIn(email, password);
+      const result = await signIn(email, password);
+      if ('mfaRequired' in result) {
+        setMfaToken(result.mfaToken);
+        setCode('');
+      }
     } catch (err) {
       setErrorCode(getApiErrorCode(err));
       setError(getApiErrorMessage(err));
     } finally {
       setLoading(false);
     }
+  }
+
+  async function onVerify(e: FormEvent) {
+    e.preventDefault();
+    if (!mfaToken) return;
+    setError(null);
+    setErrorCode(null);
+    setTriesLeft(null);
+    setLoading(true);
+    try {
+      await verifyMfa(mfaToken, code);
+    } catch (err) {
+      setErrorCode(getApiErrorCode(err));
+      setError(getApiErrorMessage(err));
+      const details = getApiErrorDetails(err);
+      if (typeof details.triesLeft === 'number') {
+        setTriesLeft(details.triesLeft);
+      }
+      setCode('');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (mfaToken) {
+    return (
+      <div>
+        <h1 className="text-[28px] font-bold leading-tight">Two-step login</h1>
+        <p className="mt-1 text-sm text-text-secondary">
+          Enter the 6-digit code from your authenticator app for {email}.
+        </p>
+        {error && (
+          <div className="mt-6">
+            <Banner tone={errorCode === 'ACCOUNT_LOCKED' ? 'warning' : 'error'}>{error}</Banner>
+          </div>
+        )}
+        <form onSubmit={onVerify} className="mt-8 space-y-5">
+          <CodeInput value={code} onChange={setCode} disabled={loading} autoFocus />
+          {triesLeft !== null && (
+            <p className="text-sm text-text-secondary">{triesLeft} tries left.</p>
+          )}
+          <Button type="submit" loading={loading} disabled={code.length !== 6} className="w-full">
+            Verify and log in
+          </Button>
+          <button
+            type="button"
+            className="w-full text-center text-sm font-medium text-primary-text hover:underline"
+            onClick={() => {
+              setMfaToken(null);
+              setCode('');
+              setError(null);
+              setTriesLeft(null);
+            }}
+          >
+            Use a different account
+          </button>
+        </form>
+      </div>
+    );
   }
 
   return (

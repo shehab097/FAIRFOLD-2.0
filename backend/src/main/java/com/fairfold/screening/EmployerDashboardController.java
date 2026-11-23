@@ -25,6 +25,7 @@ public class EmployerDashboardController {
     @GetMapping
     @Operation(summary = "Get employer dashboard counters")
     public EmployerDashboardResponse dashboard(@AuthenticationPrincipal CurrentUser user) {
-        return dashboardService.dashboard(user.companyId());
+        return dashboardService.dashboard(user.companyId(),
+                user.role() == com.fairfold.user.Role.EMPLOYER_HR);
     }
 }

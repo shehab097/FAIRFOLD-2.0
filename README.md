@@ -57,7 +57,7 @@ FairFold is a recruitment web platform with two portals. Employers post jobs, re
 | **API docs** | springdoc-openapi (Swagger UI + `/v3/api-docs`) |
 | **Auth** | JWT access token (in memory), refresh token in an HttpOnly cookie, BCrypt, rate limiting (Bucket4j) |
 | **AI** | DeepSeek behind an `AiProvider` interface, with a `RuleBasedFallbackProvider` (works with no key) |
-| **Payments** | bKash sandbox behind a `PaymentProvider` interface, with a fake provider |
+| **Payments** | Stripe Checkout (test mode) behind a `PaymentProvider` interface, with a fake provider for tests |
 | **Files** | Local disk behind a `StorageService` interface |
 | **Build** | Maven wrapper (`./mvnw`), npm |
 
@@ -250,9 +250,12 @@ Key settings (see `.env.example` for the full list):
 | `AI_PROVIDER` | `fallback` | `fallback` (no key) or `deepseek` |
 | `DEEPSEEK_API_KEY` | *(empty)* | Only needed for `AI_PROVIDER=deepseek` |
 | `DEEPSEEK_BASE_URL` / `DEEPSEEK_MODEL` | `https://api.deepseek.com` / `deepseek-flash` | Official DeepSeek API endpoint and model |
-| `PAYMENT_PROVIDER` | `fake` | `fake` or `bkash` |
+| `PAYMENT_PROVIDER` | `fake` | `fake` or `stripe` |
+| `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` | *(empty)* | Stripe test-mode keys; never commit them |
+| `STRIPE_BASE_URL` / `PAYMENT_CURRENCY` | `https://api.stripe.com` / `bdt` | Stripe API and checkout currency |
+| `MFA_ENCRYPTION_KEY` | *(empty)* | Base64 32-byte AES key for TOTP secrets |
 | `STORAGE_DIR` | `../data/resumes` | Where uploaded resumes are stored |
-| `APP_BASE_URL` | `http://localhost:5173` | Frontend base URL used in links |
+| `APP_BASE_URL` | `http://localhost:5173` | Frontend base URL used in links and Stripe redirects |
 
 ---
 

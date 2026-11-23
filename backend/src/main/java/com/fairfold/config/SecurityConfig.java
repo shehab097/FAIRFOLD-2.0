@@ -57,6 +57,8 @@ public class SecurityConfig {
                                 "/api/auth/reset-password",
                                 "/api/auth/invites/**",
                                 "/api/auth/accept-invite",
+                                "/api/auth/mfa/verify",
+                                "/api/payments/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"

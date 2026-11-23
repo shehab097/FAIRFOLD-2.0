@@ -54,6 +54,18 @@ public class User extends BaseEntity {
     @Column(name = "disabled_at")
     private Instant disabledAt;
 
+    @Column(name = "mfa_enabled", nullable = false)
+    private boolean mfaEnabled;
+
+    @Column(name = "mfa_secret_enc", columnDefinition = "text")
+    private String mfaSecretEnc;
+
+    @Column(name = "mfa_pending_secret_enc", columnDefinition = "text")
+    private String mfaPendingSecretEnc;
+
+    @Column(name = "mfa_last_step")
+    private Long mfaLastStep;
+
     public String getEmail() {
         return email;
     }
@@ -148,5 +160,37 @@ public class User extends BaseEntity {
 
     public void setDisabledAt(Instant disabledAt) {
         this.disabledAt = disabledAt;
+    }
+
+    public boolean isMfaEnabled() {
+        return mfaEnabled;
+    }
+
+    public void setMfaEnabled(boolean mfaEnabled) {
+        this.mfaEnabled = mfaEnabled;
+    }
+
+    public String getMfaSecretEnc() {
+        return mfaSecretEnc;
+    }
+
+    public void setMfaSecretEnc(String mfaSecretEnc) {
+        this.mfaSecretEnc = mfaSecretEnc;
+    }
+
+    public String getMfaPendingSecretEnc() {
+        return mfaPendingSecretEnc;
+    }
+
+    public void setMfaPendingSecretEnc(String mfaPendingSecretEnc) {
+        this.mfaPendingSecretEnc = mfaPendingSecretEnc;
+    }
+
+    public Long getMfaLastStep() {
+        return mfaLastStep;
+    }
+
+    public void setMfaLastStep(Long mfaLastStep) {
+        this.mfaLastStep = mfaLastStep;
     }
 }

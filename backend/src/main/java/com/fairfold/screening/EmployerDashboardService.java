@@ -3,6 +3,7 @@ package com.fairfold.screening;
 import com.fairfold.application.Application;
 import com.fairfold.application.ApplicationRepository;
 import com.fairfold.application.ApplicationStatus;
+import com.fairfold.billing.QuotaService;
 import com.fairfold.interview.InterviewRepository;
 import com.fairfold.job.Job;
 import com.fairfold.job.JobRepository;
@@ -29,22 +30,25 @@ public class EmployerDashboardService {
     private final ApplicationRepository applicationRepository;
     private final AliasService aliasService;
     private final InterviewRepository interviewRepository;
+    private final QuotaService quotaService;
     private final Clock clock;
 
     public EmployerDashboardService(JobRepository jobRepository,
                                     ApplicationRepository applicationRepository,
                                     AliasService aliasService,
                                     InterviewRepository interviewRepository,
+                                    QuotaService quotaService,
                                     Clock clock) {
         this.jobRepository = jobRepository;
         this.applicationRepository = applicationRepository;
         this.aliasService = aliasService;
         this.interviewRepository = interviewRepository;
+        this.quotaService = quotaService;
         this.clock = clock;
     }
 
     @Transactional
-    public EmployerDashboardResponse dashboard(UUID companyId) {
+    public EmployerDashboardResponse dashboard(UUID companyId, boolean includeQuota) {
         long openJobs = jobRepository.countByCompanyIdAndStatus(companyId, JobStatus.active);
         long newApplications = applicationRepository.countNewApplications(
                 companyId, clock.instant().minus(7, ChronoUnit.DAYS));
@@ -100,7 +104,8 @@ public class EmployerDashboardService {
                 .toList();
 
         return new EmployerDashboardResponse(
-                openJobs, newApplications, awaiting, biasFlags, Math.toIntExact(interviewsThisWeek), null,
+                openJobs, newApplications, awaiting, biasFlags, Math.toIntExact(interviewsThisWeek),
+                includeQuota ? quotaService.forCompany(companyId) : null,
                 pipeline, recentApplications, jobs);
     }
 

@@ -33,6 +33,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             try {
                 Claims claims = jwtService.parse(token);
+                if (Boolean.TRUE.equals(claims.get("mfa", Boolean.class))) {
+                    throw new IllegalArgumentException("MFA token is not an access token");
+                }
                 UUID userId = UUID.fromString(claims.getSubject());
                 Role role = Role.valueOf(claims.get("role", String.class));
                 String companyId = claims.get("companyId", String.class);

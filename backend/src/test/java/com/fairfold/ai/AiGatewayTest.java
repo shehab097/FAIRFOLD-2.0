@@ -129,7 +129,10 @@ class AiGatewayTest {
                         new BigDecimal("0.27"), new BigDecimal("1.10"), 60, 1000),
                 new AppProperties.Resources("0 0 3 * * SUN"),
                 new AppProperties.Assessment(48),
-                new AppProperties.Invite(7));
+                new AppProperties.Invite(7),
+                new AppProperties.Payment("fake", "bdt",
+                        new AppProperties.Stripe("", "", "https://api.stripe.com")),
+                new AppProperties.Mfa("dGVzdC1vbmx5LWZhaXJmb2xkLW1mYS1rZXktMzJieSE="));
         return new AiGateway(providers, properties, new AiCallRecorder(repository, properties), audit);
     }
 

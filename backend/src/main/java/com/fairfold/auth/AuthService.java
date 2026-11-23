@@ -13,6 +13,7 @@ import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.mail.MailService;
 import com.fairfold.common.security.JwtService;
+import com.fairfold.mfa.MfaService;
 import com.fairfold.company.Company;
 import com.fairfold.company.CompanyRepository;
 import com.fairfold.config.AppProperties;
@@ -55,6 +56,7 @@ public class AuthService {
     private final AuditService auditService;
     private final AppProperties properties;
     private final TeamInviteRepository teamInviteRepository;
+    private final MfaService mfaService;
     private final Clock clock;
 
     public AuthService(
@@ -68,6 +70,7 @@ public class AuthService {
             AuditService auditService,
             AppProperties properties,
             TeamInviteRepository teamInviteRepository,
+            MfaService mfaService,
             Clock clock) {
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
@@ -79,6 +82,7 @@ public class AuthService {
         this.auditService = auditService;
         this.properties = properties;
         this.teamInviteRepository = teamInviteRepository;
+        this.mfaService = mfaService;
         this.clock = clock;
     }
 
@@ -115,7 +119,7 @@ public class AuthService {
     }
 
     @Transactional(noRollbackFor = ApiException.class)
-    public AuthSession login(LoginRequest request) {
+    public LoginOutcome login(LoginRequest request) {
         String email = request.email().trim().toLowerCase();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> ApiException.unauthorized("INVALID_CREDENTIALS", "Invalid email or password."));
@@ -146,6 +150,50 @@ public class AuthService {
         user.setLockedUntil(null);
         userRepository.save(user);
 
+        if (user.isMfaEnabled()) {
+            return new LoginOutcome(null, jwtService.generateMfaToken(user));
+        }
+
+        String refreshToken = issueRefreshToken(user);
+        return new LoginOutcome(
+                new AuthSession(jwtService.generateAccessToken(user), refreshToken, UserDto.from(user)),
+                null);
+    }
+
+    @Transactional(noRollbackFor = ApiException.class)
+    public AuthSession verifyMfa(com.fairfold.auth.dto.MfaVerifyRequest request) {
+        io.jsonwebtoken.Claims claims;
+        try {
+            claims = jwtService.parse(request.mfaToken());
+        } catch (RuntimeException e) {
+            throw ApiException.unauthorized("MFA_TOKEN_INVALID",
+                    "The two-step login session has expired. Log in again.");
+        }
+        if (!Boolean.TRUE.equals(claims.get("mfa", Boolean.class))) {
+            throw ApiException.unauthorized("MFA_TOKEN_INVALID",
+                    "The two-step login session has expired. Log in again.");
+        }
+        User user;
+        try {
+            user = userRepository.findById(java.util.UUID.fromString(claims.getSubject()))
+                    .orElseThrow(() -> ApiException.unauthorized("MFA_TOKEN_INVALID",
+                            "The two-step login session has expired. Log in again."));
+        } catch (IllegalArgumentException e) {
+            throw ApiException.unauthorized("MFA_TOKEN_INVALID",
+                    "The two-step login session has expired. Log in again.");
+        }
+        if (user.getDisabledAt() != null) {
+            throw new ApiException(HttpStatus.FORBIDDEN, "ACCOUNT_DISABLED",
+                    "This account has been disabled.");
+        }
+        if (!user.isMfaEnabled()) {
+            throw ApiException.unauthorized("MFA_TOKEN_INVALID",
+                    "Two-step login is not enabled for this account.");
+        }
+        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(clock.instant())) {
+            throw ApiException.locked(minutesUntil(user.getLockedUntil()));
+        }
+        mfaService.verifyLogin(user, request.code());
         String refreshToken = issueRefreshToken(user);
         return new AuthSession(jwtService.generateAccessToken(user), refreshToken, UserDto.from(user));
     }

@@ -6,6 +6,7 @@ import { useProfile, useResume, useSkills } from '../../candidate/queries';
 import { useCompany } from '../../employer/queries';
 import { ProfilePhotoCard } from '../components/ProfilePhotoCard';
 import { AccountDataCard } from '../components/AccountDataCard';
+import { AccountMfaCard } from '../components/AccountMfaCard';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -271,6 +272,7 @@ export function AccountPage() {
         </div>
       </div>
 
+      <AccountMfaCard />
       <AccountDataCard />
 
       {user?.role === 'CANDIDATE' && <CandidateSnapshot />}

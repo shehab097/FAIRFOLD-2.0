@@ -112,7 +112,7 @@ app:
 - **Email:** the `local` profile prints reset and invite links in the terminal. No mail server is needed. Email verification is **deferred**: add the `email_verified` column and the `app.auth.require-email-verification` setting (default `false`) now, and build the verification flow after day 10 (section 9). Add Mailpit or Mailtrap only if you want to see real emails.
 - **AI:** start with `AI_PROVIDER=fallback`. Everything works without a key; switch to DeepSeek in chunk 2 when the screening flow is ready.
 - **Backend tests:** use the local `fairfold_test` database instead of Testcontainers, because Testcontainers needs Docker. Switch to Testcontainers in chunk 6 when Docker is installed.
-- **bKash:** the sandbox callback is a browser redirect, so `localhost` works. Start with a fake `PaymentProvider`.
+- **Stripe:** hosted Checkout returns through a browser redirect, so `localhost` works in test mode. Start with a fake `PaymentProvider`, then use Stripe test keys.
 
 ### 1.6 Docker-ready habits (so chunk 6 takes half a day)
 
@@ -279,9 +279,9 @@ springdoc:
 - [ ] Data export (instant JSON) and self-service deletion with the last-admin and last-HR guards
 - [ ] Analytics: funnel, time-to-hire, overrides table, pull-back count, table toggles
 - [ ] MFA: setup with QR, login code step, turn off
-- [ ] Billing with the fake `PaymentProvider`, then the bKash sandbox
+- [ ] Billing with the fake `PaymentProvider`, then Stripe Checkout test mode
 
-**Demo:** run analytics, turn on MFA and log in with a code, buy a plan through the sandbox. If time runs out, billing goes last.
+**Demo:** run analytics, turn on MFA and log in with a code, buy a plan through Stripe test mode. If time runs out, billing goes last.
 
 ## 8. Chunk 6: Package and deploy (days 9.5 to 10)
 
@@ -333,7 +333,7 @@ volumes: { dbdata: {}, resumes: {} }
 | Behind schedule at the end of a chunk | Finish the chunk's backend and rules, leave plain screens, and move on. Use days 11 and 12 for polish. |
 | Stripping quality is below the 95% target | Add the missed patterns to the test set and fix the rules. Do not move on from chunk 2 until the test set passes. |
 | DeepSeek key or quota problems | Stay on the fallback provider. The product still works and every result is labelled rule-based. |
-| bKash sandbox access is slow | Keep the fake provider; the interface is the same. |
+| Stripe test keys or webhook access are unavailable | Keep the fake provider; the interface is the same. |
 | AI-written code that looks right but is wrong | Review the scoring, stripping and status services line by line, and keep their tests green. |
 | Frontend and backend disagree on field names | Export `docs/openapi.json` after each slice and build the frontend calls from it (or from the generated types). |
 | AI writes rounded corners, gradients or shadows | Run `scripts/check-design.sh` before every commit. It fails on `rounded`, `gradient` and `shadow` classes and on colours outside the tokens. |

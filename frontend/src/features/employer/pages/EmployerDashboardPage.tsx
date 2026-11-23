@@ -10,6 +10,7 @@ import { Badge } from '../../../components/ui/Badge';
 import { Banner } from '../../../components/ui/Banner';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
+import { ProgressBar } from '../../../components/ui/ProgressBar';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { Table, type Column } from '../../../components/ui/Table';
 import { formatDate } from '../../../lib/format';
@@ -186,6 +187,26 @@ export function EmployerDashboardPage() {
           </Link>
         ))}
       </div>
+
+      {data.quota && (
+        <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">AI screening quota</h2>
+              <p className="text-sm text-text-secondary">
+                {data.quota.planName} plan · {data.quota.used.toLocaleString()} of{' '}
+                {data.quota.quota.toLocaleString()} used this month
+              </p>
+            </div>
+            <Link to="/employer/billing" className="text-sm font-medium text-primary-text hover:underline">
+              View plans
+            </Link>
+          </div>
+          <div className="mt-3 max-w-xl">
+            <ProgressBar value={data.quota.used} max={data.quota.quota} />
+          </div>
+        </section>
+      )}
 
       <section className="space-y-3">
         <div>

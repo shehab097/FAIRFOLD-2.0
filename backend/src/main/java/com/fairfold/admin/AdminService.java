@@ -7,6 +7,7 @@ import com.fairfold.auth.AuthService;
 import com.fairfold.common.audit.AuditService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.common.paging.PageResponse;
+import com.fairfold.mfa.MfaService;
 import com.fairfold.user.Role;
 import com.fairfold.user.User;
 import com.fairfold.user.UserRepository;
@@ -40,14 +41,17 @@ public class AdminService {
     private final JdbcTemplate jdbc;
     private final UserRepository userRepository;
     private final AuthService authService;
+    private final MfaService mfaService;
     private final AuditService auditService;
     private final Clock clock;
 
     public AdminService(JdbcTemplate jdbc, UserRepository userRepository,
-                        AuthService authService, AuditService auditService, Clock clock) {
+                        AuthService authService, MfaService mfaService,
+                        AuditService auditService, Clock clock) {
         this.jdbc = jdbc;
         this.userRepository = userRepository;
         this.authService = authService;
+        this.mfaService = mfaService;
         this.auditService = auditService;
         this.clock = clock;
     }
@@ -104,7 +108,7 @@ public class AdminService {
         listArgs.add(safePage * safeSize);
         List<AdminUserItem> items = jdbc.query(
                 "SELECT id, first_name, last_name, email, role, company_id, locked_until, "
-                        + "disabled_at, created_at FROM users " + where
+                        + "disabled_at, mfa_enabled, created_at FROM users " + where
                         + " ORDER BY created_at DESC LIMIT ? OFFSET ?",
                 (rs, rowNum) -> new AdminUserItem(
                         UUID.fromString(rs.getString("id")),
@@ -115,7 +119,7 @@ public class AdminService {
                                 ? null : UUID.fromString(rs.getString("company_id")),
                         isLocked(rs.getTimestamp("locked_until")),
                         rs.getTimestamp("disabled_at") != null,
-                        false,
+                        rs.getBoolean("mfa_enabled"),
                         rs.getTimestamp("created_at").toInstant()),
                 listArgs.toArray());
         return PageResponse.of(items, safePage, safeSize, total == null ? 0 : total);
@@ -198,7 +202,7 @@ public class AdminService {
                 (user.getFirstName() + " " + user.getLastName()).trim(),
                 user.getEmail(), user.getRole().name(), user.getCompanyId(),
                 user.getLockedUntil() != null && user.getLockedUntil().isAfter(clock.instant()),
-                user.getDisabledAt() != null, false, user.getCreatedAt());
+                user.getDisabledAt() != null, user.isMfaEnabled(), user.getCreatedAt());
     }
 
     @Transactional
@@ -214,5 +218,9 @@ public class AdminService {
 
     public void sendPasswordReset(UUID actorId, UUID targetId) {
         authService.adminSendPasswordReset(actorId, targetId);
+    }
+
+    public void resetMfa(UUID actorId, UUID targetId) {
+        mfaService.adminReset(actorId, targetId);
     }
 }

@@ -80,6 +80,14 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
     }
 
+    @PostMapping("/users/{id}/reset-mfa")
+    @Operation(summary = "Clear a user's MFA settings")
+    public ResponseEntity<Void> resetMfa(@AuthenticationPrincipal CurrentUser user,
+                                         @PathVariable UUID id) {
+        adminService.resetMfa(user.id(), id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/audit")
     @Operation(summary = "Filter the audit log")
     public PageResponse<AuditLogItem> audit(

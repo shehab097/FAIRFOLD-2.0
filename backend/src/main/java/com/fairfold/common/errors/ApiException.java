@@ -3,6 +3,7 @@ package com.fairfold.common.errors;
 import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
+import java.util.Map;
 
 /**
  * Application exception carrying an HTTP status, a machine-readable code and
@@ -15,22 +16,24 @@ public class ApiException extends RuntimeException {
     private final String code;
     private final int retryAfterSeconds;
     private final Instant retryAvailableAt;
+    private final Map<String, Object> details;
 
     public ApiException(HttpStatus status, String code, String message) {
-        this(status, code, message, 0, null);
+        this(status, code, message, 0, null, null);
     }
 
     public ApiException(HttpStatus status, String code, String message, int retryAfterSeconds) {
-        this(status, code, message, retryAfterSeconds, null);
+        this(status, code, message, retryAfterSeconds, null, null);
     }
 
     private ApiException(HttpStatus status, String code, String message, int retryAfterSeconds,
-                         Instant retryAvailableAt) {
+                         Instant retryAvailableAt, Map<String, Object> details) {
         super(message);
         this.status = status;
         this.code = code;
         this.retryAfterSeconds = retryAfterSeconds;
         this.retryAvailableAt = retryAvailableAt;
+        this.details = details;
     }
 
     public HttpStatus getStatus() {
@@ -47,6 +50,10 @@ public class ApiException extends RuntimeException {
 
     public Instant getRetryAvailableAt() {
         return retryAvailableAt;
+    }
+
+    public Map<String, Object> getDetails() {
+        return details;
     }
 
     public static ApiException badRequest(String code, String message) {
@@ -69,8 +76,16 @@ public class ApiException extends RuntimeException {
         return new ApiException(HttpStatus.CONFLICT, code, message);
     }
 
+    public static ApiException conflict(String code, String message, Map<String, Object> details) {
+        return new ApiException(HttpStatus.CONFLICT, code, message, 0, null, details);
+    }
+
+    public static ApiException unauthorized(String code, String message, Map<String, Object> details) {
+        return new ApiException(HttpStatus.UNAUTHORIZED, code, message, 0, null, details);
+    }
+
     public static ApiException cooldown(Instant retryAvailableAt, String message) {
-        return new ApiException(HttpStatus.CONFLICT, "COOLDOWN", message, 0, retryAvailableAt);
+        return new ApiException(HttpStatus.CONFLICT, "COOLDOWN", message, 0, retryAvailableAt, null);
     }
 
     public static ApiException locked(long minutesLeft) {

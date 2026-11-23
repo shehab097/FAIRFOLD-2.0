@@ -5,6 +5,7 @@ import com.fairfold.application.Application;
 import com.fairfold.application.ApplicationRepository;
 import com.fairfold.application.ApplicationStatus;
 import com.fairfold.application.ApplicationStatusService;
+import com.fairfold.billing.QuotaService;
 import com.fairfold.common.errors.ApiException;
 import com.fairfold.config.AppProperties;
 import com.fairfold.job.Job;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** FR-028: estimate, start, progress and retry for screening runs. */
@@ -39,6 +41,7 @@ public class ScreeningService {
     private final ApplicationStatusService statusService;
     private final ScreeningWorker worker;
     private final AiGateway aiGateway;
+    private final QuotaService quotaService;
     private final AppProperties.Ai aiConfig;
 
     public ScreeningService(JobRepository jobRepository,
@@ -49,6 +52,7 @@ public class ScreeningService {
                             ApplicationStatusService statusService,
                             ScreeningWorker worker,
                             AiGateway aiGateway,
+                            QuotaService quotaService,
                             AppProperties properties) {
         this.jobRepository = jobRepository;
         this.applicationRepository = applicationRepository;
@@ -58,6 +62,7 @@ public class ScreeningService {
         this.statusService = statusService;
         this.worker = worker;
         this.aiGateway = aiGateway;
+        this.quotaService = quotaService;
         this.aiConfig = properties.ai();
     }
 
@@ -83,6 +88,13 @@ public class ScreeningService {
             throw ApiException.conflict("NOTHING_TO_SCREEN", "There are no new applicants to screen.");
         }
         String mode = aiGateway.activeMode();
+        if ("ai".equals(mode) && quotaService.wouldExceed(companyId, eligible.size())) {
+            QuotaService.QuotaInfo quota = quotaService.forCompany(companyId);
+            throw ApiException.conflict("QUOTA_EXCEEDED",
+                    "Monthly AI screening quota reached (" + quota.used() + " of "
+                            + quota.quota() + " used). Upgrade your plan to screen more candidates.",
+                    Map.of("used", quota.used(), "quota", quota.quota()));
+        }
         ScreeningRun run = new ScreeningRun();
         run.setJobId(jobId);
         run.setStartedBy(userId);

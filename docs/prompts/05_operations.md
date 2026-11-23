@@ -2,11 +2,11 @@
 
 Read first: `docs/prompts/00_context.md`, this file, `docs/progress.md`. Do not read the PRD or any other document. Chunks 1 to 4 must be finished.
 
-**Goal:** an admin can see and audit everything; users can export and delete their data; employers see analytics, pay for a plan through bKash (sandbox), and anyone can turn on two-step login.
+**Goal:** an admin can see and audit everything; users can export and delete their data; employers see analytics, pay for a plan through **Stripe Checkout (test mode)**, and anyone can turn on two-step login.
 
 **Parts:**
 - **Part 5.1** Admin and compliance: dashboard, users, audit log, data export, account deletion
-- **Part 5.2** Analytics and billing: analytics page, plans, quota, payments (fake provider first, then bKash sandbox)
+- **Part 5.2** Analytics and billing: analytics page, plans, quota, payments (fake provider first, then Stripe test mode)
 - **Part 5.3** MFA: TOTP setup, login code step, admin reset
 
 Start message: `Build Part 5.1 from docs/prompts/05_operations.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
@@ -23,8 +23,8 @@ If time is short, build billing last, and start it with the fake provider.
 | FR-040 Data export | A signed-in user clicks "Download my data" and receives a JSON file immediately. |
 | FR-041 Account deletion | A user confirms with their password and the account is deleted. Personal data and files are removed. Audit rows stay, with the actor cleared. The last admin and the last HR of a company cannot delete themselves (409). |
 | FR-035 Analytics | Pipeline funnel, time-to-hire, a table of overrides with reasons, and the count of `not_matched` candidates pulled back. Each chart has a table view. |
-| FR-048 Billing | The employer sees plan, usage and payment history and buys a 30-day plan through bKash. |
-| FR-056 / BR-30 bKash payment | Employer picks a plan, the backend creates the payment, the employer approves on bKash, the backend verifies and executes it, and the plan is active for 30 days. No auto-renewal. Sandbox only until bKash approves a merchant account. |
+| FR-048 Billing | The employer sees plan, usage and payment history and buys a 30-day plan through Stripe. |
+| FR-056 / BR-30 Stripe payment | Employer picks a plan, the backend creates a Stripe Checkout Session, the employer pays on Stripe's hosted page, the backend verifies the session and marks the payment complete, and the plan is active for 30 days. No auto-renewal. Test mode only until launch. |
 | FR-005 MFA enable | A TOTP secret and QR code are generated. The secret is stored encrypted with a key from the environment. MFA is optional for every role. Turning it off needs the password and a valid code. |
 | FR-006 MFA verify | When MFA is on, login needs a valid 6-digit code after the password. Five wrong codes count as failed logins (lockout rules of chunk 1). |
 
@@ -59,7 +59,7 @@ No new tables. Optional migration `V5_1_1__admin_indexes.sql`: indexes on `users
 |---|---|
 | plans | name text NOT NULL UNIQUE; monthly_screenings int NOT NULL; price_bdt numeric(10,2) NOT NULL; duration_days int NULL (NULL for the Free plan); active boolean NOT NULL DEFAULT true |
 | company_subscriptions | company_id → companies CASCADE; plan_id → plans; starts_at timestamptz NOT NULL; ends_at timestamptz NOT NULL; index (company_id, ends_at DESC) |
-| payments | company_id → companies CASCADE; plan_id → plans; amount_bdt numeric(10,2) NOT NULL; provider text NOT NULL CHECK (`fake`,`bkash`); provider_payment_id text NULL UNIQUE; merchant_invoice text NOT NULL UNIQUE; status text NOT NULL DEFAULT 'initiated' CHECK (`initiated`,`completed`,`failed`,`cancelled`); completed_at timestamptz NULL |
+| payments | company_id → companies CASCADE; plan_id → plans; amount_bdt numeric(10,2) NOT NULL; provider text NOT NULL CHECK (`fake`,`stripe`); provider_payment_id text NULL UNIQUE; merchant_invoice text NOT NULL UNIQUE; status text NOT NULL DEFAULT 'initiated' CHECK (`initiated`,`completed`,`failed`,`cancelled`); completed_at timestamptz NULL; created_at timestamptz NOT NULL |
 
 Seed plans (**placeholders; the owner must confirm names, quotas and prices before launch**): Free (20 screenings a month, 0 BDT, duration NULL), Standard (200, 1500 BDT, 30 days), Pro (1000, 5000 BDT, 30 days).
 
@@ -91,7 +91,7 @@ Seed plans (**placeholders; the owner must confirm names, quotas and prices befo
 | GET `/api/employer/billing` | HR | `{plan:{name, monthlyScreenings, endsAt}, used, quota, plans:[{id, name, monthlyScreenings, priceBdt, durationDays}]}` |
 | GET `/api/employer/billing/payments?page` | HR | `{id, planName, amountBdt, status, createdAt}` |
 | POST `/api/employer/billing/checkout` | HR | `{planId}` → `{redirectUrl}`; Free plan is not purchasable (400) |
-| GET `/api/payments/bkash/callback?paymentID&status` | Public | verify, execute, then 302 to `${APP_BASE_URL}/employer/billing?payment=success\|failed\|cancelled` |
+| GET `/api/payments/stripe/callback?session_id&status` | Public | verify the Checkout Session, then 302 to `${APP_BASE_URL}/employer/billing?payment=success\|failed\|cancelled` |
 | GET `/api/payments/fake/pay?paymentId&outcome` | Public, `local` profile only | simulates the provider and calls the same completion code |
 | (changed) `POST /api/employer/jobs/{id}/screening` | HR | 409 `QUOTA_EXCEEDED` |
 | (changed) `GET /api/employer/dashboard` | HR | `quota: {used, quota, planName, endsAt}` for HR only (null for managers) |
@@ -102,11 +102,11 @@ Analytics response: `{funnel:[{stage, count}], timeToHire:[{month, hires, avgDay
 - Overrides: applications with `override_direction <> 'none'` in range; `userName` is the employer staff member who decided (null becomes "Former user"); show the **alias**, never the candidate's name.
 - `pullBacks`: applications with `pulled_back_at` in range.
 
-`PaymentProvider` interface: `CreatedPayment createPayment(BigDecimal amountBdt, String merchantInvoice, String callbackUrl)` returning `{providerPaymentId, redirectUrl}`; `ExecutionResult execute(String providerPaymentId)` returning `{success, transactionId}`. Select with `PAYMENT_PROVIDER=fake|bkash` (default `fake`).
+`PaymentProvider` interface: `CreatedPayment createPayment(BigDecimal amountBdt, String merchantInvoice, String callbackUrl)` returning `{providerPaymentId, redirectUrl}`; `ExecutionResult execute(String providerPaymentId)` returning `{success, transactionId, amountBdt, currency}`. Select with `PAYMENT_PROVIDER=fake|stripe` (default `fake`; local `.env` uses `stripe`).
 
-Callback handling (idempotent): find the payment by `provider_payment_id` (404 if unknown); if already `completed` just redirect; if `status` is `success` call `execute`, check the amount equals the payment row, then mark `completed`, set `completed_at`, end any active subscription now and create the new subscription (`starts_at = now`, `ends_at = now + duration_days`); otherwise mark `failed` or `cancelled`; audit `payment_completed` or `payment_failed`.
+Callback handling (idempotent): find the payment by `provider_payment_id` (404 if unknown); if already `completed` just redirect; if `status` is `success` call `execute`, check `amountBdt` and the currency against the payment row, then mark `completed`, set `completed_at`, end any active subscription now and create the new subscription (`starts_at = now`, `ends_at = now + duration_days`); otherwise mark `failed` or `cancelled`; audit `payment_completed` or `payment_failed`.
 
-`BkashProvider` (tokenized checkout, sandbox): grant token, create payment, execute payment, query status; cache the token until it expires. Env: `BKASH_BASE_URL`, `BKASH_APP_KEY`, `BKASH_APP_SECRET`, `BKASH_USERNAME`, `BKASH_PASSWORD`. As I remember it, create takes `{mode:"0011", payerReference, callbackURL, amount (string, 2 decimals), currency:"BDT", intent:"sale", merchantInvoiceNumber}` and returns `paymentID` and `bkashURL`. **Confirm every endpoint path, header name and field against bKash's current developer documentation before coding; do not trust memory.** The callback is a browser redirect, so `localhost` works in the sandbox.
+`StripeProvider` (hosted Checkout, test mode): create a Checkout Session with `mode=payment`, one `price_data` line item for the plan in `PAYMENT_CURRENCY` (default `bdt`), `client_reference_id`/metadata `merchant_invoice`, and `success_url`/`cancel_url` pointing at the public callback. Return the Stripe Session id as `providerPaymentId` and `session.url` as `redirectUrl`. On callback, retrieve the Session with the secret key, require `payment_status=paid`, and verify `amount_total` equals the payment amount in minor units plus the currency. Env: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY` (kept for future Stripe.js use; hosted Checkout does not need it), `STRIPE_BASE_URL=https://api.stripe.com`, `PAYMENT_CURRENCY=bdt`. **Never commit keys.** Stripe may reject BDT for some accounts; if so set `PAYMENT_CURRENCY=usd` for the demo and record the currency in `progress.md`. Use Stripe's current API docs for exact field names; do not trust memory.
 
 ### Part 5.3
 
@@ -160,11 +160,11 @@ Nav: admin gets Dashboard, Users, Audit log, Content; HR adds Analytics, Billing
 2. `AnalyticsService` queries from `application_status_history` and `applications`; endpoint.
 3. `PaymentProvider`, `FakePaymentProvider` (local only, with the fake pay endpoint), `BillingService` (checkout, callback, subscriptions, effective plan), `QuotaService`; wire the quota check into the screening start; dashboard quota; endpoints.
 4. Frontend: P28 with `ChartWithTable`, P30, P20 quota block, quota error handling on P24. Chart defaults per `charts/defaults.ts`.
-5. Implement `BkashProvider` last, selectable with `PAYMENT_PROVIDER=bkash`, after checking bKash's docs. Keep the fake provider as the default.
+5. Implement `StripeProvider` last, selectable with `PAYMENT_PROVIDER=stripe`, using hosted Checkout. Keep the fake provider for tests and offline demos.
 
-**Tests:** `Fr035_*` (funnel counts, time-to-hire average with seeded history, overrides show alias not name, pull-back count, date and job filters, manager access, other company's data never included), `Fr048_*` (effective plan, expiry returns to Free, new purchase replaces the old), `Fr056_*` (fake provider happy path, failed, cancelled, callback idempotency, amount mismatch rejected, unknown payment 404), quota (`QUOTA_EXCEEDED`, rule-based runs free, monthly reset by date).
+**Tests:** `Fr035_*` (funnel counts, time-to-hire average with seeded history, overrides show alias not name, pull-back count, date and job filters, manager access, other company's data never included), `Fr048_*` (effective plan, expiry returns to Free, new purchase replaces the old), `Fr056_*` (fake provider happy path, failed, cancelled, callback idempotency, amount mismatch rejected, unknown payment 404; Stripe session mapping with a mocked HTTP client), quota (`QUOTA_EXCEEDED`, rule-based runs free, monthly reset by date).
 
-**Definition of done:** HR opens Analytics and sees the funnel and tables for the demo data; HR buys Standard with the fake provider, returns to Billing with a success banner, and the quota meter shows the new limit; a quota-exceeded run shows the buy link.
+**Definition of done:** HR opens Analytics and sees the funnel and tables for the demo data; HR buys Standard through Stripe test mode (or the fake provider offline), returns to Billing with a success banner, and the quota meter shows the new limit; a quota-exceeded run shows the buy link.
 
 ---
 

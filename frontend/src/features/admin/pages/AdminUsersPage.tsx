@@ -3,6 +3,7 @@ import { KeyRound, Search, Unlock } from 'lucide-react';
 import {
   useAdminUsers,
   useChangeUserRole,
+  useResetUserMfa,
   useSendPasswordReset,
   useUnlockUser,
 } from '../adminQueries';
@@ -49,6 +50,7 @@ export function AdminUsersPage() {
   const [roleTarget, setRoleTarget] = useState<AdminUser | null>(null);
   const [nextRole, setNextRole] = useState('EMPLOYER_MANAGER');
   const [resetTarget, setResetTarget] = useState<AdminUser | null>(null);
+  const [mfaTarget, setMfaTarget] = useState<AdminUser | null>(null);
   const [dialogError, setDialogError] = useState<string | null>(null);
 
   const filters = {
@@ -61,6 +63,7 @@ export function AdminUsersPage() {
   const changeRole = useChangeUserRole();
   const unlock = useUnlockUser();
   const reset = useSendPasswordReset();
+  const resetMfa = useResetUserMfa();
 
   useEffect(() => {
     if (roleTarget) {
@@ -90,6 +93,18 @@ export function AdminUsersPage() {
       await reset.mutateAsync(resetTarget.id);
       toast('Password reset link sent.', 'success');
       setResetTarget(null);
+    } catch (error) {
+      setDialogError(getApiErrorMessage(error));
+    }
+  }
+
+  async function submitMfaReset() {
+    if (!mfaTarget) return;
+    setDialogError(null);
+    try {
+      await resetMfa.mutateAsync(mfaTarget.id);
+      toast('MFA reset.', 'success');
+      setMfaTarget(null);
     } catch (error) {
       setDialogError(getApiErrorMessage(error));
     }
@@ -165,6 +180,18 @@ export function AdminUsersPage() {
           >
             <Icon icon={KeyRound} size={13} /> Reset password
           </Button>
+          {user.mfaEnabled && (
+            <Button
+              variant="secondary"
+              className="h-8 px-2 text-xs"
+              onClick={() => {
+                setDialogError(null);
+                setMfaTarget(user);
+              }}
+            >
+              Reset MFA
+            </Button>
+          )}
         </div>
       ),
     },
@@ -299,6 +326,27 @@ export function AdminUsersPage() {
               </Button>
               <Button loading={changeRole.isPending} onClick={submitRole}>
                 Confirm change
+              </Button>
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      <Dialog open={Boolean(mfaTarget)} title="Reset MFA" onClose={() => setMfaTarget(null)}>
+        {mfaTarget && (
+          <div className="space-y-4">
+            <p className="text-sm text-text-secondary">
+              Clear the authenticator setup for{' '}
+              <span className="font-semibold text-text">{mfaTarget.name}</span>? They can set it up
+              again later.
+            </p>
+            {dialogError && <Banner tone="warning">{dialogError}</Banner>}
+            <div className="flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setMfaTarget(null)}>
+                Cancel
+              </Button>
+              <Button variant="danger" loading={resetMfa.isPending} onClick={submitMfaReset}>
+                Reset MFA
               </Button>
             </div>
           </div>

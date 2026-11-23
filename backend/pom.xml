@@ -109,6 +109,13 @@
             <version>3.0.5</version>
         </dependency>
 
+        <!-- QR rendering for MFA setup -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
         <!-- WebP ImageIO reader/writer for profile-photo conversion -->
         <dependency>
             <groupId>com.github.usefulness</groupId>

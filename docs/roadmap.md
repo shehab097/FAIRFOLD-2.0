@@ -41,7 +41,7 @@ There is no spare time inside these 10 days. Days 11 and 12 are your buffer, and
 ## 4. Before real users (production readiness)
 
 - [ ] Real SMTP provider and domain for reset and invite emails, then turn on email verification
-- [ ] bKash merchant approval and real credentials (the sandbox is not real money)
+- [ ] Stripe live keys and webhook verification (test mode is not real money)
 - [ ] HTTPS and a domain, `cookie-secure: true`, strong secrets in `.env`
 - [ ] MariaDB backups and a tested restore, and a backup of the resume files volume
 - [ ] Non-functional targets written down (response times, availability, accessibility), because the original file did not include them
@@ -79,7 +79,7 @@ These are the PRD's non-goals. Revisit them only when the pilot shows a need.
 | Test resumes and expected strips | M2 (day 2.5) | Generate about 30 fake PDF resumes with the AI |
 | Seed lists (skills, aliases, institutions, employers) | M2 | Ask the AI to draft them, then review |
 | DeepSeek API key | M2 | Create the account; start on the fallback provider meanwhile |
-| bKash sandbox access | M5 (day 8) | Apply now; approval time is outside your control |
+| Stripe test keys | M5 (day 8) | Create a test-mode account; no merchant approval needed for the demo |
 | Plan names, quotas and prices | M5 | Decide before day 8 |
 | Original business rules, if you have them | M2 | Send them so the rebuilt rules can be checked |
 

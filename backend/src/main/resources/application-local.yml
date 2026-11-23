@@ -7,6 +7,9 @@ spring:
 app:
   assessment:
     cooldown-hours: 0
+  mfa:
+    # Local-only fallback so MFA can be tried without a .env key.
+    encryption-key: ${MFA_ENCRYPTION_KEY:ZGV2LW9ubHktZmFpcmZvbGQtbWZhLWtleS0zMmJ5dGU=}
 
 springdoc:
   api-docs:

@@ -38,6 +38,8 @@ import { AttemptPage } from './features/assessments/pages/AttemptPage';
 import { TeamPage } from './features/team/pages/TeamPage';
 import { InterviewsPage } from './features/interviews/pages/InterviewsPage';
 import { InterviewDetailPage } from './features/interviews/pages/InterviewDetailPage';
+import { AnalyticsPage } from './features/employer/pages/AnalyticsPage';
+import { BillingPage } from './features/employer/pages/BillingPage';
 import { ShortlistedPage } from './features/shortlist/pages/ShortlistedPage';
 import { PracticePage } from './features/practice/pages/PracticePage';
 import { JourneyPage } from './features/candidate/pages/JourneyPage';
@@ -226,6 +228,22 @@ export default function App() {
           element={
             <RequireRole roles={['EMPLOYER_HR']}>
               <TeamPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employer/analytics"
+          element={
+            <RequireRole roles={['EMPLOYER_HR', 'EMPLOYER_MANAGER']}>
+              <AnalyticsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employer/billing"
+          element={
+            <RequireRole roles={['EMPLOYER_HR']}>
+              <BillingPage />
             </RequireRole>
           }
         />

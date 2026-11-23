@@ -48,9 +48,9 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Company', to: '/employer/company', enabled: true, icon: Building2 },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },
-    { label: 'Analytics', to: '/employer/analytics', enabled: false, icon: BarChart3 },
+    { label: 'Analytics', to: '/employer/analytics', enabled: true, icon: BarChart3 },
     { label: 'Team', to: '/employer/team', enabled: true, icon: Users },
-    { label: 'Billing', to: '/employer/billing', enabled: false, icon: CreditCard },
+    { label: 'Billing', to: '/employer/billing', enabled: true, icon: CreditCard },
   ],
   EMPLOYER_MANAGER: [
     { label: 'Dashboard', to: '/employer', enabled: true, icon: LayoutDashboard, end: true },
@@ -58,7 +58,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Shortlisted', to: '/employer/shortlisted', enabled: true, icon: UserCheck },
     { label: 'Browse jobs', to: '/jobs', enabled: true, icon: Search, end: true },
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },
-    { label: 'Analytics', to: '/employer/analytics', enabled: false, icon: BarChart3 },
+    { label: 'Analytics', to: '/employer/analytics', enabled: true, icon: BarChart3 },
   ],
   INTERVIEWER: [
     { label: 'Interviews', to: '/employer/interviews', enabled: true, icon: Video },

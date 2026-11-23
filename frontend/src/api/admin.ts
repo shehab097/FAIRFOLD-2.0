@@ -42,6 +42,10 @@ export async function sendUserPasswordReset(id: string): Promise<void> {
   await api.post(`/api/admin/users/${id}/password-reset`);
 }
 
+export async function resetUserMfa(id: string): Promise<void> {
+  await api.post(`/api/admin/users/${id}/reset-mfa`);
+}
+
 export async function listAudit(
   filters: AuditFilters,
   page: number,

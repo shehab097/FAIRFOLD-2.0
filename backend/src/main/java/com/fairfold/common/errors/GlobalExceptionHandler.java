@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = ex.getStatus();
         var body = new ErrorResponse(
                 Instant.now(), status.value(), status.getReasonPhrase(),
-                ex.getCode(), ex.getMessage(), null, ex.getRetryAvailableAt());
+                ex.getCode(), ex.getMessage(), null, ex.getRetryAvailableAt(), ex.getDetails());
         ResponseEntity.BodyBuilder builder = ResponseEntity.status(status);
         if (status == HttpStatus.TOO_MANY_REQUESTS && ex.getRetryAfterSeconds() > 0) {
             builder.header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()));

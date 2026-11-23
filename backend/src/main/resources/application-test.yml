@@ -14,3 +14,7 @@ app:
   ai:
     provider: fallback
     api-key:
+  payment:
+    provider: fake
+  mfa:
+    encryption-key: dGVzdC1vbmx5LWZhaXJmb2xkLW1mYS1rZXktMzJieSE=

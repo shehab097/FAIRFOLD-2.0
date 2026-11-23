@@ -4,6 +4,7 @@ import {
   getAdminStats,
   listAdminUsers,
   listAudit,
+  resetUserMfa,
   sendUserPasswordReset,
   unlockUser,
 } from '../../api/admin';
@@ -39,6 +40,14 @@ export function useUnlockUser() {
 
 export function useSendPasswordReset() {
   return useMutation({ mutationFn: sendUserPasswordReset });
+}
+
+export function useResetUserMfa() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: resetUserMfa,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'users'] }),
+  });
 }
 
 export function useAudit(filters: AuditFilters, page: number) {
