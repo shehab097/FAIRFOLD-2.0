@@ -181,6 +181,32 @@ public class AiGateway {
         }
     }
 
+    public record StoryOutcome(String story, String provider) {}
+
+    /** No fallback: story writing is unavailable when the AI provider is. */
+    public StoryOutcome writeStory(UUID userId, UUID applicationId, String strippedResume,
+                                   AiResult.JobText job, ResumeStripper.Identifiers identifiers) {
+        if (!strippedResume.isBlank() && IdentifierScan.leaks(strippedResume, identifiers)) {
+            record(userId, applicationId, "story", null, 0, 0, "blocked");
+            auditService.record(userId, "ai_call_blocked", "application",
+                    applicationId == null ? null : applicationId.toString(),
+                    "{\"reason\":\"identifier_leak\",\"purpose\":\"story\"}");
+            throw new IdentifierLeakException("Personal details were still present after stripping.");
+        }
+        AiProvider primary = primaryProvider();
+        try {
+            AiResult<AiResult.Story> result = primary.writeStory(strippedResume, job);
+            record(userId, applicationId, "story", result.model(),
+                    result.promptTokens(), result.completionTokens(), "ok");
+            return new StoryOutcome(result.value().story(),
+                    "rule_based".equals(result.model()) ? "rule_based" : "ai");
+        } catch (RuntimeException e) {
+            log.warn("AI story failed via {}: {}", primary.name(), e.getMessage());
+            record(userId, applicationId, "story", primary.name(), 0, 0, "error");
+            throw e;
+        }
+    }
+
     public String activeProviderName() {
         return primaryProvider().name();
     }

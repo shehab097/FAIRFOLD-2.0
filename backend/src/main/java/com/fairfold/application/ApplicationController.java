@@ -3,6 +3,7 @@ package com.fairfold.application;
 import com.fairfold.application.dto.CandidateApplicationDetail;
 import com.fairfold.application.dto.CandidateApplicationListItem;
 import com.fairfold.application.dto.MyApplicationResponse;
+import com.fairfold.application.dto.StoryResponse;
 import com.fairfold.common.paging.PageResponse;
 import com.fairfold.common.security.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,9 +29,11 @@ import java.util.UUID;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
+    private final StoryService storyService;
 
-    public ApplicationController(ApplicationService applicationService) {
+    public ApplicationController(ApplicationService applicationService, StoryService storyService) {
         this.applicationService = applicationService;
+        this.storyService = storyService;
     }
 
     @PostMapping("/jobs/{id}/applications")
@@ -72,5 +75,12 @@ public class ApplicationController {
     public java.util.List<com.fairfold.application.dto.CandidateAssessmentRequirement> requiredAssessments(
             @AuthenticationPrincipal CurrentUser user) {
         return applicationService.requiredAssessmentsForCandidate(user.id());
+    }
+
+    @PostMapping("/candidate/applications/{id}/story")
+    @PreAuthorize("hasRole('CANDIDATE')")
+    @Operation(summary = "Write an AI job story for one application (not stored)")
+    public StoryResponse story(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
+        return storyService.story(user.id(), id);
     }
 }

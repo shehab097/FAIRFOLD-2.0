@@ -161,8 +161,22 @@ public class DeepSeekProvider implements AiProvider {
         return result(root, questions);
     }
 
-    private StarFeedback.Component component(JsonNode root, String name) {
-        JsonNode node = root.path(name);
+    @Override
+    public AiResult<AiResult.Story> writeStory(String strippedResume, AiResult.JobText job) {
+        String user = "Job title: " + nullSafe(job.title())
+                + "\nDescription: " + nullSafe(job.description())
+                + "\nRequirements: " + nullSafe(job.requirements())
+                + "\nSkills: " + String.join(", ", job.skills())
+                + "\n\nStripped resume:\n" + nullSafe(strippedResume);
+        JsonNode root = chat("story_system.txt", user);
+        String story = readJson(content(root)).path("story").asText("").strip();
+        if (story.isEmpty()) {
+            throw new AiProviderException("DeepSeek returned an empty story", null);
+        }
+        return result(root, new AiResult.Story(story));
+    }
+
+    private StarFeedback.Component component(JsonNode root, String name) {        JsonNode node = root.path(name);
         List<StarFeedback.Point> points = new ArrayList<>();
         for (JsonNode point : node.path("points")) {
             String comment = point.path("comment").asText("");

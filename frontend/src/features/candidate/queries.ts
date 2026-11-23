@@ -13,6 +13,7 @@ import {
   getRequiredAssessments,
   getResume,
   getResumeSuggestions,
+  getStory,
   listApplications,
   listSkills,
   listWorkHistory,
@@ -29,6 +30,7 @@ import {
   updateCertification,
 } from '../../api/certifications';
 import type { ApplicationStatus, CertificationInput, WorkHistoryInput } from './types';
+import { getJourney } from '../../api/journey';
 
 export function useProfile() {
   return useQuery({ queryKey: ['candidate', 'profile'], queryFn: getProfile });
@@ -190,6 +192,14 @@ export function useRequiredAssessments() {
     queryKey: ['candidate', 'required-assessments'],
     queryFn: getRequiredAssessments,
   });
+}
+
+export function useJourney() {
+  return useQuery({ queryKey: ['candidate', 'journey'], queryFn: getJourney });
+}
+
+export function useStory() {
+  return useMutation({ mutationFn: getStory });
 }
 
 export function useMyApplication(jobId: string | undefined, enabled: boolean) {

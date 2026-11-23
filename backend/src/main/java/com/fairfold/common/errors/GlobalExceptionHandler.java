@@ -1,5 +1,6 @@
 package com.fairfold.common.errors;
 
+import com.fairfold.ai.AiProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,13 @@ public class GlobalExceptionHandler {
         var body = new ErrorResponse(Instant.now(), 403, "Forbidden", "FORBIDDEN",
                 "You do not have permission.", null);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    @ExceptionHandler(AiProviderException.class)
+    public ResponseEntity<ErrorResponse> handleAiUnavailable(AiProviderException ex) {
+        var body = new ErrorResponse(Instant.now(), 503, "Service Unavailable", "AI_UNAVAILABLE",
+                "The AI provider is unavailable right now. Try again later.", null);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body);
     }
 
     @ExceptionHandler(org.springframework.dao.ConcurrencyFailureException.class)

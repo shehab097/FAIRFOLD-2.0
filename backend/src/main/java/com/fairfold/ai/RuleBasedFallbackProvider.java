@@ -331,4 +331,9 @@ public class RuleBasedFallbackProvider implements AiProvider {
         }
         return AiResult.ruleBased(questions);
     }
+
+    @Override
+    public AiResult<AiResult.Story> writeStory(String strippedResume, AiResult.JobText job) {
+        throw new AiProviderException("Job story generation requires an AI provider", null);
+    }
 }

@@ -31,4 +31,7 @@ public record AiResult<T>(T value, String model, int promptTokens, int completio
                                     String correctOptionId) {}
 
     public record GeneratedOption(String id, String text) {}
+
+    /** A short job-specific story written from the stripped resume. */
+    public record Story(String story) {}
 }

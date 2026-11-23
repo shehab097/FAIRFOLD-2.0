@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 23 November 2026 · Updated by: all-questions attempt page and profile result badges
+Last updated: 23 November 2026 · Updated by: Part 4.3 journey and job story
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -22,17 +22,17 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 4.1 | 04_interviews_growth.md | Team, interview pack, interviews, hire | [x] | | 23 Nov 2026 |
 | 4.2 | 04_interviews_growth.md | Messaging, interview practice | [x] | | 23 Nov 2026 |
 | 4.3+ | custom | CV assessment queue, 30-question pool, skill merge | [x] | | 23 Nov 2026 |
-| 4.3 | 04_interviews_growth.md | Journey, job story | [ ] | | |
-| 5.1 | 05_security_billing_admin.md | MFA, data export, account deletion | [ ] | | |
-| 5.2 | 05_security_billing_admin.md | Plans, payments, screening quota | [ ] | | |
-| 5.3 | 05_security_billing_admin.md | Analytics, admin dashboard, users, audit log | [ ] | | |
+| 4.3 | 04_interviews_growth.md | Journey, job story | [x] | | 23 Nov 2026 |
+| 5.1 | 05_operations.md | Admin dashboard, users, audit log, data export, account deletion | [ ] | | |
+| 5.2 | 05_operations.md | Analytics, plans, payments, screening quota | [ ] | | |
+| 5.3 | 05_operations.md | MFA (TOTP setup, login step, admin reset) | [ ] | | |
 | 6.1 | 06_hardening_release.md | Security and privacy verification | [ ] | | |
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** CV assessment queue follow-up done (skill rescan, regenerate count, profile results). Next: build Part 4.3 (journey timeline, skill evolution, job story) from `docs/prompts/04_interviews_growth.md`.
+**Current focus:** Part 4.3 done (journey timeline, skill evolution, AI job story). Next: build Part 5.1 (admin dashboard, users, audit log, data export, account deletion) from `docs/prompts/05_operations.md`.
 
-**Next session start message:** `Build Part 4.3 from docs/prompts/04_interviews_growth.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 5.1 from docs/prompts/05_operations.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -140,6 +140,8 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-85 | 23 Nov 2026 | CV+ | Candidate Profile no longer shows a per-skill Verified/Self-reported status column. It shows the latest five **Assessment results** (assessment, score, pass/fail, submitted) with a link to the full Assessments page. The assessments page still shows Verified skills. | Owner asked the profile to show assessment results instead of status badges on every skill. |
 | D-86 | 23 Nov 2026 | CV+ | Profile assessment results use text-only **Passed** / **Failed** badges (no tick/cross icons) so no skill row carries a tick mark. | Owner asked to remove the tick mark from skills in the profile view. |
 | D-87 | 23 Nov 2026 | CV+ | P18 now renders **all drawn questions together** on one scrollable page with per-question radio groups and one Submit button. The one-question navigator and Previous/Next controls are removed; autosave, timer, warnings, consent and dev tools are unchanged. The number shown is `min(questionsPerAttempt, poolSize)`, so a 50-question pool with 50 per attempt shows all 50 together. | Owner asked for all questions to be shown together and marked together. |
+| D-88 | 23 Nov 2026 | 4.3 | `GET /api/candidate/journey` is a read-only calculation. The timeline is `work_history` sorted by `start_month` ascending with null starts last. Skills are the **union** of canonical skills named in every entry's `skills_used` and the candidate's profile skills; aliases resolve through `SkillCanonicalizer`. `firstUsedMonth` is the earliest start, `lastUsedMonth` the latest end (current job = this month), `roleTitles` are the titles of the entries listing it. History-only skills get `level:null`/`verified:false`; profile-only skills get null dates. P36 uses floating horizontal bars on a numeric month axis with `MMM YYYY` ticks and a table toggle for each chart. | Implements FR-016/FR-017 without mutating skills during a read, and covers both resume-derived and manually added skills. |
+| D-89 | 23 Nov 2026 | 4.3 | `POST /api/candidate/applications/{id}/story` writes a 120–180-word first-person draft from the current **ready** resume. `AiGateway.writeStory` scans for identifier leaks, records `ai_calls` (`purpose='story'`), and has **no fallback**: provider failure returns `503 AI_UNAVAILABLE`; a leak returns `409 IDENTIFIER_LEAK`. The prompt keeps `[PLACEHOLDER]` tokens unchanged and the service restores them from the candidate-owned `resume_placeholder_map` before responding. Nothing is persisted; only the candidate owner can call it. P16 adds the Story panel with the AI-draft tag, Copy and Regenerate. | Matches FR-018 and keeps story text out of storage and audit details. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -193,10 +195,13 @@ Update after every part.
 
 | CV+++ | 189 passed | 11 passed | passed | yes | Profile assessment results use text-only Passed/Failed badges (no ticks). P18 shows every drawn question on one page with a single Submit; navigator/Previous/Next removed. Autosave, timer, consent, warnings and dev tools unchanged. No API/schema change (OpenAPI remains 104 paths). Decisions D-86–D-87. |
 
+| 4.3 | 195 passed (6 new) | 11 passed | passed | yes | Journey endpoint + service (timeline order, earliest/latest use, current job uses this month, alias mapping, profile-only skills with null dates, history-only skills). AI job story endpoint/service with owner-only access, ready-resume requirement, identifier-leak block, placeholder restoration from `resume_placeholder_map`, no fallback (503), `ai_calls` recording and nothing stored. P36 Journey with career-timeline and skill-evolution floating bar charts + table toggles, empty state; P16 Story panel with Copy/Regenerate; charts/defaults.ts; Journey nav enabled. OpenAPI 106 paths. Decisions D-88–D-89. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 23 Nov 2026 | **Part 4.3 done**: journey and job story. `GET /api/candidate/journey` calculates the career timeline from `work_history` (ascending, null starts last) and skill evolution from canonical `skills_used` plus profile skills, including current-job “today”, aliases, role titles and profile-only null dates. P36 adds two floating-bar charts on a numeric month axis with `MMM YYYY` ticks and table toggles. `POST /api/candidate/applications/{id}/story` writes a first-person draft with no fallback, scans for identifiers, restores placeholders from the candidate-owned map and stores nothing; P16 adds the Story panel with Copy/Regenerate and the AI-draft tag. 195 backend + 11 frontend tests green; design check and build pass; OpenAPI 106 paths. Decisions D-88–D-89. |
 | 23 Nov 2026 | **All-questions attempt page + profile ticks**: P18 now lists every drawn question together with one Submit (no one-at-a-time navigator); Profile assessment results use text-only Passed/Failed badges and no skill tick is shown. Frontend tests/build and design check pass. Decisions D-86–D-87. |
 | 23 Nov 2026 | **Assessment pool follow-up**: added admin **Rescan skills** (`POST /api/admin/skills/rescan`) that trims names and auto-merges alias-shaped duplicates; ran it on the local DB (113 skills, 0 changed). Generation accepts a configurable pool size (default 30, max 100); P34 has Regenerate and P35 has a pool-size field. Candidate Profile no longer shows a status column on every skill; it shows the latest five assessment results instead. 189 backend + 11 frontend tests green; design check and build pass; OpenAPI 104 paths. Decisions D-83–D-85. |
 | 23 Nov 2026 | **CV assessment queue + 30-question pool + skill merge**: migrations `V4_3_1`/`V4_3_2`; alias-first skill canonicalization; one auto topic per canonical skill (candidate add, resume suggestions, resume processing); 30-question AI/fallback generation and admin approve; random 10-of-30 draws stored per attempt with exact resume and drawn-only scoring; admin list pool/review/demand fields; P34 generate/approve/merge badges and dialogs; P35 question pool editing + qpa + approve; P17 CV recommendation highlight. 187 backend + 11 frontend tests green; design check and build pass; OpenAPI 103 paths. Live smoke: Rust queue topic → generate 30 → approve → draw 10 → 100/100. Decisions D-78–D-82. |

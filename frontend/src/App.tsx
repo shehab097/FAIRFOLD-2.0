@@ -37,6 +37,7 @@ import { InterviewsPage } from './features/interviews/pages/InterviewsPage';
 import { InterviewDetailPage } from './features/interviews/pages/InterviewDetailPage';
 import { ShortlistedPage } from './features/shortlist/pages/ShortlistedPage';
 import { PracticePage } from './features/practice/pages/PracticePage';
+import { JourneyPage } from './features/candidate/pages/JourneyPage';
 
 export default function App() {
   return (
@@ -123,6 +124,14 @@ export default function App() {
           element={
             <RequireRole roles={['CANDIDATE']}>
               <PracticePage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/candidate/journey"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <JourneyPage />
             </RequireRole>
           }
         />

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ExternalLink, TriangleAlert } from 'lucide-react';
 import { useApplication } from '../queries';
 import { MessageThread } from '../../messages/components/MessageThread';
+import { StoryPanel } from '../components/StoryPanel';
 import { Banner } from '../../../components/ui/Banner';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -184,6 +185,8 @@ export function ApplicationDetailPage() {
           </ul>
         </Card>
       )}
+
+      <StoryPanel applicationId={application.id} />
 
       <Card>
         <h2 className="mb-4 text-xl font-semibold">Status timeline</h2>

@@ -21,4 +21,6 @@ public interface AiProvider {
     AiResult<StarFeedback> gradeStar(String question, String anonymisedAnswer);
 
     AiResult<List<AiResult.GeneratedQuestion>> generateAssessmentQuestions(String skillName, int count);
+
+    AiResult<AiResult.Story> writeStory(String strippedResume, AiResult.JobText job);
 }

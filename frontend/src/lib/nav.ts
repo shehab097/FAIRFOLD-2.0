@@ -37,7 +37,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Applications', to: '/candidate/applications', enabled: true, icon: FolderKanban },
     { label: 'Resume', to: '/candidate/resume', enabled: true, icon: FileText },
     { label: 'Profile', to: '/candidate/profile', enabled: true, icon: User },
-    { label: 'Journey', to: '/candidate/journey', enabled: false, icon: Sparkles },
+    { label: 'Journey', to: '/candidate/journey', enabled: true, icon: Sparkles },
     { label: 'Assessments', to: '/candidate/assessments', enabled: true, icon: GraduationCap },
     { label: 'Practice', to: '/candidate/practice', enabled: true, icon: Sparkles },
   ],

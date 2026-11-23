@@ -152,6 +152,13 @@ export async function getRequiredAssessments(): Promise<CandidateAssessmentRequi
   return data;
 }
 
+export async function getStory(applicationId: string): Promise<{ story: string; provider: string }> {
+  const { data } = await api.post<{ story: string; provider: string }>(
+    `/api/candidate/applications/${applicationId}/story`,
+  );
+  return data;
+}
+
 // --- dashboard ---
 
 export async function getDashboard(): Promise<Dashboard> {
