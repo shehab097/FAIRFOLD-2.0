@@ -260,9 +260,9 @@ export function ProfilePage() {
         a.passed === null ? (
           <span className="text-text-subtle">—</span>
         ) : a.passed ? (
-          <Badge status="verified" />
+          <Badge tone="success">Passed</Badge>
         ) : (
-          <Badge status="failed" />
+          <Badge tone="failure">Failed</Badge>
         ),
     },
     { header: 'Submitted', render: (a) => formatDate(a.submittedAt) },

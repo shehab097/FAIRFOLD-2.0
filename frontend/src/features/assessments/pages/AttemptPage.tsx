@@ -19,7 +19,6 @@ import { Input } from '../../../components/ui/Input';
 import { ScoreMeter } from '../../../components/ui/ScoreMeter';
 import { Skeleton } from '../../../components/ui/Skeleton';
 import { useToast } from '../../../components/ui/Toast';
-import { QuestionNavigator } from '../components/QuestionNavigator';
 import { SaveIndicator } from '../components/SaveIndicator';
 import { formatRemaining, useCountdown } from '../hooks/useCountdown';
 import { useProctorEvents } from '../hooks/useProctorEvents';
@@ -184,7 +183,6 @@ export function AttemptPage() {
   const [view, setView] = useState<AttemptView | null>(null);
   const [result, setResult] = useState<AttemptView | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [current, setCurrent] = useState(0);
   const [offsetMs, setOffsetMs] = useState(0);
   const [loading, setLoading] = useState(true);
   const [fatal, setFatal] = useState<string | null>(null);
@@ -370,13 +368,12 @@ export function AttemptPage() {
     return <Banner tone="error">This assessment has no questions.</Banner>;
   }
 
-  const question = questions[Math.min(current, questions.length - 1)];
   const answeredCount = questions.filter((q) => Boolean(answers[q.id])).length;
   const unanswered = questions.length - answeredCount;
   const timerLow = remaining !== null && remaining <= 60;
 
-  function choose(optionId: string) {
-    setAnswers((prev) => ({ ...prev, [question.id]: optionId }));
+  function choose(questionId: string, optionId: string) {
+    setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
     setDirty(true);
     setSaved(false);
   }
@@ -407,12 +404,9 @@ export function AttemptPage() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <QuestionNavigator
-          questions={questions}
-          current={current}
-          answers={answers}
-          onSelect={setCurrent}
-        />
+        <p className="text-sm text-text-secondary">
+          All {questions.length} questions are shown below. Mark them together, then submit.
+        </p>
         <SaveIndicator saving={saving} saved={saved} error={saveError} />
       </div>
 
@@ -459,65 +453,58 @@ export function AttemptPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
-        <div className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
-          Question {current + 1} of {questions.length}
-        </div>
-        <h2 className="mt-1 text-lg font-semibold text-text">{question.text}</h2>
-
-        <div role="radiogroup" aria-label="Answer options" className="mt-4 space-y-2">
-          {question.options.map((option) => {
-            const selected = answers[question.id] === option.id;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                onClick={() => choose(option.id)}
-                className={
-                  selected
-                    ? 'flex w-full items-center gap-3 rounded-lg border border-primary bg-primary-subtle px-3 py-3 text-left text-sm text-text'
-                    : 'flex w-full items-center gap-3 rounded-lg border border-border bg-bg px-3 py-3 text-left text-sm text-text hover:bg-raised'
-                }
-              >
-                <span
-                  className={
-                    selected
-                      ? 'flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white'
-                      : 'h-5 w-5 shrink-0 rounded-full border border-border-strong bg-surface'
-                  }
-                >
-                  {selected && <Icon icon={Check} size={13} strokeWidth={3} />}
-                </span>
-                <span>{option.text}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
-          <Button
-            variant="secondary"
-            disabled={current === 0}
-            onClick={() => setCurrent((value) => Math.max(0, value - 1))}
+      <div className="space-y-4">
+        {questions.map((question, index) => (
+          <div
+            key={question.id}
+            className="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6"
           >
-            Previous
-          </Button>
-          <div className="flex gap-2">
-            {current < questions.length - 1 && (
-              <Button
-                variant="secondary"
-                onClick={() => setCurrent((value) => Math.min(questions.length - 1, value + 1))}
-              >
-                Next
-              </Button>
-            )}
-            <Button onClick={() => setConfirmOpen(true)} loading={submitting}>
-              Submit
-            </Button>
+            <div className="text-xs font-semibold uppercase tracking-[0.06em] text-text-secondary">
+              Question {index + 1} of {questions.length}
+            </div>
+            <h2 className="mt-1 text-lg font-semibold text-text">{question.text}</h2>
+
+            <div role="radiogroup" aria-label={`Answer options for question ${index + 1}`} className="mt-4 space-y-2">
+              {question.options.map((option) => {
+                const selected = answers[question.id] === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => choose(question.id, option.id)}
+                    className={
+                      selected
+                        ? 'flex w-full items-center gap-3 rounded-lg border border-primary bg-primary-subtle px-3 py-3 text-left text-sm text-text'
+                        : 'flex w-full items-center gap-3 rounded-lg border border-border bg-bg px-3 py-3 text-left text-sm text-text hover:bg-raised'
+                    }
+                  >
+                    <span
+                      className={
+                        selected
+                          ? 'flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white'
+                          : 'h-5 w-5 shrink-0 rounded-full border border-border-strong bg-surface'
+                      }
+                    >
+                      {selected && <Icon icon={Check} size={13} strokeWidth={3} />}
+                    </span>
+                    <span>{option.text}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface p-4 shadow-sm">
+        <span className="text-sm text-text-secondary">
+          {answeredCount} of {questions.length} answered · {unanswered} unanswered
+        </span>
+        <Button onClick={() => setConfirmOpen(true)} loading={submitting}>
+          Submit assessment
+        </Button>
       </div>
 
       <Dialog open={confirmOpen} title="Submit assessment?" onClose={() => setConfirmOpen(false)}>

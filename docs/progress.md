@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 23 November 2026 · Updated by: assessment pool refresh/rescan, profile results
+Last updated: 23 November 2026 · Updated by: all-questions attempt page and profile result badges
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -138,6 +138,8 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-83 | 23 Nov 2026 | CV+ | Admin **Rescan skills** (`POST /api/admin/skills/rescan`): trims/collapses every skill name and auto-merges rows whose name resolves to a different canonical skill through `skill_aliases`, reusing the merge rules (attempt-bearing source assessments are skipped and reported). The local `fairfold` database was scanned: 113 skills, 0 renamed, 0 merged, 0 skipped; all 100 seed skills are present. | The owner suspected an old database had stale skills; this gives a repeatable refresh without manual SQL. |
 | D-84 | 23 Nov 2026 | CV+ | Assessment generation accepts an optional `count` (1–100, default 30) so admins can regenerate a 30- or 50-question pool. P34 shows **Generate 30 questions** for pending generation and **Regenerate** (same pool size) for other pools with no attempts; P35 has a pool-size field and Generate/Regenerate. Attempts still draw `min(questionsPerAttempt, poolSize)`, so a 50-per-attempt setting over a 30-question pool uses all 30. | Makes “regenerate/rescan” real without hard-coding 30, while preserving the requested 30 default and 10-per-attempt default. |
 | D-85 | 23 Nov 2026 | CV+ | Candidate Profile no longer shows a per-skill Verified/Self-reported status column. It shows the latest five **Assessment results** (assessment, score, pass/fail, submitted) with a link to the full Assessments page. The assessments page still shows Verified skills. | Owner asked the profile to show assessment results instead of status badges on every skill. |
+| D-86 | 23 Nov 2026 | CV+ | Profile assessment results use text-only **Passed** / **Failed** badges (no tick/cross icons) so no skill row carries a tick mark. | Owner asked to remove the tick mark from skills in the profile view. |
+| D-87 | 23 Nov 2026 | CV+ | P18 now renders **all drawn questions together** on one scrollable page with per-question radio groups and one Submit button. The one-question navigator and Previous/Next controls are removed; autosave, timer, warnings, consent and dev tools are unchanged. The number shown is `min(questionsPerAttempt, poolSize)`, so a 50-question pool with 50 per attempt shows all 50 together. | Owner asked for all questions to be shown together and marked together. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -189,10 +191,13 @@ Update after every part.
 
 | CV++ | 189 passed (2 new) | 11 passed | passed | yes | Admin **Rescan skills** endpoint (trim/merge alias-shaped duplicates, skip+report attempt-bearing sources); local DB rescan reported 113 scanned / 0 merged / 0 renamed and all 100 seed skills present. Generation now accepts `count` 1–100 (default 30), P34 Regenerate, P35 pool-size + generate/regenerate. Profile removes per-skill status and shows the latest five assessment results. OpenAPI 104 paths. Decisions D-83–D-85. |
 
+| CV+++ | 189 passed | 11 passed | passed | yes | Profile assessment results use text-only Passed/Failed badges (no ticks). P18 shows every drawn question on one page with a single Submit; navigator/Previous/Next removed. Autosave, timer, consent, warnings and dev tools unchanged. No API/schema change (OpenAPI remains 104 paths). Decisions D-86–D-87. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 23 Nov 2026 | **All-questions attempt page + profile ticks**: P18 now lists every drawn question together with one Submit (no one-at-a-time navigator); Profile assessment results use text-only Passed/Failed badges and no skill tick is shown. Frontend tests/build and design check pass. Decisions D-86–D-87. |
 | 23 Nov 2026 | **Assessment pool follow-up**: added admin **Rescan skills** (`POST /api/admin/skills/rescan`) that trims names and auto-merges alias-shaped duplicates; ran it on the local DB (113 skills, 0 changed). Generation accepts a configurable pool size (default 30, max 100); P34 has Regenerate and P35 has a pool-size field. Candidate Profile no longer shows a status column on every skill; it shows the latest five assessment results instead. 189 backend + 11 frontend tests green; design check and build pass; OpenAPI 104 paths. Decisions D-83–D-85. |
 | 23 Nov 2026 | **CV assessment queue + 30-question pool + skill merge**: migrations `V4_3_1`/`V4_3_2`; alias-first skill canonicalization; one auto topic per canonical skill (candidate add, resume suggestions, resume processing); 30-question AI/fallback generation and admin approve; random 10-of-30 draws stored per attempt with exact resume and drawn-only scoring; admin list pool/review/demand fields; P34 generate/approve/merge badges and dialogs; P35 question pool editing + qpa + approve; P17 CV recommendation highlight. 187 backend + 11 frontend tests green; design check and build pass; OpenAPI 103 paths. Live smoke: Rust queue topic → generate 30 → approve → draw 10 → 100/100. Decisions D-78–D-82. |
 | 23 Nov 2026 | **Part 4.2 done**: messaging and interview practice. Migration `V4_2_1`. Messaging opens after shortlist with candidate/HR/manager access, read marking, `afterId` polling, closed-thread and rate-limit handling, collapsed notifications, and no message text in AI/audit. Practice adds an admin question bank, private candidate sessions, `ResumeStripper.anonymise`, versioned `star-v1` STAR grading with no fallback, quote validation/drop, placeholder restoration and 1–5 helpfulness ratings. Frontend MessageThread tabs on P16/P25, P19 practice, P34 practice tab, Practice nav. 183 backend + 11 frontend tests green; design check and build pass; OpenAPI 100 paths. Live smoke: real DeepSeek STAR feedback on an anonymised answer, rating saved, and two-way messages. Decisions D-74–D-77. |
