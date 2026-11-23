@@ -10,6 +10,7 @@ export interface ApiError {
   code: string;
   message: string;
   errors?: FieldError[];
+  retryAvailableAt?: string | null;
 }
 
 export function isApiError(value: unknown): value is ApiError {

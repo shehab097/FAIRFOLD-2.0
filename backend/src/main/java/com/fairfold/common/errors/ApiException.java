@@ -2,6 +2,8 @@ package com.fairfold.common.errors;
 
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
+
 /**
  * Application exception carrying an HTTP status, a machine-readable code and
  * a human message. Thrown by services and translated by
@@ -12,16 +14,23 @@ public class ApiException extends RuntimeException {
     private final HttpStatus status;
     private final String code;
     private final int retryAfterSeconds;
+    private final Instant retryAvailableAt;
 
     public ApiException(HttpStatus status, String code, String message) {
-        this(status, code, message, 0);
+        this(status, code, message, 0, null);
     }
 
     public ApiException(HttpStatus status, String code, String message, int retryAfterSeconds) {
+        this(status, code, message, retryAfterSeconds, null);
+    }
+
+    private ApiException(HttpStatus status, String code, String message, int retryAfterSeconds,
+                         Instant retryAvailableAt) {
         super(message);
         this.status = status;
         this.code = code;
         this.retryAfterSeconds = retryAfterSeconds;
+        this.retryAvailableAt = retryAvailableAt;
     }
 
     public HttpStatus getStatus() {
@@ -34,6 +43,10 @@ public class ApiException extends RuntimeException {
 
     public int getRetryAfterSeconds() {
         return retryAfterSeconds;
+    }
+
+    public Instant getRetryAvailableAt() {
+        return retryAvailableAt;
     }
 
     public static ApiException badRequest(String code, String message) {
@@ -54,6 +67,10 @@ public class ApiException extends RuntimeException {
 
     public static ApiException conflict(String code, String message) {
         return new ApiException(HttpStatus.CONFLICT, code, message);
+    }
+
+    public static ApiException cooldown(Instant retryAvailableAt, String message) {
+        return new ApiException(HttpStatus.CONFLICT, "COOLDOWN", message, 0, retryAvailableAt);
     }
 
     public static ApiException locked(long minutesLeft) {

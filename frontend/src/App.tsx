@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { PublicShell } from './components/layout/PublicShell';
 import { AuthShell } from './components/layout/AuthShell';
 import { PortalShell } from './components/layout/PortalShell';
+import { FocusShell } from './components/layout/FocusShell';
 import { GuestOnly, RequireAuth, RequireRole } from './app/guards';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
@@ -29,6 +30,8 @@ import { AccountPage } from './features/account/pages/AccountPage';
 import { ChangePasswordPage } from './features/account/pages/ChangePasswordPage';
 import { ContentPage } from './features/admin/pages/ContentPage';
 import { AssessmentEditorPage } from './features/admin/pages/AssessmentEditorPage';
+import { AssessmentsPage } from './features/assessments/pages/AssessmentsPage';
+import { AttemptPage } from './features/assessments/pages/AttemptPage';
 
 export default function App() {
   return (
@@ -98,6 +101,14 @@ export default function App() {
           element={
             <RequireRole roles={['CANDIDATE']}>
               <ApplicationDetailPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/candidate/assessments"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <AssessmentsPage />
             </RequireRole>
           }
         />
@@ -197,6 +208,23 @@ export default function App() {
           element={
             <RequireRole roles={['ADMIN']}>
               <AssessmentEditorPage />
+            </RequireRole>
+          }
+        />
+      </Route>
+
+      <Route
+        element={
+          <RequireAuth>
+            <FocusShell />
+          </RequireAuth>
+        }
+      >
+        <Route
+          path="/candidate/assessments/:assessmentId/attempt"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <AttemptPage />
             </RequireRole>
           }
         />

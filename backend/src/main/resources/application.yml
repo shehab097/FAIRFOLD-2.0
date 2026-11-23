@@ -54,6 +54,8 @@ app:
     max-tokens: ${AI_MAX_TOKENS:4000}
   resources:
     link-check-cron: "${RESOURCE_LINK_CHECK_CRON:0 0 3 * * SUN}"
+  assessment:
+    cooldown-hours: ${ASSESSMENT_COOLDOWN_HOURS:48}
 
 springdoc:
   swagger-ui:

@@ -3,6 +3,11 @@ spring:
     activate:
       on-profile: local
 
+# Local demo: allow a failed assessment to be retaken immediately.
+app:
+  assessment:
+    cooldown-hours: 0
+
 springdoc:
   api-docs:
     enabled: true

@@ -70,6 +70,7 @@ const STATUS_ENTRIES: Record<string, { tone: StatusTone; label: string }> = {
   ready: { tone: 'success', label: 'Ready' },
   // Content
   broken: { tone: 'failure', label: 'Broken' },
+  verified: { tone: 'success', label: 'Verified' },
 };
 
 export function statusStyle(status: string): StatusStyle {

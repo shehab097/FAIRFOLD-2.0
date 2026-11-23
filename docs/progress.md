@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 23 November 2026 · Updated by: implementation session (Part 3.1 admin content)
+Last updated: 23 November 2026 · Updated by: implementation session (Part 3.2 assessment taking)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -17,7 +17,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [x] | | 22 Nov 2026 |
 | 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [x] | | 22 Nov 2026 |
 | 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [x] | | 23 Nov 2026 |
-| 3.2 | 03_skills_proof.md | Taking assessments, Verified badge | [ ] | | |
+| 3.2 | 03_skills_proof.md | Taking assessments, Verified badge | [x] | | 23 Nov 2026 |
 | 3.3 | 03_skills_proof.md | Gate, proctoring, certifications | [ ] | | |
 | 4.1 | 04_interviews_growth.md | Team, interview pack, interviews, hire | [ ] | | |
 | 4.2 | 04_interviews_growth.md | Messaging, interview practice | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 3.1 done (admin content + link checker + admin shell). Next: build Part 3.2 (taking assessments, attempts, Verified badge, retake loop) from `docs/prompts/03_skills_proof.md`.
+**Current focus:** Part 3.2 done (taking assessments, scoring, cooldown, Verified badge). Next: build Part 3.3 (job gates, light proctoring, certifications) from `docs/prompts/03_skills_proof.md`.
 
-**Next session start message:** `Build Part 3.2 from docs/prompts/03_skills_proof.md. Follow 00_context.md and read D-57 first. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 3.3 from docs/prompts/03_skills_proof.md. Follow 00_context.md and read D-57 and D-60 first. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -111,6 +111,10 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-57 | 23 Nov 2026 | 3.1 | `assessment_attempts` is created in `V3_1_1__content.sql` (its DDL was planned for 3.2). The attempt entity/repository exist now with only `countByAssessmentId` used. **3.2 must not recreate the table**; the prompt file has a note. | Question locking (`409 ASSESSMENT_HAS_ATTEMPTS`) and the admin list's `attemptCount` cannot be implemented or tested before the table exists, and 3.1 is where the lock rule is defined. |
 | D-58 | 23 Nov 2026 | 3.1 | The resource link checker runs weekly (`RESOURCE_LINK_CHECK_CRON`, default Sunday 03:00) and from the manual endpoint. It treats non-2xx/3xx, DNS failures, non-http(s) URLs and private/local/link-local hosts as `broken`, sets `last_checked_at`, and never sends a request to a refused host. `@EnableScheduling` is enabled. | Implements FR-061/BR-15 with SSRF protection; unsafe or unreachable links stay hidden from candidates until fixed. |
 | D-59 | 23 Nov 2026 | 3.1 | `GlobalExceptionHandler` now maps method-security `AccessDeniedException` to `403 FORBIDDEN`. | `@PreAuthorize` denials previously fell through to the generic handler and returned 500; the admin 403 test caught it, and the fix applies to every role-guarded endpoint. |
+| D-60 | 23 Nov 2026 | 3.2 | **No `V3_2_1` migration.** `assessment_attempts` already exists from `V3_1_1` (D-57) with every column and index 3.2 needs; only the entity repository gained queries. | Recreating the table would fail; the schema was deliberately moved into 3.1 because question locking needed it. |
+| D-61 | 23 Nov 2026 | 3.2 | 409 `COOLDOWN` carries a top-level `retryAvailableAt` (ISO instant): `ErrorResponse` has an optional `retryAvailableAt` field (omitted when null) and `ApiException.cooldown(...)` sets it. | The prompt requires the retry time in the error body so P17/P18 can show it without a second request. |
+| D-62 | 23 Nov 2026 | 3.2 | `application-local.yml` sets `app.assessment.cooldown-hours=0` for the demo; tests keep the 48-hour default and age `submitted_at` with SQL to check both the blocked and the elapsed case. Timed sweeper tests assert the outcome rather than the exact sweep count, so the 60 s scheduler cannot make them flaky. | Gives the required instant retake locally while still testing real cooldown arithmetic. |
+| D-63 | 23 Nov 2026 | 3.2 | Start/resume and result share one `AttemptView` DTO serialized with `@JsonInclude(NON_NULL)`; in-progress attempts carry questions/answers/endsAt, submitted attempts carry score/result/resources. Correct option ids are never present. | Keeps the API shapes from the prompt with one schema for springdoc and the frontend. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -148,10 +152,13 @@ Update after every part.
 
 | 3.1 | 138 passed (10 new) | 11 passed | passed | yes | Migration `V3_1_1` (`assessments`, `assessment_questions`, `resources`, `assessment_attempts`). Admin assessment CRUD with 2–6 options / one correct / 1+ question validation, whole-question replacement, `409 ASSESSMENT_HAS_ATTEMPTS` when attempts exist (title/duration/pass mark/active still editable), active toggles and audits. Resource CRUD, active toggle, SSRF-safe weekly/manual link checker that marks broken links and records `last_checked_at`. `DemoContentSeeder` (local only): 3 assessments × 10 MCQs and 15 resources. Admin shell/nav, `/admin` → `/admin/content`, P34 tabs and P35 editor. OpenAPI now 62 paths. Decisions D-57–D-59. |
 
+| 3.2 | 150 passed (12 new) | 11 passed | passed | yes | Candidate assessment list/history; start or resume (one in-progress attempt), 2 s autosave with merged answers, submit (idempotent), scoring `round(100 × correct ÷ total)` with unanswered wrong, pass-mark boundary, 48 h cooldown with `retryAvailableAt`, auto-submit sweeper every 60 s, pass upserts `candidate_skills` (`verified`, `beginner`, no years) and keeps retakes open. `AttemptView` never exposes correct ids; failed results include active, not-broken resources. P17 cards + history; P18 FocusShell with server-offset timer, question navigator, save indicator, submit confirmation and result view. Local profile cooldown is 0. OpenAPI now 69 paths. Live smoke: demo assessment 10 questions, fail 0 with 5 resources, instant retake, pass 100, JavaScript verified. Decisions D-60–D-63. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 23 Nov 2026 | **Part 3.2 done**: candidate assessments. Added `AttemptService` (start/resume, merged autosave, idempotent submit, scoring with unanswered wrong, cooldown, Verified badge upsert), `AutoSubmitSweeper` (60 s), a `GateService` submit hook stub for 3.3, and candidate endpoints (`GET /api/assessments`, history, start, answers, submit, get, `GET /api/resources`). `409 COOLDOWN` now returns `retryAvailableAt`; result responses include resources only after a fail and never the correct option ids. Frontend P17 cards/history and P18 FocusShell with server-time countdown, question navigator, 2 s autosave + saved indicator, submit confirmation, result/resources/retry view, and a Verified badge in the profile/status map. Local profile retake cooldown is 0. 150 backend + 11 frontend tests green; design check and build pass; OpenAPI 69 paths; live smoke fail→resources→retake→pass→verified. Decisions D-60–D-63. |
 | 23 Nov 2026 | **Part 3.1 done**: admin content. Migration `V3_1_1` adds `assessments`, `assessment_questions`, `resources` and (moved from 3.2) `assessment_attempts`. Admin CRUD for assessments validates 2–6 options with exactly one correct answer and at least one question; questions/skill lock once attempts exist (`409 ASSESSMENT_HAS_ATTEMPTS`) while title/duration/pass mark/active stay editable. Resources support cost/language/level/active, a manual "check links now" endpoint and a weekly SSRF-safe HEAD/GET check that marks broken links and records the check time. Added `DemoContentSeeder` (local only), admin nav/redirect, P34 Content (assessments + resources tables, dialogs, toggles, pagination) and P35 assessment editor (question/option ordering, correct answer, locked state). Also fixed method-security denials returning 500 instead of 403. 138 backend + 11 frontend tests green; design check and build pass; OpenAPI 62 paths. Decisions D-57–D-59. |
 | 22 Nov 2026 | **Employer dashboard expansion**: added pipeline counts by application status, the five newest applications (alias, job, score, status, bias, applied), and active-job applicant activity. P20 now shows a pipeline grid, recent-applications table and open-jobs table; it polls every 15s with a Refresh button. Decision D-56. |
 | 22 Nov 2026 | **Employer dashboard freshness**: dashboard now polls every 15s with a Refresh button, and screening start/retry, job actions and review decisions invalidate its counters. Decision D-55. |

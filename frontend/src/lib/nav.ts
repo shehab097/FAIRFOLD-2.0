@@ -37,7 +37,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Resume', to: '/candidate/resume', enabled: true, icon: FileText },
     { label: 'Profile', to: '/candidate/profile', enabled: true, icon: User },
     { label: 'Journey', to: '/candidate/journey', enabled: false, icon: Sparkles },
-    { label: 'Assessments', to: '/candidate/assessments', enabled: false, icon: GraduationCap },
+    { label: 'Assessments', to: '/candidate/assessments', enabled: true, icon: GraduationCap },
     { label: 'Practice', to: '/candidate/practice', enabled: false, icon: Sparkles },
   ],
   EMPLOYER_HR: [
