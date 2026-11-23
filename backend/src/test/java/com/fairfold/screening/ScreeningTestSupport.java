@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** Shared setup for screening integration tests. */
-abstract class ScreeningTestSupport extends AbstractIntegrationTest {
+public abstract class ScreeningTestSupport extends AbstractIntegrationTest {
 
     protected UUID createScreeningJob(String token) throws Exception {
         return createScreeningJob(token, true);

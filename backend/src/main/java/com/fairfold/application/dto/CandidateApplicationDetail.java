@@ -22,7 +22,8 @@ public record CandidateApplicationDetail(
         String notMatchedRule,
         String gateStatus,
         List<RequiredAssessment> requiredAssessments,
-        List<InterviewRef> interviews
+        List<InterviewRef> interviews,
+        boolean threadOpen
 ) {
     public record HistoryEntry(String status, Instant at) {}
 

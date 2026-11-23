@@ -297,4 +297,9 @@ public class RuleBasedFallbackProvider implements AiProvider {
                         "Motivation and evidence of working at this level and scope."));
         return AiResult.ruleBased(new AiResult.InterviewPack(questions, rubric));
     }
+
+    @Override
+    public AiResult<StarFeedback> gradeStar(String question, String anonymisedAnswer) {
+        throw new AiProviderException("STAR grading requires an AI provider", null);
+    }
 }

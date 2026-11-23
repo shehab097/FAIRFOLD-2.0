@@ -118,6 +118,34 @@ public class DeepSeekProvider implements AiProvider {
         return result(root, new AiResult.InterviewPack(questions, rubric));
     }
 
+    @Override
+    public AiResult<StarFeedback> gradeStar(String question, String anonymisedAnswer) {
+        String user = "Question:\n" + nullSafe(question) + "\n\nAnswer:\n"
+                + nullSafe(anonymisedAnswer);
+        JsonNode root = chat("star-v1.txt", user);
+        JsonNode json = readJson(content(root));
+        StarFeedback feedback = new StarFeedback(
+                component(json, "situation"),
+                component(json, "task"),
+                component(json, "action"),
+                component(json, "result"),
+                json.path("summary").asText(""));
+        return result(root, feedback);
+    }
+
+    private StarFeedback.Component component(JsonNode root, String name) {
+        JsonNode node = root.path(name);
+        List<StarFeedback.Point> points = new ArrayList<>();
+        for (JsonNode point : node.path("points")) {
+            String comment = point.path("comment").asText("");
+            String quote = point.path("quote").asText("");
+            if (!comment.isBlank() || !quote.isBlank()) {
+                points.add(new StarFeedback.Point(comment, quote));
+            }
+        }
+        return new StarFeedback.Component(node.path("rating").asInt(1), points);
+    }
+
     private String nullSafe(String value) {
         return value == null ? "" : value;
     }

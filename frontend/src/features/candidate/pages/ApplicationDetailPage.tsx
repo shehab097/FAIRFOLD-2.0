@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ExternalLink, TriangleAlert } from 'lucide-react';
 import { useApplication } from '../queries';
+import { MessageThread } from '../../messages/components/MessageThread';
 import { Banner } from '../../../components/ui/Banner';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -8,11 +10,13 @@ import { Card } from '../../../components/ui/Card';
 import { Icon } from '../../../components/ui/Icon';
 import { ScoreMeter } from '../../../components/ui/ScoreMeter';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { Tabs } from '../../../components/ui/Tabs';
 import { formatDate } from '../../../lib/format';
 
 export function ApplicationDetailPage() {
   const { applicationId } = useParams<{ applicationId: string }>();
   const { data: application, isLoading, isError } = useApplication(applicationId);
+  const [tab, setTab] = useState<'overview' | 'messages'>('overview');
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (isError || !application) return <Banner tone="error">Application not found.</Banner>;
@@ -43,6 +47,25 @@ export function ApplicationDetailPage() {
         </Banner>
       )}
 
+      {!application.threadOpen && (
+        <Banner tone="info">Messaging opens if the employer shortlists you.</Banner>
+      )}
+
+      {application.threadOpen && (
+        <Tabs
+          tabs={[
+            { key: 'overview', label: 'Overview' },
+            { key: 'messages', label: 'Messages' },
+          ]}
+          active={tab}
+          onChange={(key) => setTab(key as 'overview' | 'messages')}
+        />
+      )}
+
+      {tab === 'messages' && application.threadOpen ? (
+        <MessageThread applicationId={application.id} />
+      ) : (
+        <>
       {(application.score !== null || application.claims.length > 0) && (
         <Card>
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -191,6 +214,8 @@ export function ApplicationDetailPage() {
           Back to applications
         </Link>
       </div>
+        </>
+      )}
     </div>
   );
 }

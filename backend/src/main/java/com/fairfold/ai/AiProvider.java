@@ -17,4 +17,6 @@ public interface AiProvider {
 
     AiResult<AiResult.InterviewPack> generateInterviewPack(AiResult.JobText job,
                                                            List<String> screeningQuestions);
+
+    AiResult<StarFeedback> gradeStar(String question, String anonymisedAnswer);
 }

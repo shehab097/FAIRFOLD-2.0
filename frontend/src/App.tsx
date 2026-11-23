@@ -36,6 +36,7 @@ import { TeamPage } from './features/team/pages/TeamPage';
 import { InterviewsPage } from './features/interviews/pages/InterviewsPage';
 import { InterviewDetailPage } from './features/interviews/pages/InterviewDetailPage';
 import { ShortlistedPage } from './features/shortlist/pages/ShortlistedPage';
+import { PracticePage } from './features/practice/pages/PracticePage';
 
 export default function App() {
   return (
@@ -114,6 +115,14 @@ export default function App() {
           element={
             <RequireRole roles={['CANDIDATE']}>
               <AssessmentsPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/candidate/practice"
+          element={
+            <RequireRole roles={['CANDIDATE']}>
+              <PracticePage />
             </RequireRole>
           }
         />

@@ -10,6 +10,7 @@ import {
 import { useHireApplication, useScheduleInterview } from '../../interviews/queries';
 import { useInterviewers } from '../../team/queries';
 import { teamRoleLabel } from '../../team/types';
+import { MessageThread } from '../../messages/components/MessageThread';
 import { StrippedResume } from '../components/StrippedResume';
 import type { EmployerIdentity } from '../../jobs/types';
 import { Badge } from '../../../components/ui/Badge';
@@ -20,6 +21,7 @@ import { Dialog } from '../../../components/ui/Dialog';
 import { Input } from '../../../components/ui/Input';
 import { ScoreMeter } from '../../../components/ui/ScoreMeter';
 import { Skeleton } from '../../../components/ui/Skeleton';
+import { Tabs } from '../../../components/ui/Tabs';
 import { useToast } from '../../../components/ui/Toast';
 import { getApiErrorMessage } from '../../../lib/errors';
 import { formatDate } from '../../../lib/format';
@@ -54,6 +56,7 @@ export function ApplicationReviewPage() {
   const { data: interviewers } = useInterviewers();
   const { toast } = useToast();
   const [activeClaim, setActiveClaim] = useState<number | null>(null);
+  const [tab, setTab] = useState<'review' | 'messages'>('review');
   const [shortlistOpen, setShortlistOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -220,6 +223,20 @@ export function ApplicationReviewPage() {
         is logged.
       </Banner>
 
+      {review.identity && (
+        <Tabs
+          tabs={[
+            { key: 'review', label: 'Review' },
+            { key: 'messages', label: 'Messages' },
+          ]}
+          active={tab}
+          onChange={(key) => setTab(key as 'review' | 'messages')}
+        />
+      )}
+
+      {tab === 'messages' && review.identity ? (
+        <MessageThread applicationId={review.id} />
+      ) : (
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_390px]">
         <aside className="space-y-4 lg:order-2 lg:sticky lg:top-20 lg:self-start">
           <div className="rounded-xl border border-border bg-surface p-5 shadow-sm">
@@ -489,6 +506,7 @@ export function ApplicationReviewPage() {
           )}
         </article>
       </div>
+      )}
 
       <Dialog
         open={shortlistOpen}

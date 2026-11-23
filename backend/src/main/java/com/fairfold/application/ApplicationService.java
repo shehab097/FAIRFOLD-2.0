@@ -244,7 +244,8 @@ public class ApplicationService {
                         .stream()
                         .map(i -> new CandidateApplicationDetail.InterviewRef(
                                 i.getScheduledAt(), i.getDurationMinutes(), i.getMeetingLink()))
-                        .toList());
+                        .toList(),
+                application.getShortlistedAt() != null);
     }
 
     private List<CandidateApplicationDetail.RequiredAssessment> requiredAssessments(

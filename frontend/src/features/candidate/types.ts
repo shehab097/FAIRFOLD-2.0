@@ -161,6 +161,7 @@ export interface CandidateApplicationDetail {
   gateStatus: string;
   requiredAssessments: CandidateRequiredAssessment[];
   interviews: CandidateInterviewRef[];
+  threadOpen: boolean;
 }
 
 export interface CandidateInterviewRef {

@@ -68,6 +68,26 @@ public final class ResumeStripper {
         return new Result(text.strip(), registry.mappings());
     }
 
+    /**
+     * Practice-mode anonymisation: known identifiers, contact patterns,
+     * institutions and employers only. Header-name, personal-line and date
+     * removal steps are intentionally skipped.
+     */
+    public Result anonymise(String text, Identifiers identifiers, Terms terms) {
+        if (text == null || text.isBlank()) {
+            return new Result("", List.of());
+        }
+        String clean = text.replace("\r\n", "\n").replace('\r', '\n');
+        clean = stripKnownIdentifiers(clean, identifiers);
+        clean = stripLinkAndContactPatterns(clean);
+
+        Registry registry = new Registry();
+        clean = stripNamedTerms(clean, terms, registry);
+        clean = stripInstitutionAndEmployerPatterns(clean, registry);
+
+        return new Result(clean.strip(), registry.mappings());
+    }
+
     // --- step 1 ------------------------------------------------------------
 
     private String stripKnownIdentifiers(String text, Identifiers ids) {

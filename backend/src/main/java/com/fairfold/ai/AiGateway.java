@@ -143,6 +143,21 @@ public class AiGateway {
         }
     }
 
+    /** No fallback: coaching feedback is unavailable when the AI provider is. */
+    public AiResult<StarFeedback> gradeStar(UUID userId, String question, String anonymisedAnswer) {
+        AiProvider primary = primaryProvider();
+        try {
+            AiResult<StarFeedback> result = primary.gradeStar(question, anonymisedAnswer);
+            record(userId, null, "practice_feedback", result.model(),
+                    result.promptTokens(), result.completionTokens(), "ok");
+            return result;
+        } catch (RuntimeException e) {
+            log.warn("AI STAR grading failed via {}: {}", primary.name(), e.getMessage());
+            record(userId, null, "practice_feedback", primary.name(), 0, 0, "error");
+            throw e;
+        }
+    }
+
     public String activeProviderName() {
         return primaryProvider().name();
     }
