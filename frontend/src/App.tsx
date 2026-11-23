@@ -6,6 +6,7 @@ import { FocusShell } from './components/layout/FocusShell';
 import { GuestOnly, RequireAuth, RequireRole } from './app/guards';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { PrivacyPage, TermsPage } from './pages/LegalPages';
 import { LoginPage } from './features/auth/pages/LoginPage';
 import { RegisterPage } from './features/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from './features/auth/pages/ForgotPasswordPage';
@@ -53,6 +54,8 @@ export default function App() {
         <Route path="/jobs" element={<JobBoardPage />} />
         <Route path="/jobs/:jobId" element={<JobDetailPage />} />
         <Route path="/companies/:companyId" element={<CompanyProfilePage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
       </Route>
 
       <Route

@@ -56,7 +56,14 @@ export function PublicShell({ children }: { children?: ReactNode }) {
       <footer className="border-t border-border bg-surface py-4 text-xs text-text-subtle">
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-2 px-4 sm:px-6">
           <span>FairFold · Fair, evidence-based hiring platform</span>
-          <span>Anonymised screening · Explained scores · People decide</span>
+          <nav className="flex items-center gap-4" aria-label="Legal">
+            <Link to="/terms" className="transition-colors hover:text-text">
+              Terms of Service
+            </Link>
+            <Link to="/privacy" className="transition-colors hover:text-text">
+              Privacy Policy
+            </Link>
+          </nav>
         </div>
       </footer>
     </div>

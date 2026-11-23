@@ -87,8 +87,19 @@ export function RegisterPage() {
         <Checkbox
           checked={consent}
           onChange={setConsent}
-          label="I agree to the terms and consent to the processing of my data."
+          label="I agree to the terms and privacy policy."
         />
+        <p className="-mt-2 text-xs text-text-subtle">
+          Read the{' '}
+          <Link to="/terms" className="text-primary-text hover:underline">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link to="/privacy" className="text-primary-text hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
 
         <Button type="submit" loading={loading} disabled={!consent} className="w-full">
           Create account

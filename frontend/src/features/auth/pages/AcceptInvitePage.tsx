@@ -119,8 +119,19 @@ export function AcceptInvitePage() {
         <Checkbox
           checked={consent}
           onChange={setConsent}
-          label="I agree to the terms and privacy policy"
+          label="I agree to the terms and privacy policy."
         />
+        <p className="-mt-2 text-xs text-text-subtle">
+          Read the{' '}
+          <Link to="/terms" className="text-primary-text hover:underline">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link to="/privacy" className="text-primary-text hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
         <Button type="submit" loading={busy} disabled={!consent}>
           Accept invite and sign in
         </Button>
