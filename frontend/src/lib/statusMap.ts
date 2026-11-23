@@ -68,6 +68,8 @@ const STATUS_ENTRIES: Record<string, { tone: StatusTone; label: string }> = {
   uploaded: { tone: 'neutral', label: 'Uploaded' },
   processing: { tone: 'progress', label: 'Processing' },
   ready: { tone: 'success', label: 'Ready' },
+  // Content
+  broken: { tone: 'failure', label: 'Broken' },
 };
 
 export function statusStyle(status: string): StatusStyle {

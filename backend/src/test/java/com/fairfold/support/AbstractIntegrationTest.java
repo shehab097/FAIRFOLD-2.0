@@ -9,10 +9,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +43,9 @@ public abstract class AbstractIntegrationTest {
 
     @Autowired
     protected RateLimitService rateLimitService;
+
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
 
     protected record TestEmployer(String token, UUID companyId) {}
 
@@ -97,6 +102,25 @@ public abstract class AbstractIntegrationTest {
 
     protected UUID skillId(String name) {
         return jdbcTemplate.queryForObject("SELECT id FROM skills WHERE name = ?", UUID.class, name);
+    }
+
+    /** Inserts an ADMIN user directly and returns an access token for it. */
+    protected String loginAdmin(String email) throws Exception {
+        UUID id = UUID.randomUUID();
+        jdbcTemplate.update(
+                "INSERT INTO users (id, email, password_hash, first_name, last_name, role, "
+                        + "email_verified, consent_at) VALUES (?, ?, ?, 'Admin', 'FairFold', 'ADMIN', true, ?)",
+                id.toString(), email, passwordEncoder.encode("password123"),
+                new Timestamp(System.currentTimeMillis()));
+        String body = objectMapper.writeValueAsString(Map.of(
+                "email", email, "password", "password123"));
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isOk())
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString())
+                .get("accessToken").asText();
     }
 
     /** Inserts a current, uploaded resume row directly (no file I/O) and returns its id. */

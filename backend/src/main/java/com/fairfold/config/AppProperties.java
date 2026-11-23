@@ -13,9 +13,12 @@ public record AppProperties(
         Jwt jwt,
         Mail mail,
         Admin admin,
-        Ai ai
+        Ai ai,
+        Resources resources
 ) {
     public record Auth(boolean requireEmailVerification) {}
+
+    public record Resources(String linkCheckCron) {}
 
     public record Jwt(String secret, long accessTokenMinutes) {}
 

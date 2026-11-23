@@ -47,6 +47,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(body);
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex) {
+        var body = new ErrorResponse(Instant.now(), 403, "Forbidden", "FORBIDDEN",
+                "You do not have permission.", null);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
     @ExceptionHandler(org.springframework.dao.ConcurrencyFailureException.class)
     public ResponseEntity<ErrorResponse> handleConcurrency(org.springframework.dao.ConcurrencyFailureException ex) {
         log.warn("Concurrency conflict: {}", ex.getMessage());

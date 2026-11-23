@@ -59,6 +59,8 @@ Start message: `Build Part 3.1 from docs/prompts/03_skills_proof.md. Follow 00_c
 
 ### Part 3.2 migration (`V3_2_1__attempts.sql`)
 
+> **Already done in 3.1:** `assessment_attempts` was created by `V3_1_1__content.sql` (D-57), because question locking and attempt counts need the table. Do **not** recreate it in 3.2; add an index-only migration if something is missing.
+
 | Table | Columns |
 |---|---|
 | assessment_attempts | assessment_id → assessments; user_id → users CASCADE; started_at datetime(3) NOT NULL; ends_at datetime(3) NOT NULL; submitted_at datetime(3) NULL; answers json NOT NULL DEFAULT (JSON_OBJECT()) (`{"<questionId>":"<optionId>"}`); score int NULL; passed boolean NULL; status text NOT NULL DEFAULT 'in_progress' CHECK (`in_progress`,`submitted`,`auto_submitted`); proctoring_consent boolean NULL; explanation text NULL (max 500); indexes (user_id, assessment_id, started_at DESC), index on (status, ends_at) |

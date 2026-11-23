@@ -126,7 +126,8 @@ class AiGatewayTest {
                 new AppProperties.Mail("console"),
                 new AppProperties.Admin("", ""),
                 new AppProperties.Ai("deepseek", "key", "https://api.deepseek.com", "deepseek-chat",
-                        new BigDecimal("0.27"), new BigDecimal("1.10"), 60, 1000));
+                        new BigDecimal("0.27"), new BigDecimal("1.10"), 60, 1000),
+                new AppProperties.Resources("0 0 3 * * SUN"));
         return new AiGateway(providers, properties, new AiCallRecorder(repository, properties), audit);
     }
 

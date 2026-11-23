@@ -1,6 +1,6 @@
 # FairFold — Progress and History
 
-Last updated: 22 November 2026 · Updated by: implementation session (dashboard expansion + profile/resume UX fixes)
+Last updated: 23 November 2026 · Updated by: implementation session (Part 3.1 admin content)
 
 > Read this after `00_context.md` at the start of every session. Update it at the end of every session. Keep entries short. Newest history entry goes at the top of the History section.
 
@@ -16,7 +16,7 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 2.1 | 02_ai_screening.md | Resume processing, stripping, AI gateway | [x] | | 22 Nov 2026 |
 | 2.2 | 02_ai_screening.md | Screening engine, scoring, bias check | [x] | | 22 Nov 2026 |
 | 2.3 | 02_ai_screening.md | Ranked list, review, shortlist, reveal, override | [x] | | 22 Nov 2026 |
-| 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [ ] | | |
+| 3.1 | 03_skills_proof.md | Admin content: assessments, resources | [x] | | 23 Nov 2026 |
 | 3.2 | 03_skills_proof.md | Taking assessments, Verified badge | [ ] | | |
 | 3.3 | 03_skills_proof.md | Gate, proctoring, certifications | [ ] | | |
 | 4.1 | 04_interviews_growth.md | Team, interview pack, interviews, hire | [ ] | | |
@@ -29,9 +29,9 @@ Legend: `[ ]` not started · `[~]` in progress · `[x]` done (tests green, desig
 | 6.2 | 06_hardening_release.md | Testcontainers run, performance, a11y, demo data | [ ] | | |
 | 6.3 | 06_hardening_release.md | Production config, docs, Docker hand-off notes | [ ] | | |
 
-**Current focus:** Part 2.3 done (chunk 2 complete). Next: build Part 3.1 (admin content: assessments, resources) from `docs/prompts/03_skills_proof.md`.
+**Current focus:** Part 3.1 done (admin content + link checker + admin shell). Next: build Part 3.2 (taking assessments, attempts, Verified badge, retake loop) from `docs/prompts/03_skills_proof.md`.
 
-**Next session start message:** `Build Part 3.1 from docs/prompts/03_skills_proof.md. Follow 00_context.md. Stop when the Definition of Done is met and update docs/progress.md.`
+**Next session start message:** `Build Part 3.2 from docs/prompts/03_skills_proof.md. Follow 00_context.md and read D-57 first. Stop when the Definition of Done is met and update docs/progress.md.`
 
 ## 2. Environment checklist (tick when true on your machine)
 
@@ -108,6 +108,9 @@ Record every choice that is not already in the prompts, and every deviation. For
 | D-54 | 22 Nov 2026 | UI | Removed the bordered, padded chip styling from stripped-resume placeholders. Both previews now show subtle inline bracketed tokens (`[Name]`, `[Employer]`, `[Institution]`, `[Email]`, …); the candidate preview keeps the original value in the tooltip. | The pill borders and margins looked like buttons scattered through the resume and made the text harder to read. |
 | D-55 | 22 Nov 2026 | 2.3+ | Employer dashboard refetches every 15 seconds and has a manual Refresh button; starting/retrying screening, changing job status, and shortlist/reject/pull-back invalidate the dashboard query. | Counters could stay stale after screening or job lifecycle changes; polling covers candidate applications arriving while the dashboard is open. |
 | D-56 | 22 Nov 2026 | 2.3+ | `GET /api/employer/dashboard` now also returns `pipeline` counts for every application status, the five newest applications (alias, job, score, status, bias, appliedAt) and up to five active jobs with applicant/awaiting/screened counts. The P20 page renders these as stat blocks, a pipeline grid, a recent-applications table and an open-jobs table. | The original dashboard only had four counters and made it hard to see where candidates were in the pipeline or which jobs needed attention. |
+| D-57 | 23 Nov 2026 | 3.1 | `assessment_attempts` is created in `V3_1_1__content.sql` (its DDL was planned for 3.2). The attempt entity/repository exist now with only `countByAssessmentId` used. **3.2 must not recreate the table**; the prompt file has a note. | Question locking (`409 ASSESSMENT_HAS_ATTEMPTS`) and the admin list's `attemptCount` cannot be implemented or tested before the table exists, and 3.1 is where the lock rule is defined. |
+| D-58 | 23 Nov 2026 | 3.1 | The resource link checker runs weekly (`RESOURCE_LINK_CHECK_CRON`, default Sunday 03:00) and from the manual endpoint. It treats non-2xx/3xx, DNS failures, non-http(s) URLs and private/local/link-local hosts as `broken`, sets `last_checked_at`, and never sends a request to a refused host. `@EnableScheduling` is enabled. | Implements FR-061/BR-15 with SSRF protection; unsafe or unreachable links stay hidden from candidates until fixed. |
+| D-59 | 23 Nov 2026 | 3.1 | `GlobalExceptionHandler` now maps method-security `AccessDeniedException` to `403 FORBIDDEN`. | `@PreAuthorize` denials previously fell through to the generic handler and returned 500; the admin 403 test caught it, and the fix applies to every role-guarded endpoint. |
 
 ## 4. Open questions (ask the owner, then move to Decisions)
 
@@ -143,10 +146,13 @@ Update after every part.
 
 | 2.3++ | 128 passed | 11 passed | passed | yes | Employer dashboard expansion: status pipeline counts, five recent applications with aliases/scores/bias and links to review, and five active jobs with applicant/awaiting/screened counts. Dashboard polls every 15s and has a manual Refresh button; screening and job lifecycle actions invalidate it. Live check on demo company: 1 open job, 11 new, 0 awaiting, 1 bias flag, pipeline 7 screened / 1 shortlisted / 3 not matched. |
 
+| 3.1 | 138 passed (10 new) | 11 passed | passed | yes | Migration `V3_1_1` (`assessments`, `assessment_questions`, `resources`, `assessment_attempts`). Admin assessment CRUD with 2–6 options / one correct / 1+ question validation, whole-question replacement, `409 ASSESSMENT_HAS_ATTEMPTS` when attempts exist (title/duration/pass mark/active still editable), active toggles and audits. Resource CRUD, active toggle, SSRF-safe weekly/manual link checker that marks broken links and records `last_checked_at`. `DemoContentSeeder` (local only): 3 assessments × 10 MCQs and 15 resources. Admin shell/nav, `/admin` → `/admin/content`, P34 tabs and P35 editor. OpenAPI now 62 paths. Decisions D-57–D-59. |
+
 ## 7. History (newest first)
 
 | Date | Event |
 |---|---|
+| 23 Nov 2026 | **Part 3.1 done**: admin content. Migration `V3_1_1` adds `assessments`, `assessment_questions`, `resources` and (moved from 3.2) `assessment_attempts`. Admin CRUD for assessments validates 2–6 options with exactly one correct answer and at least one question; questions/skill lock once attempts exist (`409 ASSESSMENT_HAS_ATTEMPTS`) while title/duration/pass mark/active stay editable. Resources support cost/language/level/active, a manual "check links now" endpoint and a weekly SSRF-safe HEAD/GET check that marks broken links and records the check time. Added `DemoContentSeeder` (local only), admin nav/redirect, P34 Content (assessments + resources tables, dialogs, toggles, pagination) and P35 assessment editor (question/option ordering, correct answer, locked state). Also fixed method-security denials returning 500 instead of 403. 138 backend + 11 frontend tests green; design check and build pass; OpenAPI 62 paths. Decisions D-57–D-59. |
 | 22 Nov 2026 | **Employer dashboard expansion**: added pipeline counts by application status, the five newest applications (alias, job, score, status, bias, applied), and active-job applicant activity. P20 now shows a pipeline grid, recent-applications table and open-jobs table; it polls every 15s with a Refresh button. Decision D-56. |
 | 22 Nov 2026 | **Employer dashboard freshness**: dashboard now polls every 15s with a Refresh button, and screening start/retry, job actions and review decisions invalidate its counters. Decision D-55. |
 | 22 Nov 2026 | **Placeholder token styling**: stripped resume/preview placeholders are now subtle inline bracketed tokens instead of bordered chips with spacing. Candidate tooltip still shows the original removed value. Decision D-54. |
