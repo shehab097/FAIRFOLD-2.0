@@ -7,6 +7,7 @@ import {
   FolderKanban,
   GraduationCap,
   LayoutDashboard,
+  NotebookPen,
   Search,
   Shield,
   Sparkles,
@@ -39,7 +40,7 @@ export const SIDEBAR_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Profile', to: '/candidate/profile', enabled: true, icon: User },
     { label: 'Journey', to: '/candidate/journey', enabled: true, icon: Sparkles },
     { label: 'Assessments', to: '/candidate/assessments', enabled: true, icon: GraduationCap },
-    { label: 'Practice', to: '/candidate/practice', enabled: true, icon: Sparkles },
+    { label: 'Practice', to: '/candidate/practice', enabled: true, icon: NotebookPen },
   ],
   EMPLOYER_HR: [
     { label: 'Dashboard', to: '/employer', enabled: true, icon: LayoutDashboard, end: true },
