@@ -7,9 +7,9 @@ Chart.defaults.borderColor = '#4B4453';
 Chart.defaults.font.family = "'Lato', sans-serif";
 
 export const CHART_COLORS = {
-  primary: '#845EC2',
-  accent: '#FF8066',
-  muted: '#B0A8B9',
-  danger: '#C34A36',
-  grid: '#4B4453',
+  primary: '#10B981',
+  accent: '#34D399',
+  muted: '#94A3B8',
+  danger: '#EF4444',
+  grid: '#334155',
 };

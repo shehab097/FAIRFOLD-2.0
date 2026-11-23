@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <!-- Vertical Spine (Deep Burnt Orange) -->
-  <polygon points="55,30 85,30 85,170 55,150" fill="#C2410C" />
+  <!-- Vertical Spine (Deep Forest Green) -->
+  <polygon points="55,30 85,30 85,170 55,150" fill="#225100" />
   
-  <!-- Top Horizontal Fold (Vibrant Orange) -->
-  <polygon points="55,30 155,30 135,60 55,60" fill="#F97316" />
+  <!-- Top Horizontal Fold (Primary Green) -->
+  <polygon points="55,30 155,30 135,60 55,60" fill="#2F6C00" />
   
-  <!-- Middle Arm Fold (Warm Amber) -->
-  <polygon points="85,85 135,85 120,112 85,112" fill="#FB923C" />
+  <!-- Middle Arm Fold (Electric Lime) -->
+  <polygon points="85,85 135,85 120,112 85,112" fill="#9FE870" />
 </svg>
