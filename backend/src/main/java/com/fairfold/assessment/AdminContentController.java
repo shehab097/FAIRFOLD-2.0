@@ -41,15 +41,18 @@ public class AdminContentController {
     private final LearningResourceService resourceService;
     private final ResourceLinkChecker linkChecker;
     private final SkillMergeService mergeService;
+    private final SkillRescanService rescanService;
 
     public AdminContentController(AssessmentService assessmentService,
                                   LearningResourceService resourceService,
                                   ResourceLinkChecker linkChecker,
-                                  SkillMergeService mergeService) {
+                                  SkillMergeService mergeService,
+                                  SkillRescanService rescanService) {
         this.assessmentService = assessmentService;
         this.resourceService = resourceService;
         this.linkChecker = linkChecker;
         this.mergeService = mergeService;
+        this.rescanService = rescanService;
     }
 
     // --- assessments -------------------------------------------------------
@@ -93,9 +96,11 @@ public class AdminContentController {
     }
 
     @PostMapping("/assessments/{id}/generate")
-    @Operation(summary = "Generate a 30-question pool and move to pending review")
-    public AssessmentDetail generate(@AuthenticationPrincipal CurrentUser user, @PathVariable UUID id) {
-        return assessmentService.generate(user.id(), id);
+    @Operation(summary = "Generate a question pool and move to pending review")
+    public AssessmentDetail generate(@AuthenticationPrincipal CurrentUser user,
+                                     @PathVariable UUID id,
+                                     @RequestParam(defaultValue = "30") int count) {
+        return assessmentService.generate(user.id(), id, count);
     }
 
     @PostMapping("/assessments/{id}/approve")
@@ -110,6 +115,12 @@ public class AdminContentController {
                                                     @PathVariable UUID sourceSkillId,
                                                     @Valid @RequestBody SkillMergeRequest request) {
         return mergeService.merge(sourceSkillId, request.targetSkillId(), user.id());
+    }
+
+    @PostMapping("/skills/rescan")
+    @Operation(summary = "Trim skill names and auto-merge alias-shaped duplicates")
+    public SkillRescanService.RescanResult rescanSkills(@AuthenticationPrincipal CurrentUser user) {
+        return rescanService.rescan(user.id());
     }
 
     // --- resources ---------------------------------------------------------

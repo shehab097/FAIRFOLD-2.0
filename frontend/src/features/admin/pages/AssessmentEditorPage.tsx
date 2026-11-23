@@ -74,6 +74,7 @@ export function AssessmentEditorPage() {
   const [durationMinutes, setDurationMinutes] = useState('30');
   const [passMark, setPassMark] = useState('70');
   const [questionsPerAttempt, setQuestionsPerAttempt] = useState('10');
+  const [generateCount, setGenerateCount] = useState('30');
   const [active, setActive] = useState(true);
   const [questions, setQuestions] = useState<EditQuestion[]>([emptyQuestion()]);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +91,7 @@ export function AssessmentEditorPage() {
     setDurationMinutes(String(detail.durationMinutes));
     setPassMark(String(detail.passMark));
     setQuestionsPerAttempt(String(detail.questionsPerAttempt));
+    setGenerateCount(String(detail.poolSize > 0 ? detail.poolSize : 30));
     setActive(detail.active);
     setQuestions(toEditQuestions(detail));
   }, [detail]);
@@ -210,9 +212,10 @@ export function AssessmentEditorPage() {
 
   async function generatePool() {
     if (!assessmentId) return;
+    const count = Math.max(1, Math.min(100, Number(generateCount) || 30));
     try {
-      await generate.mutateAsync(assessmentId);
-      toast('30 questions generated. Review and edit them, then approve.', 'success');
+      await generate.mutateAsync({ id: assessmentId, count });
+      toast(`${count} questions generated. Review and edit them, then approve.`, 'success');
     } catch (err) {
       toast(getApiErrorMessage(err), 'error');
     }
@@ -283,9 +286,9 @@ export function AssessmentEditorPage() {
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          {detail?.reviewStatus === 'pending_generation' && (
+          {detail && detail.attemptCount === 0 && (
             <Button variant="secondary" loading={generate.isPending} onClick={generatePool}>
-              Generate 30 questions
+              {detail.reviewStatus === 'pending_generation' ? 'Generate questions' : 'Regenerate questions'}
             </Button>
           )}
           {detail?.reviewStatus === 'pending_review' && (
@@ -366,6 +369,15 @@ export function AssessmentEditorPage() {
               max={50}
               value={questionsPerAttempt}
               onChange={(e) => setQuestionsPerAttempt(e.target.value)}
+            />
+          </Field>
+          <Field label="Pool size for generation">
+            <Input
+              type="number"
+              min={1}
+              max={100}
+              value={generateCount}
+              onChange={(e) => setGenerateCount(e.target.value)}
             />
           </Field>
           <div className="flex items-center justify-between rounded-lg border border-border bg-bg px-3 py-2 sm:col-span-2">

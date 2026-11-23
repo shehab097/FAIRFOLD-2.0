@@ -169,6 +169,12 @@ public class AssessmentService {
 
     @Transactional
     public AssessmentDetail generate(UUID actorId, UUID id) {
+        return generate(actorId, id, 30);
+    }
+
+    @Transactional
+    public AssessmentDetail generate(UUID actorId, UUID id, int requestedCount) {
+        int count = Math.max(1, Math.min(100, requestedCount));
         Assessment assessment = require(id);
         if (attemptRepository.countByAssessmentId(id) > 0) {
             throw ApiException.conflict("ASSESSMENT_HAS_ATTEMPTS",
@@ -176,7 +182,7 @@ public class AssessmentService {
         }
         Skill skill = requireSkill(assessment.getSkillId());
         AiResult<List<AiResult.GeneratedQuestion>> result = aiGateway.generateAssessmentQuestions(
-                actorId, skill.getName(), 30);
+                actorId, skill.getName(), count);
         if (result.value() == null || result.value().isEmpty()) {
             throw ApiException.conflict("AI_UNAVAILABLE",
                     "The question generator returned no questions. Try again.");

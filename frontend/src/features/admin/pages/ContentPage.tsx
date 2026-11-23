@@ -8,6 +8,7 @@ import {
   useCreateResource,
   useGenerateAssessment,
   useMergeSkill,
+  useRescanSkills,
   useResources,
   useSetAssessmentActive,
   useSetResourceActive,
@@ -318,6 +319,7 @@ export function ContentPage() {
   const generateAssessment = useGenerateAssessment();
   const approveAssessment = useApproveAssessment();
   const mergeSkill = useMergeSkill();
+  const rescanSkills = useRescanSkills();
   const checkLinks = useCheckResourceLinks();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -391,12 +393,24 @@ export function ContentPage() {
   async function generatePool(row: AssessmentListItem) {
     setBusyId(row.id);
     try {
-      await generateAssessment.mutateAsync(row.id);
-      toast('30 questions generated. Review them, then approve.', 'success');
+      await generateAssessment.mutateAsync({ id: row.id, count: row.poolSize > 0 ? row.poolSize : 30 });
+      toast('Question pool generated. Review them, then approve.', 'success');
     } catch (err) {
       toast(getApiErrorMessage(err), 'error');
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function runRescan() {
+    try {
+      const result = await rescanSkills.mutateAsync();
+      toast(
+        `Scanned ${result.scanned} skills: ${result.merged} merged, ${result.renamed} renamed, ${result.skipped} skipped.`,
+        result.skipped ? 'error' : 'success',
+      );
+    } catch (err) {
+      toast(getApiErrorMessage(err), 'error');
     }
   }
 
@@ -492,6 +506,16 @@ export function ContentPage() {
               onClick={() => generatePool(row)}
             >
               Generate 30 questions
+            </Button>
+          )}
+          {row.reviewStatus !== 'pending_generation' && row.attemptCount === 0 && (
+            <Button
+              variant="secondary"
+              className="h-8 px-2 text-xs"
+              loading={busyId === row.id}
+              onClick={() => generatePool(row)}
+            >
+              Regenerate
             </Button>
           )}
           {row.reviewStatus === 'pending_review' && (
@@ -633,6 +657,9 @@ export function ContentPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" loading={rescanSkills.isPending} onClick={runRescan}>
+            <Icon icon={RefreshCw} size={16} /> Rescan skills
+          </Button>
           {tab === 'assessments' ? (
             <Link
               to="/admin/assessments/new"

@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { Check, FileText, KeyRound, LogOut, MapPin, Pencil, Plus, UserCheck } from 'lucide-react';
 import { useAuth } from '../../../app/auth/AuthContext';
 import { useProfile, useResume, useSkills, useAddSkill, useUpdateSkill, useDeleteSkill, useUpdateProfile } from '../queries';
+import { useAttemptHistory } from '../../assessments/queries';
 import { suggestSkills } from '../../../api/skills';
 import { SKILL_LEVELS, REMOTE_PREFERENCES, EDUCATION_LEVELS, type CandidateSkill } from '../types';
+import type { AttemptHistoryItem } from '../../assessments/types';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
 import { Dialog } from '../../../components/ui/Dialog';
@@ -24,6 +26,7 @@ import { WorkHistorySection } from '../components/WorkHistorySection';
 import { CertificationsSection } from '../components/CertificationsSection';
 import { UserAvatar } from '../../../components/ui/UserAvatar';
 import { DetailGrid, DetailItem, DetailSection } from '../../../components/ui/DetailList';
+import { formatDate } from '../../../lib/format';
 
 function SkillEditor({
   open,
@@ -163,6 +166,7 @@ export function ProfilePage() {
   const { user, signOut } = useAuth();
   const { data: profile, isLoading } = useProfile();
   const { data: skills } = useSkills();
+  const { data: attemptHistory } = useAttemptHistory(0);
   const { data: resume } = useResume();
   const updateProfile = useUpdateProfile();
   const deleteSkill = useDeleteSkill();
@@ -233,10 +237,6 @@ export function ProfilePage() {
     { header: 'Level', render: (s) => <span className="capitalize">{s.level}</span> },
     { header: 'Years', render: (s) => (s.years === null ? '—' : String(s.years)) },
     {
-      header: 'Status',
-      render: (s) => (s.verified ? <Badge status="verified" /> : <Badge tone="neutral">Self-reported</Badge>),
-    },
-    {
       header: '',
       render: (s) => (
         <div className="flex justify-end gap-1">
@@ -249,6 +249,23 @@ export function ProfilePage() {
         </div>
       ),
     },
+  ];
+
+  const attemptColumns: Column<AttemptHistoryItem>[] = [
+    { header: 'Assessment', render: (a) => a.assessmentTitle },
+    { header: 'Score', render: (a) => (a.score === null ? '—' : `${a.score}%`) },
+    {
+      header: 'Result',
+      render: (a) =>
+        a.passed === null ? (
+          <span className="text-text-subtle">—</span>
+        ) : a.passed ? (
+          <Badge status="verified" />
+        ) : (
+          <Badge status="failed" />
+        ),
+    },
+    { header: 'Submitted', render: (a) => formatDate(a.submittedAt) },
   ];
 
   if (isLoading) return <Skeleton className="h-64 w-full" />;
@@ -481,6 +498,33 @@ export function ProfilePage() {
         ) : (
           <Table columns={columns} rows={skills ?? []} rowKey={(s) => s.id} />
         )}
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Assessment results</h2>
+            <p className="text-sm text-text-secondary">
+              Your latest submitted assessment attempts and scores.
+            </p>
+          </div>
+          <Link to="/candidate/assessments" className="text-sm text-primary-text hover:underline">
+            View all assessments
+          </Link>
+        </div>
+        <Table
+          columns={attemptColumns}
+          rows={(attemptHistory?.items ?? []).slice(0, 5)}
+          rowKey={(a) => a.id}
+          empty={
+            <div className="rounded-xl border border-border bg-surface p-6 text-center text-sm text-text-secondary">
+              No assessment results yet.{' '}
+              <Link to="/candidate/assessments" className="text-primary-text hover:underline">
+                Take an assessment
+              </Link>
+            </div>
+          }
+        />
       </div>
 
       <WorkHistorySection />

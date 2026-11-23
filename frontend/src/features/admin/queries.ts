@@ -9,6 +9,7 @@ import {
   listAssessments,
   listResources,
   mergeSkill,
+  rescanSkills,
   setAssessmentActive,
   setResourceActive,
   updateAssessment,
@@ -65,10 +66,11 @@ export function useSetAssessmentActive() {
 export function useGenerateAssessment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: generateAssessment,
-    onSuccess: (_data, id) => {
+    mutationFn: ({ id, count = 30 }: { id: string; count?: number }) =>
+      generateAssessment(id, count),
+    onSuccess: (_data, vars) => {
       qc.invalidateQueries({ queryKey: ['admin', 'assessments'] });
-      qc.invalidateQueries({ queryKey: ['admin', 'assessment', id] });
+      qc.invalidateQueries({ queryKey: ['admin', 'assessment', vars.id] });
     },
   });
 }
@@ -93,6 +95,18 @@ export function useMergeSkill() {
       qc.invalidateQueries({ queryKey: ['admin', 'assessments'] });
       qc.invalidateQueries({ queryKey: ['admin', 'resources'] });
       qc.invalidateQueries({ queryKey: ['admin', 'assessment'] });
+      qc.invalidateQueries({ queryKey: ['skills'] });
+    },
+  });
+}
+
+export function useRescanSkills() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: rescanSkills,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'assessments'] });
+      qc.invalidateQueries({ queryKey: ['admin', 'resources'] });
       qc.invalidateQueries({ queryKey: ['skills'] });
     },
   });

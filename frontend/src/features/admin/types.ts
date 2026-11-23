@@ -77,6 +77,14 @@ export interface SkillMergeResult {
   movedAssessment: boolean;
 }
 
+export interface SkillRescanResult {
+  scanned: number;
+  renamed: number;
+  merged: number;
+  skipped: number;
+  skippedSkills: string[];
+}
+
 export type ResourceCost = 'free' | 'paid';
 export type ResourceLevel = 'beginner' | 'intermediate' | 'advanced';
 

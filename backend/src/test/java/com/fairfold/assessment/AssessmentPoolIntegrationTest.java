@@ -174,8 +174,21 @@ class AssessmentPoolIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void candidate_skill_without_assessment_creates_one_pending_generation_topic() throws Exception {
-        String candidate = registerAndGetToken("queue-candidate@example.com", "candidate");
+    void generate_accepts_a_custom_pool_size() throws Exception {
+        String admin = loginAdmin("pool-admin-2@example.com");
+        UUID assessmentId = createOneQuestionAssessment(admin, skillId("Go"));
+
+        mockMvc.perform(post("/api/admin/assessments/" + assessmentId + "/generate")
+                        .param("count", "50")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.poolSize").value(50))
+                .andExpect(jsonPath("$.questions.length()").value(50))
+                .andExpect(jsonPath("$.reviewStatus").value("pending_review"));
+    }
+
+    @Test
+    void candidate_skill_without_assessment_creates_one_pending_generation_topic() throws Exception {        String candidate = registerAndGetToken("queue-candidate@example.com", "candidate");
         UUID javaId = skillId("Java");
 
         mockMvc.perform(post("/api/candidate/skills")
